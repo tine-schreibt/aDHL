@@ -9,31 +9,44 @@
   },
   "staticHighlighter": {
     "queries": {
-      "test1": {
-        "class": "test1",
+      "test01": {
+        "class": "test01",
         "color": "#42188038",
         "regex": false,
-        "query": "test1",
-        "mark": [
-          "match"
-        ],
-        "css": ""
-      },
-      "test-2": {
-        "class": "test-2",
-        "color": "#42188038",
-        "regex": false,
-        "query": "sdsadfsdf",
+        "query": "test01",
         "mark": [
           "match"
         ],
         "css": "",
         "enabled": true
+      },
+      "test02": {
+        "class": "test02",
+        "color": "#18802E7D",
+        "regex": false,
+        "query": "test02",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": true
+      },
+      "test": {
+        "class": "test",
+        "color": "#8018186E",
+        "regex": false,
+        "query": "test",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": false
       }
     },
     "queryOrder": [
-      "test1",
-      "test-2"
+      "test01",
+      "test02",
+      "test"
     ]
   },
   "mySetting": ""

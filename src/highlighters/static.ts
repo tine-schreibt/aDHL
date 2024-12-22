@@ -1,3 +1,5 @@
+/* added if (query.enabled) {  */
+
 // originally from: https://github.com/codemirror/search/blob/main/src/selection-match.ts
 import { SearchCursor } from "@codemirror/search";
 import {
@@ -140,96 +142,98 @@ const staticHighlighter = ViewPlugin.fromClass(
 				);
 			for (let part of view.visibleRanges) {
 				for (let query of queries) {
-					let cursor: RegExpCursor | SearchCursor;
-					try {
-						if (query.regex)
-							cursor = new RegExpCursor(
-								state.doc,
-								query.query,
-								{},
-								part.from,
-								part.to
-							);
-						else
-							cursor = new SearchCursor(
-								state.doc,
-								query.query,
-								part.from,
-								part.to
-							);
-					} catch (err) {
-						console.debug(err);
-						continue;
-					}
-					while (!cursor.next().done) {
-						let { from, to } = cursor.value;
-						let string = state.sliceDoc(from, to).trim();
-						const linePos = view.state.doc.lineAt(from)?.from;
-						let syntaxNode = syntaxTree(view.state).resolveInner(
-								linePos + 1
-							),
-							nodeProps =
-								syntaxNode.type.prop(tokenClassNodeProp),
-							excludedSection = [
-								"hmd-codeblock",
-								"hmd-frontmatter",
-							].find((token) =>
-								nodeProps?.toString().split(" ").includes(token)
-							);
-						if (excludedSection) continue;
-						if (query.mark?.contains("line")) {
-							if (!lineClasses[linePos])
-								lineClasses[linePos] = [];
-							lineClasses[linePos].push(query.class);
+					if (query.enabled) { // TOGGLE CHECK#######################
+						let cursor: RegExpCursor | SearchCursor;
+						try {
+							if (query.regex)
+								cursor = new RegExpCursor(
+									state.doc,
+									query.query,
+									{},
+									part.from,
+									part.to
+								);
+							else
+								cursor = new SearchCursor(
+									state.doc,
+									query.query,
+									part.from,
+									part.to
+								);
+						} catch (err) {
+							console.debug(err);
+							continue;
 						}
-						if (!query.mark || query.mark?.contains("match")) {
-							const markDeco = Decoration.mark({
-								class: query.class,
-								attributes: { "data-contents": string },
-							});
-							tokenDecos.push(markDeco.range(from, to));
-						}
-						if (
-							query.mark?.contains("start") ||
-							query.mark?.contains("end")
-						) {
-							let startDeco = Decoration.widget({
-								widget: new IconWidget(query.class + "-start"),
-							});
-							let endDeco = Decoration.widget({
-								widget: new IconWidget(query.class + "-end"),
-							});
-							if (query.mark?.contains("start"))
-								widgetDecos.push(startDeco.range(from, from));
-							if (query.mark?.contains("end"))
-								widgetDecos.push(endDeco.range(to, to));
-						}
-						if (query.mark?.contains("group")) {
-							let groups;
-							if (cursor instanceof RegExpCursor) {
-								let match = cursor.value
-									?.match as RegExpExecArray;
-								groups = match.indices?.groups;
+						while (!cursor.next().done) {
+							let { from, to } = cursor.value;
+							let string = state.sliceDoc(from, to).trim();
+							const linePos = view.state.doc.lineAt(from)?.from;
+							let syntaxNode = syntaxTree(view.state).resolveInner(
+									linePos + 1
+								),
+								nodeProps =
+									syntaxNode.type.prop(tokenClassNodeProp),
+								excludedSection = [
+									"hmd-codeblock",
+									"hmd-frontmatter",
+								].find((token) =>
+									nodeProps?.toString().split(" ").includes(token)
+								);
+							if (excludedSection) continue;
+							if (query.mark?.contains("line")) {
+								if (!lineClasses[linePos])
+									lineClasses[linePos] = [];
+								lineClasses[linePos].push(query.class);
 							}
-							groups &&
-								Object.entries(groups).forEach((group) => {
-									try {
-										let [groupName, [groupFrom, groupTo]] =
-											group;
-										const groupDeco = Decoration.mark({
-											class: groupName,
-										});
-										groupDecos.push(
-											groupDeco.range(
-												linePos + groupFrom,
-												linePos + groupTo
-											)
-										);
-									} catch (err) {
-										console.debug(err);
-									}
+							if (!query.mark || query.mark?.contains("match")) {
+								const markDeco = Decoration.mark({
+									class: query.class,
+									attributes: { "data-contents": string },
 								});
-						}
+								tokenDecos.push(markDeco.range(from, to));
+							}
+							if (
+								query.mark?.contains("start") ||
+								query.mark?.contains("end")
+							) {
+								let startDeco = Decoration.widget({
+									widget: new IconWidget(query.class + "-start"),
+								});
+								let endDeco = Decoration.widget({
+									widget: new IconWidget(query.class + "-end"),
+								});
+								if (query.mark?.contains("start"))
+									widgetDecos.push(startDeco.range(from, from));
+								if (query.mark?.contains("end"))
+									widgetDecos.push(endDeco.range(to, to));
+							}
+							if (query.mark?.contains("group")) {
+								let groups;
+								if (cursor instanceof RegExpCursor) {
+									let match = cursor.value
+										?.match as RegExpExecArray;
+									groups = match.indices?.groups;
+								}
+								groups &&
+									Object.entries(groups).forEach((group) => {
+										try {
+											let [groupName, [groupFrom, groupTo]] =
+												group;
+											const groupDeco = Decoration.mark({
+												class: groupName,
+											});
+											groupDecos.push(
+												groupDeco.range(
+													linePos + groupFrom,
+													linePos + groupTo
+												)
+											);
+										} catch (err) {
+											console.debug(err);
+										}
+									});
+							}
+						} 
 					}
 				}
 			}

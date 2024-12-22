@@ -1,3 +1,5 @@
+/* added decoType */
+
 import { StaticHighlightOptions } from "src/highlighters/static";
 import { SelectionHighlightOptions } from "../highlighters/selection";
 import { ignoredWords } from "./ignoredWords";
@@ -21,7 +23,7 @@ interface SearchQuery {
   query: string;
   class: string;
   color: string | null;
-  regex: boolean;
+    regex: boolean;
   mark?: markTypes[];
   css?: string;
   enabled?: boolean;
