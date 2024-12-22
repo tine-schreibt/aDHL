@@ -9,21 +9,11 @@
   },
   "staticHighlighter": {
     "queries": {
-      "test1": {
-        "class": "test1",
+      "test01": {
+        "class": "test01",
         "color": "#42188038",
         "regex": false,
         "query": "test1",
-        "mark": [
-          "match"
-        ],
-        "css": ""
-      },
-      "test-2": {
-        "class": "test-2",
-        "color": "#42188038",
-        "regex": false,
-        "query": "sdsadfsdf",
         "mark": [
           "match"
         ],
@@ -32,8 +22,7 @@
       }
     },
     "queryOrder": [
-      "test1",
-      "test-2"
+      "test01"
     ]
   },
   "mySetting": ""

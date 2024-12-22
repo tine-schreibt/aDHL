@@ -1,6 +1,6 @@
 // from https://github.com/codemirror/search/blob/main/src/regexp.ts
 
-import { Text, TextIterator } from "@codemirror/text";
+import { Text, TextIterator } from "@codemirror/state";
 
 import execWithIndices from "regexp-match-indices";
 
