@@ -13,16 +13,40 @@
         "class": "test01",
         "color": "#42188038",
         "regex": false,
-        "query": "test1",
+        "query": "test01",
         "mark": [
           "match"
         ],
         "css": "",
         "enabled": true
+      },
+      "test02": {
+        "class": "test02",
+        "color": "#18802E7D",
+        "regex": false,
+        "query": "test02",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": true
+      },
+      "test": {
+        "class": "test",
+        "color": "#8018186E",
+        "regex": false,
+        "query": "test",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": false
       }
     },
     "queryOrder": [
-      "test01"
+      "test01",
+      "test02",
+      "test"
     ]
   },
   "mySetting": ""

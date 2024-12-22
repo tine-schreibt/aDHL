@@ -1,0 +1,27 @@
+######## TO DO #########
+- check if highlighter is active
+- DEFAULT_SETTINGS
+
+
+
+######## DONE #########
+- überlappenden toggle gefixt
+- fehlendes ariaLabel ergänzt
+- toggles angebracht und funzen
+- Dependencies geupdated
+- 
+
+
+
+
+
+          config.queries[className] = {
+              class: className,
+              color: hexValue || "",
+              decoType: selectedDecorationType,
+              regex: queryTypeValue,
+              query: queryValue,
+              mark: enabledMarks, 
+              css: customCss,
+              enabled: true,
+          };

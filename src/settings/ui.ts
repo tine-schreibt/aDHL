@@ -1,6 +1,8 @@
-/* aria-label*/
+/* aria-label - WORKS*/
 /* config.queries[className] = { enabled: true };*/
-/* toggle v1 added */
+/* toggle v1 added - WORKS */
+/* attempting save logic v1 */
+/* added save/update logic*/
 
 import { EditorState, Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
@@ -83,7 +85,7 @@ export class SettingTab extends PluginSettingTab {
     );
     containerEl
       .createEl("h3", {
-        text: "Persistent Highlights",
+        text: "18:09 Persistent Highlights",
       })
       .addClass("persistent-highlights");
     containerEl.addClass("dynamic-highlights-settings");
@@ -94,7 +96,7 @@ export class SettingTab extends PluginSettingTab {
       .setName("Define persistent highlighters")
       .setClass("highlighter-definition")
       .setDesc(
-        `###In this section you define a unique highlighter name along with a background color and a search term/expression. Enable the regex toggle when entering a regex query. Make sure to click the save button once you're done defining the highlighter.`
+        `In this section you define a unique highlighter name along with a background color and a search term/expression. Enable the regex toggle when entering a regex query. Make sure to click the save button once you're done defining the highlighter.`
       );
 
     const classInput = new TextComponent(defineQueryUI.controlEl);
@@ -278,6 +280,7 @@ export class SettingTab extends PluginSettingTab {
     });
 
     // ################## HIGHTLIGHER CONTAINER ##################
+    
     this.plugin.settings.staticHighlighter.queryOrder.forEach((highlighter) => {
       const { color, query, regex } = config.queries[highlighter];
       const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=${color} stroke=${color} stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M20.707 5.826l-3.535-3.533a.999.999 0 0 0-1.408-.006L7.096 10.82a1.01 1.01 0 0 0-.273.488l-1.024 4.437L4 18h2.828l1.142-1.129l3.588-.828c.18-.042.345-.133.477-.262l8.667-8.535a1 1 0 0 0 .005-1.42zm-9.369 7.833l-2.121-2.12l7.243-7.131l2.12 2.12l-7.242 7.131zM4 20h16v2H4z"/></svg>`;
@@ -307,11 +310,18 @@ export class SettingTab extends PluginSettingTab {
 // ####### beginning TOGGLE ENABLED/DISABLED########################
 
         .addToggle((toggle) => {
-          // Set the initial toggle state based on the 'enabled' property of the highlighter
           toggle.setValue(config.queries[highlighter].enabled ?? true).onChange((value) => {
-            // Update the 'enabled' property of the highlighter when the toggle state changes
+            // Update the 'enabled' property of the highlighter
             config.queries[highlighter].enabled = value;
 
+            // Use an immediately invoked async function to handle the await
+            (async () => {
+              // Call the save function to persist the changes
+              await this.plugin.saveSettings();
+
+              // Refresh the highlighter decorations
+              this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
+            })();
           });
         })
 
