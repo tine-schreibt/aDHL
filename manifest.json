@@ -1,0 +1,10 @@
+{
+	"id": "another-dynamic-highlights-plugin",
+	"name": "aDHL",
+	"version": "0.0.1",
+	"minAppVersion": "0.15.0",
+	"description": "Another Dynamic Highlights Plugin that highlights RegEx and word under cursor.",
+	"author": "tine-schreibt",
+	"authorUrl": "https://github.com/tine-schreibt",
+	"isDesktopOnly": false
+}

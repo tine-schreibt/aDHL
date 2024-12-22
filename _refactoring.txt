@@ -1,0 +1,34 @@
+Changes: 
+- delayedGetDeco: Debouncer<[view: EditorView], void>; // void
+- .onClick(async (buttonEl: MouseEvent) => 
+- if (options?.mark) {
+    const marksSet = new Set<markTypes>(options.mark); // Convert to a Set for efficient lookups
+    Object.entries(marks).forEach(([key, value]) => {
+        const isMarkType = ["line", "match", "group", "start", "end"].includes(key as markTypes);
+        value.component.setValue(isMarkType && marksSet.has(key as markTypes));
+    });
+}
+
+- Sortable.create(highlightersContainer, {
+
+
+
+############################
+##########ui.ts##############
+#############################
+
+
+
+
+Stichwort: tooltip -> ariaLabel ergänzen! Mehrere Stellen!
+
+---
+
+if (parseInt(value) < 200) value = "200";
+if (parseInt(value) >= 0) <- else 
+
+---
+
+
+
+
