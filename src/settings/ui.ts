@@ -200,8 +200,8 @@ export class SettingTab extends PluginSettingTab {
         match: { description: "matches", defaultState: true },
         // #group group: { description: "capture groups", defaultState: false },
         line: { description: "parent line", defaultState: false },
-        start: { description: "start", defaultState: false },
-        end: { description: "end", defaultState: false },
+       /* start: { description: "start", defaultState: false },
+        end: { description: "end", defaultState: false },*/
       };
       const container = parentEl.createDiv("mark-wrapper");
       let type: markTypes;
@@ -249,7 +249,7 @@ export class SettingTab extends PluginSettingTab {
           }
           const enabledMarks = Object.entries(marks)
           .map(([type, item]) => (item.component.getValue() && type) as string)
-          .filter((type): type is markTypes => ["line", "match", "group", "start", "end"].includes(type));
+          .filter((type): type is markTypes => ["line", "match"/*, "group", "start", "end"*/].includes(type));
 
           config.queries[className] = {
               class: className,
@@ -351,7 +351,7 @@ export class SettingTab extends PluginSettingTab {
               if (options?.mark) {
                 const marksSet = new Set<markTypes>(options.mark); // Convert to a Set for efficient lookups
                 Object.entries(marks).forEach(([key, value]) => {
-                    const isMarkType = ["line", "match", "group", "start", "end"].includes(key as markTypes);
+                    const isMarkType = ["line", "match"/*, "group", "start", "end"*/].includes(key as markTypes);
                     value.component.setValue(isMarkType && marksSet.has(key as markTypes));
                 });
                                   

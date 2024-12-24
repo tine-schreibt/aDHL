@@ -20,7 +20,7 @@ export const queriesSchema = {
         },
         mark: {
           items: {
-            enum: ["end", "group", "line", "match", "start"],
+            enum: ["line", "match"/*, "start", "end", "group"*/],
             type: "string",
           },
           type: "array",

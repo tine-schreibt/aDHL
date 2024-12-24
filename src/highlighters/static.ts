@@ -192,7 +192,7 @@ const staticHighlighter = ViewPlugin.fromClass(
 								});
 								tokenDecos.push(markDeco.range(from, to));
 							}
-							if (
+							/* "#start" if (
 								query.mark?.contains("start") ||
 								query.mark?.contains("end")
 							) {
@@ -206,7 +206,7 @@ const staticHighlighter = ViewPlugin.fromClass(
 									widgetDecos.push(startDeco.range(from, from));
 								if (query.mark?.contains("end"))
 									widgetDecos.push(endDeco.range(to, to));
-							}
+							}*/
 							/*if (query.mark?.contains("group")) {
 								let groups;
 								if (cursor instanceof RegExpCursor) {

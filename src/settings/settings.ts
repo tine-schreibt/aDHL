@@ -11,7 +11,7 @@ interface SearchConfig {
   range: { from: number; to: number };
 }*/
 
-export type markTypes = "line" | "match" | /* "group" |*/ "start" | "end";
+export type markTypes = "line" | "match" /*|  "group" | "start" | "end"*/;
 
 export type SettingValue = number | string | boolean;
 export interface CSSSettings {
