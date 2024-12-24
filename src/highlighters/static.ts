@@ -101,14 +101,12 @@ const staticHighlighter = ViewPlugin.fromClass(
 	class {
 		decorations: DecorationSet;
 		lineDecorations: DecorationSet;
-		groupDecorations: DecorationSet;
 		widgetDecorations: DecorationSet;
 
 		constructor(view: EditorView) {
-			let { token, line, group, widget } = this.getDeco(view);
+			let { token, line, widget } = this.getDeco(view);
 			this.decorations = token;
 			this.lineDecorations = line;
-			this.groupDecorations = group;
 			this.widgetDecorations = widget;
 		}
 
@@ -117,10 +115,9 @@ const staticHighlighter = ViewPlugin.fromClass(
 				update.startState.facet(staticHighlightConfig) !==
 				update.state.facet(staticHighlightConfig);
 			if (update.docChanged || update.viewportChanged || reconfigured) {
-				let { token, line, group, widget } = this.getDeco(update.view);
+				let { token, line, widget } = this.getDeco(update.view);
 				this.decorations = token;
 				this.lineDecorations = line;
-				this.groupDecorations = group;
 				this.widgetDecorations = widget;
 			}
 		}
@@ -128,13 +125,11 @@ const staticHighlighter = ViewPlugin.fromClass(
 		getDeco(view: EditorView): {
 			line: DecorationSet;
 			token: DecorationSet;
-			group: DecorationSet;
 			widget: DecorationSet;
 		} {
 			let { state } = view,
 				tokenDecos: Range<Decoration>[] = [],
 				lineDecos: Range<Decoration>[] = [],
-				groupDecos: Range<Decoration>[] = [],
 				widgetDecos: Range<Decoration>[] = [],
 				lineClasses: { [key: number]: string[] } = {},
 				queries = Object.values(
@@ -142,7 +137,7 @@ const staticHighlighter = ViewPlugin.fromClass(
 				);
 			for (let part of view.visibleRanges) {
 				for (let query of queries) {
-					if (query.enabled) { // TOGGLE CHECK#######################
+					if (query.enabled) { 
 						let cursor: RegExpCursor | SearchCursor;
 						try {
 							if (query.regex)
@@ -192,47 +187,6 @@ const staticHighlighter = ViewPlugin.fromClass(
 								});
 								tokenDecos.push(markDeco.range(from, to));
 							}
-							/* "#start" if (
-								query.mark?.contains("start") ||
-								query.mark?.contains("end")
-							) {
-								let startDeco = Decoration.widget({
-									widget: new IconWidget(query.class + "-start"),
-								});
-								let endDeco = Decoration.widget({
-									widget: new IconWidget(query.class + "-end"),
-								});
-								if (query.mark?.contains("start"))
-									widgetDecos.push(startDeco.range(from, from));
-								if (query.mark?.contains("end"))
-									widgetDecos.push(endDeco.range(to, to));
-							}*/
-							/*if (query.mark?.contains("group")) {
-								let groups;
-								if (cursor instanceof RegExpCursor) {
-									let match = cursor.value
-										?.match as RegExpExecArray;
-									groups = match.indices?.groups;
-								}
-								groups &&
-									Object.entries(groups).forEach((group) => {
-										try {
-											let [groupName, [groupFrom, groupTo]] =
-												group;
-											const groupDeco = Decoration.mark({
-												class: groupName,
-											});
-											groupDecos.push(
-												groupDeco.range(
-													linePos + groupFrom,
-													linePos + groupTo
-												)
-											);
-										} catch (err) {
-											console.debug(err);
-										}
-									});
-							}*/
 						} 
 					}
 				}
@@ -251,9 +205,6 @@ const staticHighlighter = ViewPlugin.fromClass(
 				token: Decoration.set(
 					tokenDecos.sort((a, b) => a.from - b.from)
 				),
-				group: Decoration.set(
-					groupDecos.sort((a, b) => a.from - b.from)
-				),
 				widget: Decoration.set(
 					widgetDecos.sort((a, b) => a.from - b.from)
 				),
@@ -266,9 +217,6 @@ const staticHighlighter = ViewPlugin.fromClass(
 			// it's also much easier to sort the decorations when they're grouped
 			EditorView.decorations.of(
 				(v) => v.plugin(plugin)?.lineDecorations || Decoration.none
-			),
-			EditorView.decorations.of(
-				(v) => v.plugin(plugin)?.groupDecorations || Decoration.none
 			),
 			EditorView.decorations.of(
 				(v) => v.plugin(plugin)?.decorations || Decoration.none

@@ -179,11 +179,8 @@ export class SettingTab extends PluginSettingTab {
     queryTypeInput.onChange((value) => {
       if (value) {
         queryInput.setPlaceholder("Search expression");
-        // groupWrapper.show();
-      //  marks.group?.element.show();
       } else {
         queryInput.setPlaceholder("Search term");
-      //  marks.group?.element.hide();
       }
     });
 
@@ -198,17 +195,13 @@ export class SettingTab extends PluginSettingTab {
       const types: MarkItems = {};
       const marks: MarkTypes = {
         match: { description: "matches", defaultState: true },
-        // #group group: { description: "capture groups", defaultState: false },
         line: { description: "parent line", defaultState: false },
-       /* start: { description: "start", defaultState: false },
-        end: { description: "end", defaultState: false },*/
       };
       const container = parentEl.createDiv("mark-wrapper");
       let type: markTypes;
       for (type in marks) {
         const mark = marks[type];
         const wrapper = container.createDiv("mark-wrapper");
-       // if (type === "group") wrapper.hide();
         wrapper.createSpan("match-type").setText(mark.description);
         const component = new ToggleComponent(wrapper).setValue(
           mark.defaultState
@@ -249,7 +242,7 @@ export class SettingTab extends PluginSettingTab {
           }
           const enabledMarks = Object.entries(marks)
           .map(([type, item]) => (item.component.getValue() && type) as string)
-          .filter((type): type is markTypes => ["line", "match"/*, "group", "start", "end"*/].includes(type));
+          .filter((type): type is markTypes => ["line", "match"].includes(type));
 
           config.queries[className] = {
               class: className,
@@ -351,7 +344,7 @@ export class SettingTab extends PluginSettingTab {
               if (options?.mark) {
                 const marksSet = new Set<markTypes>(options.mark); // Convert to a Set for efficient lookups
                 Object.entries(marks).forEach(([key, value]) => {
-                    const isMarkType = ["line", "match"/*, "group", "start", "end"*/].includes(key as markTypes);
+                    const isMarkType = ["line", "match"].includes(key as markTypes);
                     value.component.setValue(isMarkType && marksSet.has(key as markTypes));
                 });
                                   
