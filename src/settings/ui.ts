@@ -85,7 +85,7 @@ export class SettingTab extends PluginSettingTab {
     );
     containerEl
       .createEl("h3", {
-        text: "18:09 Persistent Highlights",
+        text: "20:44 Persistent Highlights",
       })
       .addClass("persistent-highlights");
     containerEl.addClass("dynamic-highlights-settings");
@@ -222,6 +222,8 @@ export class SettingTab extends PluginSettingTab {
     this.editor = editorFromTextArea(customCSSEl.inputEl, basicSetup);
     customCSSEl.inputEl.addClass("custom-css");
 
+    let currentClassName: string | null = null;
+
     const saveButton = new ButtonComponent(queryWrapper);
     saveButton
       .setClass("action-button")
@@ -230,22 +232,30 @@ export class SettingTab extends PluginSettingTab {
       .setIcon("save")
       .setTooltip("Save")
       .onClick(async (buttonEl: MouseEvent) => {
-        const className = classInput.inputEl.value.replace(/ /g, "-");
+        console.log("Save button clicked")
+        if (!saveButton.buttonEl.getAttribute("state")) {
+          saveButton.buttonEl.setAttribute("state", "creating");
+        }
+        currentClassName = classInput.inputEl.value.replace(/ /g, "-");
         const hexValue = pickrInstance.getSelectedColor()?.toHEXA().toString();
         const queryValue = queryInput.inputEl.value;
         const queryTypeValue = queryTypeInput.getValue();
         const customCss = this.editor.state.doc.toString();
-
-        if (className) {
-          if (!config.queryOrder.includes(className)) {
-            config.queryOrder.push(className);
+        if (currentClassName) {
+          if (saveButton.buttonEl.getAttribute("state") == "creating") {
+            if (!config.queryOrder.includes(currentClassName)) {
+              config.queryOrder.push(currentClassName);
+            } else {
+              new Notice("Highlighter name already exists");
+              return;
+          } 
           }
           const enabledMarks = Object.entries(marks)
           .map(([type, item]) => (item.component.getValue() && type) as string)
           .filter((type): type is markTypes => ["line", "match"].includes(type));
 
-          config.queries[className] = {
-              class: className,
+          config.queries[currentClassName] = {
+              class: currentClassName,
               color: hexValue || "",
               regex: queryTypeValue,
               query: queryValue,
@@ -258,9 +268,10 @@ export class SettingTab extends PluginSettingTab {
           this.plugin.updateCustomCSS();
           this.plugin.updateStyles();
           this.display();
-        } else if (!className && hexValue) {
+          saveButton.buttonEl.removeAttribute("state");
+        } else if (!currentClassName && hexValue) {
           new Notice("Highlighter name missing");
-        } else if (!/^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test(className)) {
+        } else if (!/^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test(currentClassName)) {
           new Notice("Highlighter name missing");
         } else {
           new Notice("Highlighter values missing");
@@ -268,6 +279,57 @@ export class SettingTab extends PluginSettingTab {
       });
     saveButton.buttonEl.setAttribute("aria-label", "Save");
 
+    // Create the discard button
+const discardButton = new ButtonComponent(queryWrapper);
+discardButton
+  .setClass("action-button")
+  .setClass("mod-cta")
+  .setIcon("x-circle")
+  .setTooltip("Discard Changes")
+  .onClick(() => {
+    const state = saveButton.buttonEl.getAttribute("state");
+    console.log("Discard button clicked, current state:", state);
+
+    if (state === "editing") {
+      // Reset to original values
+      if (currentClassName != null) {
+      const options = config.queries[currentClassName];
+      classInput.inputEl.value = currentClassName;
+      pickrInstance.setColor(options.color);
+      queryInput.inputEl.value = options.query;
+      queryTypeInput.setValue(options.regex);
+      this.editor.setState(
+        EditorState.create({
+          doc: options.css || "",
+          extensions: basicSetup,
+        })
+      );
+      new Notice("Changes discarded");
+    } else {
+      // Clear all fields in "creating" mode
+      classInput.inputEl.value = "";
+      queryInput.inputEl.value = "";
+      pickrInstance.setColor(null);
+      pickrInstance.hide();
+      queryTypeInput.setValue(false);
+      this.editor.setState(
+        EditorState.create({
+          doc: "",
+          extensions: basicSetup,
+        })
+      );
+      new Notice("Form cleared");
+    }
+
+    // Reset state (optional)
+    saveButton.buttonEl.removeAttribute("state");
+  }});
+
+
+console.log("Save and discard buttons created:", saveButton.buttonEl, discardButton.buttonEl);
+
+    
+   // ################## HIGHTLIGHER CONTAINER ##################
     const highlightersContainer = containerEl.createEl("div", {
       cls: "highlighter-container",
     });
@@ -328,6 +390,7 @@ export class SettingTab extends PluginSettingTab {
             .setIcon("pencil")
             .setTooltip("Edit")
             .onClick(async (evt) => {
+              saveButton.buttonEl.setAttribute("state", "editing");
               const options = config.queries[highlighter];
               classInput.inputEl.value = highlighter;
               pickrInstance.setColor(options.color);
@@ -346,8 +409,7 @@ export class SettingTab extends PluginSettingTab {
                 Object.entries(marks).forEach(([key, value]) => {
                     const isMarkType = ["line", "match"].includes(key as markTypes);
                     value.component.setValue(isMarkType && marksSet.has(key as markTypes));
-                });
-                                  
+                });                                  
               } else {
                 Object.entries(marks).map(([key, value]) =>
                   key === "match"

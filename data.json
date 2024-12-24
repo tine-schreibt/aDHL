@@ -9,28 +9,6 @@
   },
   "staticHighlighter": {
     "queries": {
-      "test01": {
-        "class": "test01",
-        "color": "#42188038",
-        "regex": false,
-        "query": "test01",
-        "mark": [
-          "match"
-        ],
-        "css": "",
-        "enabled": false
-      },
-      "test02": {
-        "class": "test02",
-        "color": "#18802E7D",
-        "regex": false,
-        "query": "test02",
-        "mark": [
-          "line"
-        ],
-        "css": "",
-        "enabled": true
-      },
       "test": {
         "class": "test",
         "color": "#8018186E",
@@ -40,13 +18,80 @@
           "match"
         ],
         "css": "",
-        "enabled": false
+        "enabled": true
+      },
+      "test04": {
+        "class": "test04",
+        "color": "#42188038",
+        "regex": false,
+        "query": "sdfsdfsdf",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": true
+      },
+      "test03": {
+        "class": "test03",
+        "color": "#18802E7D",
+        "regex": true,
+        "query": "test02",
+        "mark": [
+          "line"
+        ],
+        "css": "",
+        "enabled": true
+      },
+      "test02": {
+        "class": "test02",
+        "color": "#18802E7D",
+        "regex": true,
+        "query": "test02",
+        "mark": [
+          "line"
+        ],
+        "css": "",
+        "enabled": true
+      },
+      "test2": {
+        "class": "test2",
+        "color": "#42188038",
+        "regex": false,
+        "query": "test2",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": true
+      },
+      "test01": {
+        "class": "test01",
+        "color": "#42188038",
+        "regex": false,
+        "query": "test01",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": true
+      },
+      "test99": {
+        "class": "test99",
+        "color": "",
+        "regex": false,
+        "query": "asddfsdf",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": true
       }
     },
     "queryOrder": [
-      "test01",
-      "test02",
-      "test"
+      "test",
+      "test04",
+      "test2",
+      "test99"
     ]
   },
   "mySetting": ""
