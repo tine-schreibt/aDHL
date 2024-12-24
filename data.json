@@ -26,7 +26,7 @@
         "regex": false,
         "query": "test02",
         "mark": [
-          "match"
+          "line"
         ],
         "css": "",
         "enabled": true

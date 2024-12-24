@@ -180,10 +180,10 @@ export class SettingTab extends PluginSettingTab {
       if (value) {
         queryInput.setPlaceholder("Search expression");
         // groupWrapper.show();
-        marks.group?.element.show();
+      //  marks.group?.element.show();
       } else {
         queryInput.setPlaceholder("Search term");
-        marks.group?.element.hide();
+      //  marks.group?.element.hide();
       }
     });
 
@@ -198,7 +198,7 @@ export class SettingTab extends PluginSettingTab {
       const types: MarkItems = {};
       const marks: MarkTypes = {
         match: { description: "matches", defaultState: true },
-        group: { description: "capture groups", defaultState: false },
+        // #group group: { description: "capture groups", defaultState: false },
         line: { description: "parent line", defaultState: false },
         start: { description: "start", defaultState: false },
         end: { description: "end", defaultState: false },
@@ -208,7 +208,7 @@ export class SettingTab extends PluginSettingTab {
       for (type in marks) {
         const mark = marks[type];
         const wrapper = container.createDiv("mark-wrapper");
-        if (type === "group") wrapper.hide();
+       // if (type === "group") wrapper.hide();
         wrapper.createSpan("match-type").setText(mark.description);
         const component = new ToggleComponent(wrapper).setValue(
           mark.defaultState

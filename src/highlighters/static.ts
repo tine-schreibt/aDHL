@@ -207,7 +207,7 @@ const staticHighlighter = ViewPlugin.fromClass(
 								if (query.mark?.contains("end"))
 									widgetDecos.push(endDeco.range(to, to));
 							}
-							if (query.mark?.contains("group")) {
+							/*if (query.mark?.contains("group")) {
 								let groups;
 								if (cursor instanceof RegExpCursor) {
 									let match = cursor.value
@@ -232,7 +232,7 @@ const staticHighlighter = ViewPlugin.fromClass(
 											console.debug(err);
 										}
 									});
-							}
+							}*/
 						} 
 					}
 				}
