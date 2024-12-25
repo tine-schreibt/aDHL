@@ -9,44 +9,22 @@
   },
   "staticHighlighter": {
     "queries": {
-      "test03": {
-        "class": "test03",
-        "color": "#42188038",
-        "regex": false,
-        "query": "save edit 03",
-        "mark": [
-          "match"
-        ],
-        "css": "",
-        "enabled": true
-      },
-      "test02": {
-        "class": "test02",
-        "color": "#187880A8",
-        "regex": false,
-        "query": "test02",
-        "mark": [
-          "match"
-        ],
-        "css": "",
-        "enabled": true
-      },
       "edit-of-test": {
         "class": "edit-of-test",
-        "color": "#8018186E",
+        "color": "#42188038",
         "regex": false,
-        "query": "test",
+        "query": "fsdfsdf",
         "mark": [
           "match"
         ],
         "css": "",
         "enabled": true
       },
-      "test-name-change": {
-        "class": "test-name-change",
-        "color": "#8018186E",
+      "test01": {
+        "class": "test01",
+        "color": "#42188038",
         "regex": false,
-        "query": "test name change",
+        "query": "sdfsdf",
         "mark": [
           "match"
         ],
@@ -55,8 +33,8 @@
       }
     },
     "queryOrder": [
-      "test03",
-      "test02"
+      "edit-of-test",
+      "test01"
     ]
   },
   "mySetting": ""

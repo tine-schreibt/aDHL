@@ -86,7 +86,7 @@ export class SettingTab extends PluginSettingTab {
     );
     containerEl
       .createEl("h3", {
-        text: "20:44 Persistent Highlights",
+        text: "Persistent Highlights",
       })
       .addClass("persistent-highlights");
     containerEl.addClass("dynamic-highlights-settings");
@@ -357,119 +357,124 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
     // ################## HIGHTLIGHER CONTAINER ##################
     
     this.plugin.settings.staticHighlighter.queryOrder.forEach((highlighter) => {
-      const { color, query, regex } = config.queries[highlighter];
-      const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=${color} stroke=${color} stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M20.707 5.826l-3.535-3.533a.999.999 0 0 0-1.408-.006L7.096 10.82a1.01 1.01 0 0 0-.273.488l-1.024 4.437L4 18h2.828l1.142-1.129l3.588-.828c.18-.042.345-.133.477-.262l8.667-8.535a1 1 0 0 0 .005-1.42zm-9.369 7.833l-2.121-2.12l7.243-7.131l2.12 2.12l-7.242 7.131zM4 20h16v2H4z"/></svg>`;
-      const settingItem = highlightersContainer.createEl("div");
-      settingItem.id = "dh-" + highlighter;
-      settingItem.addClass("highlighter-item-draggable");
-      const dragIcon = settingItem.createEl("span");
-      const colorIcon = settingItem.createEl("span");
-      dragIcon.addClass(
-        "highlighter-setting-icon",
-        "highlighter-setting-icon-drag"
-      );
-      colorIcon.addClass("highlighter-setting-icon");
-      colorIcon.innerHTML = icon;
-      setIcon(dragIcon, "three-horizontal-bars");
-      dragIcon.ariaLabel = "Drag to rearrange";
-      const desc: string[] = [];
-      desc.push((regex ? "search expression: " : "search term: ") + query);
-      desc.push("css class: " + highlighter);
-      desc.push("color: " + config.queries[highlighter].color);
-
-      new Setting(settingItem)
-        .setClass("highlighter-details")
-        .setName(highlighter)
-        .setDesc(desc.join(" | "))
-
-// ####### beginning TOGGLE ENABLED/DISABLED########################
-
-        .addToggle((toggle) => {
-          toggle.setValue(config.queries[highlighter].enabled ?? true).onChange((value) => {
-            // Update the 'enabled' property of the highlighter
-            config.queries[highlighter].enabled = value;
-
-            // Update the aria-label based on the toggle state
-            toggle.toggleEl.setAttribute("aria-label", value ? `Disable ${highlighter} highlighter` : `Enable ${highlighter} highlighter`);
-
-            // Use an immediately invoked async function to handle the await
-            (async () => {
-              // Call the save function to persist the changes
-              await this.plugin.saveSettings();
-
-              // Refresh the highlighter decorations
-              this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
-            })();
-          });
-
-          // Set initial aria-label based on the initial state
-          toggle.toggleEl.setAttribute("aria-label", config.queries[highlighter].enabled ? `Disable ${highlighter} highlighter` : `Enable ${highlighter} highlighter`);
-        })
-
-// ####### endTOGGLE ENABLED/DISABLED########################
-
-        .addButton((button) => {
-          button.buttonEl.setAttribute("aria-label", `Edit ${highlighter} highlighter`);
-          button
-    .setClass("action-button")
-    .setClass("action-button-edit")
-    .setClass("mod-cta")
-    .setIcon("pencil")
-    .onClick(async (evt) => {
-      saveButton.buttonEl.setAttribute("state", "editing");
-
-      const options = config.queries[highlighter];
-      classInput.inputEl.value = highlighter;
-      classInput.inputEl.dataset.original = highlighter; // Store original name
-      
-      pickrInstance.setColor(options.color);
-      queryInput.inputEl.value = options.query;
-      pickrInstance.setColor(options.color);
-      queryTypeInput.setValue(options.regex);
-
-      const extensions = basicSetup;
-      this.editor.setState(
-        EditorState.create({
-          doc: options.css ? options.css : "",
-          extensions: extensions,
-        })
-      );
-      if (options?.mark) {
-        const marksSet = new Set<markTypes>(options.mark); // Convert to a Set for efficient lookups
-        Object.entries(marks).forEach(([key, value]) => {
-          const isMarkType = ["line", "match"].includes(key as markTypes);
-          value.component.setValue(isMarkType && marksSet.has(key as markTypes));
-        });
-      } else {
-        Object.entries(marks).map(([key, value]) =>
-          key === "match"
-            ? value.component.setValue(true)
-            : value.component.setValue(false)
+      const queryConfig = config.queries[highlighter];
+      if (queryConfig) {
+        const { color, query, regex } = queryConfig;
+        const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=${color} stroke=${color} stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M20.707 5.826l-3.535-3.533a.999.999 0 0 0-1.408-.006L7.096 10.82a1.01 1.01 0 0 0-.273.488l-1.024 4.437L4 18h2.828l1.142-1.129l3.588-.828c.18-.042.345-.133.477-.262l8.667-8.535a1 1 0 0 0 .005-1.42zm-9.369 7.833l-2.121-2.12l7.243-7.131l2.12 2.12l-7.242 7.131zM4 20h16v2H4z"/></svg>`;
+        const settingItem = highlightersContainer.createEl("div");
+        settingItem.id = "dh-" + highlighter;
+        settingItem.addClass("highlighter-item-draggable");
+        const dragIcon = settingItem.createEl("span");
+        const colorIcon = settingItem.createEl("span");
+        dragIcon.addClass(
+          "highlighter-setting-icon",
+          "highlighter-setting-icon-drag"
         );
+        colorIcon.addClass("highlighter-setting-icon");
+        colorIcon.innerHTML = icon;
+        setIcon(dragIcon, "three-horizontal-bars");
+        dragIcon.ariaLabel = "Drag to rearrange";
+        const desc: string[] = [];
+        desc.push((regex ? "search expression: " : "search term: ") + query);
+        desc.push("css class: " + highlighter);
+        desc.push("color: " + config.queries[highlighter].color);
+
+        new Setting(settingItem)
+          .setClass("highlighter-details")
+          .setName(highlighter)
+          .setDesc(desc.join(" | "))
+
+    // ####### beginning TOGGLE ENABLED/DISABLED########################
+
+            .addToggle((toggle) => {
+              toggle.setValue(config.queries[highlighter].enabled ?? true).onChange((value) => {
+                // Update the 'enabled' property of the highlighter
+                config.queries[highlighter].enabled = value;
+
+                // Update the aria-label based on the toggle state
+                toggle.toggleEl.setAttribute("aria-label", value ? `Disable ${highlighter} highlighter` : `Enable ${highlighter} highlighter`);
+
+                // Use an immediately invoked async function to handle the await
+                (async () => {
+                  // Call the save function to persist the changes
+                  await this.plugin.saveSettings();
+
+                  // Refresh the highlighter decorations
+                  this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
+                })();
+              });
+
+              // Set initial aria-label based on the initial state
+              toggle.toggleEl.setAttribute("aria-label", config.queries[highlighter].enabled ? `Disable ${highlighter} highlighter` : `Enable ${highlighter} highlighter`);
+            })
+
+    // ####### endTOGGLE ENABLED/DISABLED########################
+
+            .addButton((button) => {
+              button.buttonEl.setAttribute("aria-label", `Edit ${highlighter} highlighter`);
+              button
+        .setClass("action-button")
+        .setClass("action-button-edit")
+        .setClass("mod-cta")
+        .setIcon("pencil")
+        .onClick(async (evt) => {
+          saveButton.buttonEl.setAttribute("state", "editing");
+
+          const options = config.queries[highlighter];
+          classInput.inputEl.value = highlighter;
+          classInput.inputEl.dataset.original = highlighter; // Store original name
+          
+          pickrInstance.setColor(options.color);
+          queryInput.inputEl.value = options.query;
+          pickrInstance.setColor(options.color);
+          queryTypeInput.setValue(options.regex);
+
+          const extensions = basicSetup;
+          this.editor.setState(
+            EditorState.create({
+              doc: options.css ? options.css : "",
+              extensions: extensions,
+            })
+          );
+          if (options?.mark) {
+            const marksSet = new Set<markTypes>(options.mark); // Convert to a Set for efficient lookups
+            Object.entries(marks).forEach(([key, value]) => {
+              const isMarkType = ["line", "match"].includes(key as markTypes);
+              value.component.setValue(isMarkType && marksSet.has(key as markTypes));
+            });
+          } else {
+            Object.entries(marks).map(([key, value]) =>
+              key === "match"
+                ? value.component.setValue(true)
+                : value.component.setValue(false)
+            );
+          }
+                  containerEl.scrollTop = 0;
+                });
+            })
+            .addButton((button) => {
+              button.buttonEl.setAttribute("aria-label", `Delete ${highlighter} highlighter`);
+              button
+                .setClass("action-button")
+                .setClass("action-button-delete")
+                .setIcon("trash")
+                .setClass("mod-warning")
+                .onClick(async () => {
+                  new Notice(`${highlighter} highlight deleted`);
+                  delete config.queries[highlighter];
+                  config.queryOrder.remove(highlighter);
+                  await this.plugin.saveSettings();
+                  this.plugin.updateStyles();
+                  this.plugin.updateStaticHighlighter();
+                  const highlighterElement = highlightersContainer.querySelector(`#dh-${highlighter}`);
+                    if (highlighterElement) {
+                      highlighterElement.detach();
+                    }
+                });
+            });
+      } else {
+        console.warn(`Highlighter "${highlighter}" not found in config.queries.`);
       }
-              containerEl.scrollTop = 0;
-            });
-        })
-        .addButton((button) => {
-          button.buttonEl.setAttribute("aria-label", `Delete ${highlighter} highlighter`);
-          button
-            .setClass("action-button")
-            .setClass("action-button-delete")
-            .setIcon("trash")
-            .setClass("mod-warning")
-            .onClick(async () => {
-              new Notice(`${highlighter} highlight deleted`);
-              delete config.queries[highlighter];
-              config.queryOrder.remove(highlighter);
-              await this.plugin.saveSettings();
-              this.plugin.updateStyles();
-              this.plugin.updateStaticHighlighter();
-              const highlighterElement = highlightersContainer.querySelector(`#dh-${highlighter}`);
-                if (highlighterElement) {
-                  highlighterElement.detach();
-                }
-            });
-        });
     });
   
     Sortable.create(highlightersContainer, {
