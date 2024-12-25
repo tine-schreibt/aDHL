@@ -9,28 +9,6 @@
   },
   "staticHighlighter": {
     "queries": {
-      "test": {
-        "class": "test",
-        "color": "#8018186E",
-        "regex": false,
-        "query": "test",
-        "mark": [
-          "match"
-        ],
-        "css": "",
-        "enabled": true
-      },
-      "test04": {
-        "class": "test04",
-        "color": "#42188038",
-        "regex": false,
-        "query": "sdfsdfsdf",
-        "mark": [
-          "match"
-        ],
-        "css": "",
-        "enabled": true
-      },
       "test03": {
         "class": "test03",
         "color": "#18802E7D",
@@ -53,17 +31,6 @@
         "css": "",
         "enabled": true
       },
-      "test2": {
-        "class": "test2",
-        "color": "#42188038",
-        "regex": false,
-        "query": "test2",
-        "mark": [
-          "match"
-        ],
-        "css": "",
-        "enabled": true
-      },
       "test01": {
         "class": "test01",
         "color": "#42188038",
@@ -75,11 +42,44 @@
         "css": "",
         "enabled": true
       },
-      "test99": {
-        "class": "test99",
-        "color": "",
+      "edit-of-test": {
+        "class": "edit-of-test",
+        "color": "#8018186E",
         "regex": false,
-        "query": "asddfsdf",
+        "query": "test",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": true
+      },
+      "test-name-change": {
+        "class": "test-name-change",
+        "color": "#8018186E",
+        "regex": false,
+        "query": "test name change",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": true
+      },
+      "test0999": {
+        "class": "test0999",
+        "color": "#42188038",
+        "regex": false,
+        "query": "test01",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": true
+      },
+      "test": {
+        "class": "test",
+        "color": "#42188038",
+        "regex": false,
+        "query": "test",
         "mark": [
           "match"
         ],
@@ -88,10 +88,10 @@
       }
     },
     "queryOrder": [
-      "test",
-      "test04",
-      "test2",
-      "test99"
+      "test21",
+      "test01",
+      "test0999",
+      "test"
     ]
   },
   "mySetting": ""
