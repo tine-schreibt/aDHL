@@ -225,58 +225,77 @@ export class SettingTab extends PluginSettingTab {
     let currentClassName: string | null = null;
 
     const saveButton = new ButtonComponent(queryWrapper);
+    saveButton.buttonEl.setAttribute("state", "creating");
     saveButton
-      .setClass("action-button")
-      .setClass("action-button-save")
-      .setClass("mod-cta")
-      .setIcon("save")
-      .setTooltip("Save")
-      .onClick(async (buttonEl: MouseEvent) => {
-        console.log("Save button clicked")
-        if (!saveButton.buttonEl.getAttribute("state")) {
-          saveButton.buttonEl.setAttribute("state", "creating");
-        }
-        currentClassName = classInput.inputEl.value.replace(/ /g, "-");
-        const hexValue = pickrInstance.getSelectedColor()?.toHEXA().toString();
-        const queryValue = queryInput.inputEl.value;
-        const queryTypeValue = queryTypeInput.getValue();
-        const customCss = this.editor.state.doc.toString();
-        if (currentClassName) {
-          if (saveButton.buttonEl.getAttribute("state") == "creating") {
-            if (!config.queryOrder.includes(currentClassName)) {
-              config.queryOrder.push(currentClassName);
-            } else {
-              new Notice("Highlighter name already exists");
-              return;
-          } 
-          }
-          const enabledMarks = Object.entries(marks)
-          .map(([type, item]) => (item.component.getValue() && type) as string)
-          .filter((type): type is markTypes => ["line", "match"].includes(type));
+  .setClass("action-button")
+  .setClass("action-button-save")
+  .setClass("mod-cta")
+  .setIcon("save")
+  .setTooltip("Save")
+  .onClick(async (buttonEl: MouseEvent) => {
+    console.log("Save button clicked");
 
-          config.queries[currentClassName] = {
-              class: currentClassName,
-              color: hexValue || "",
-              regex: queryTypeValue,
-              query: queryValue,
-              mark: enabledMarks, 
-              css: customCss,
-              enabled: true,
-          };
-          await this.plugin.saveSettings();
-          this.plugin.updateStaticHighlighter();
-          this.plugin.updateCustomCSS();
-          this.plugin.updateStyles();
-          this.display();
-          saveButton.buttonEl.removeAttribute("state");
-        } else if (!currentClassName && hexValue) {
-          new Notice("Highlighter name missing");
-        } else if (!/^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test(currentClassName)) {
-          new Notice("Highlighter name missing");
+    // Determine the current state (creating/editing)
+    const state = saveButton.buttonEl.getAttribute("state");
+    console.log(`saveButton initial state:`, "state", state)
+    const previousClassName = classInput.inputEl.dataset.original; // Store the original name when editing
+    currentClassName = classInput.inputEl.value.replace(/ /g, "-");
+
+    // Check if the edit mode and class name has changed
+    if (state === "editing" && previousClassName && previousClassName !== currentClassName) {
+      // Remove the entry for the original class name
+      delete config.queries[previousClassName];
+      // Update the order list if necessary
+      const index = config.queryOrder.indexOf(previousClassName);
+      if (index !== -1) {
+        config.queryOrder[index] = currentClassName;
+      }
+    }
+
+    const hexValue = pickrInstance.getSelectedColor()?.toHEXA().toString();
+    const queryValue = queryInput.inputEl.value;
+    const queryTypeValue = queryTypeInput.getValue();
+    const customCss = this.editor.state.doc.toString();
+
+    if (currentClassName) {
+      if (state == "creating") {
+        if (!config.queryOrder.includes(currentClassName)) {
+          config.queryOrder.push(currentClassName);
         } else {
-          new Notice("Highlighter values missing");
+          new Notice("Highlighter name already exists");
+          return;
         }
-      });
+      }
+
+      const enabledMarks = Object.entries(marks)
+        .map(([type, item]) => (item.component.getValue() && type) as string)
+        .filter((type): type is markTypes => ["line", "match"].includes(type));
+
+      config.queries[currentClassName] = {
+        class: currentClassName,
+        color: hexValue || "",
+        regex: queryTypeValue,
+        query: queryValue,
+        mark: enabledMarks,
+        css: customCss,
+        enabled: true,
+      };
+
+      await this.plugin.saveSettings();
+      this.plugin.updateStaticHighlighter();
+      this.plugin.updateCustomCSS();
+      this.plugin.updateStyles();
+      this.display();
+      saveButton.buttonEl.setAttribute("state", "creating");
+      console.log(`saveButton state after saving:`, "state", state)
+    } else if (!currentClassName && hexValue) {
+      new Notice("Highlighter name missing");
+    } else if (!/^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test(currentClassName)) {
+      new Notice("Highlighter name missing");
+    } else {
+      new Notice("Highlighter values missing");
+    }
+  });
     saveButton.buttonEl.setAttribute("aria-label", "Save");
 
     // Create the discard button
@@ -384,39 +403,43 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
 
         .addButton((button) => {
           button
-            .setClass("action-button")
-            .setClass("action-button-edit")
-            .setClass("mod-cta")
-            .setIcon("pencil")
-            .setTooltip("Edit")
-            .onClick(async (evt) => {
-              saveButton.buttonEl.setAttribute("state", "editing");
-              const options = config.queries[highlighter];
-              classInput.inputEl.value = highlighter;
-              pickrInstance.setColor(options.color);
-              queryInput.inputEl.value = options.query;
-              pickrInstance.setColor(options.color);
-              queryTypeInput.setValue(options.regex);
-              const extensions = basicSetup;
-              this.editor.setState(
-                EditorState.create({
-                  doc: options.css ? options.css : "",
-                  extensions: extensions,
-                })
-              );
-              if (options?.mark) {
-                const marksSet = new Set<markTypes>(options.mark); // Convert to a Set for efficient lookups
-                Object.entries(marks).forEach(([key, value]) => {
-                    const isMarkType = ["line", "match"].includes(key as markTypes);
-                    value.component.setValue(isMarkType && marksSet.has(key as markTypes));
-                });                                  
-              } else {
-                Object.entries(marks).map(([key, value]) =>
-                  key === "match"
-                    ? value.component.setValue(true)
-                    : value.component.setValue(false)
-                );
-              }
+    .setClass("action-button")
+    .setClass("action-button-edit")
+    .setClass("mod-cta")
+    .setIcon("pencil")
+    .setTooltip("Edit")
+    .onClick(async (evt) => {
+      saveButton.buttonEl.setAttribute("state", "editing");
+
+      const options = config.queries[highlighter];
+      classInput.inputEl.value = highlighter;
+      classInput.inputEl.dataset.original = highlighter; // Store original name
+      
+      pickrInstance.setColor(options.color);
+      queryInput.inputEl.value = options.query;
+      pickrInstance.setColor(options.color);
+      queryTypeInput.setValue(options.regex);
+
+      const extensions = basicSetup;
+      this.editor.setState(
+        EditorState.create({
+          doc: options.css ? options.css : "",
+          extensions: extensions,
+        })
+      );
+      if (options?.mark) {
+        const marksSet = new Set<markTypes>(options.mark); // Convert to a Set for efficient lookups
+        Object.entries(marks).forEach(([key, value]) => {
+          const isMarkType = ["line", "match"].includes(key as markTypes);
+          value.component.setValue(isMarkType && marksSet.has(key as markTypes));
+        });
+      } else {
+        Object.entries(marks).map(([key, value]) =>
+          key === "match"
+            ? value.component.setValue(true)
+            : value.component.setValue(false)
+        );
+      }
               containerEl.scrollTop = 0;
             });
         })
@@ -549,3 +572,4 @@ function editorFromTextArea(
     });
   return view;
 }
+

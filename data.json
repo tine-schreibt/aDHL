@@ -11,31 +11,20 @@
     "queries": {
       "test03": {
         "class": "test03",
-        "color": "#18802E7D",
-        "regex": true,
-        "query": "test02",
+        "color": "#42188038",
+        "regex": false,
+        "query": "save edit 03",
         "mark": [
-          "line"
+          "match"
         ],
         "css": "",
         "enabled": true
       },
       "test02": {
         "class": "test02",
-        "color": "#18802E7D",
-        "regex": true,
-        "query": "test02",
-        "mark": [
-          "line"
-        ],
-        "css": "",
-        "enabled": true
-      },
-      "test01": {
-        "class": "test01",
-        "color": "#42188038",
+        "color": "#187880A8",
         "regex": false,
-        "query": "test01",
+        "query": "test02",
         "mark": [
           "match"
         ],
@@ -63,35 +52,11 @@
         ],
         "css": "",
         "enabled": true
-      },
-      "test0999": {
-        "class": "test0999",
-        "color": "#42188038",
-        "regex": false,
-        "query": "test01",
-        "mark": [
-          "match"
-        ],
-        "css": "",
-        "enabled": true
-      },
-      "test": {
-        "class": "test",
-        "color": "#42188038",
-        "regex": false,
-        "query": "test",
-        "mark": [
-          "match"
-        ],
-        "css": "",
-        "enabled": true
       }
     },
     "queryOrder": [
-      "test21",
-      "test01",
-      "test0999",
-      "test"
+      "test03",
+      "test02"
     ]
   },
   "mySetting": ""
