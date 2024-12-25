@@ -3,6 +3,7 @@
 /* toggle v1 added - WORKS */
 /* attempting save logic v1 */
 /* added save/update logic*/
+/*duplicate check, name change*/
 
 import { EditorState, Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
@@ -388,6 +389,9 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
             // Update the 'enabled' property of the highlighter
             config.queries[highlighter].enabled = value;
 
+            // Update the aria-label based on the toggle state
+            toggle.toggleEl.setAttribute("aria-label", value ? `Disable ${highlighter} highlighter` : `Enable ${highlighter} highlighter`);
+
             // Use an immediately invoked async function to handle the await
             (async () => {
               // Call the save function to persist the changes
@@ -397,17 +401,20 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
               this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
             })();
           });
+
+          // Set initial aria-label based on the initial state
+          toggle.toggleEl.setAttribute("aria-label", config.queries[highlighter].enabled ? `Disable ${highlighter} highlighter` : `Enable ${highlighter} highlighter`);
         })
 
 // ####### endTOGGLE ENABLED/DISABLED########################
 
         .addButton((button) => {
+          button.buttonEl.setAttribute("aria-label", `Edit ${highlighter} highlighter`);
           button
     .setClass("action-button")
     .setClass("action-button-edit")
     .setClass("mod-cta")
     .setIcon("pencil")
-    .setTooltip("Edit")
     .onClick(async (evt) => {
       saveButton.buttonEl.setAttribute("state", "editing");
 
@@ -444,12 +451,12 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
             });
         })
         .addButton((button) => {
+          button.buttonEl.setAttribute("aria-label", `Delete ${highlighter} highlighter`);
           button
             .setClass("action-button")
             .setClass("action-button-delete")
             .setIcon("trash")
             .setClass("mod-warning")
-            .setTooltip("Remove")
             .onClick(async () => {
               new Notice(`${highlighter} highlight deleted`);
               delete config.queries[highlighter];
