@@ -31,7 +31,9 @@ export class SettingTab extends PluginSettingTab {
   plugin: AnotherDynamicHighlightsPlugin;
   editor: EditorView;
   scope: Scope;
-  pickrInstance: Pickr;
+  pickrInstanceStatic: Pickr;
+  pickrInstanceSelection: Pickr;
+  pickrInstanceCursor: Pickr;
 
   constructor(app: App, plugin: AnotherDynamicHighlightsPlugin) {
     super(app, plugin);
@@ -41,7 +43,9 @@ export class SettingTab extends PluginSettingTab {
 
   hide() {
     this.editor?.destroy();
-    this.pickrInstance && this.pickrInstance.destroyAndRemove();
+    this.pickrInstanceStatic && this.pickrInstanceStatic.destroyAndRemove();
+    this.pickrInstanceSelection && this.pickrInstanceSelection.destroyAndRemove();
+    this.pickrInstanceCursor && this.pickrInstanceCursor.destroyAndRemove();
     this.app.keymap.popScope(this.scope);
   }
 
@@ -107,12 +111,14 @@ export class SettingTab extends PluginSettingTab {
 
     const colorWrapper = defineQueryUI.controlEl.createDiv("color-wrapper");
 
-    let pickrInstance: Pickr;
-    const colorPicker = new ButtonComponent(colorWrapper);
+    let pickrInstanceStatic: Pickr;
+    let pickrInstanceSelection: Pickr;
+    let pickrInstanceCursor: Pickr;
 
-    colorPicker.setClass("highlightr-color-picker").then(() => {
-      this.pickrInstance = pickrInstance = new Pickr({
-        el: colorPicker.buttonEl,
+    const colorPickerStatic = new ButtonComponent(colorWrapper);
+    colorPickerStatic.setClass("highlightr-color-picker").then(() => {
+      this.pickrInstanceStatic = pickrInstanceStatic = new Pickr({
+        el: colorPickerStatic.buttonEl,
         container: colorWrapper,
         theme: "nano",
         defaultRepresentation: "HEXA",
@@ -142,7 +148,7 @@ export class SettingTab extends PluginSettingTab {
       }
       button.ariaLabel = "Background color picker";
 
-      pickrInstance
+      pickrInstanceStatic
         .on("clear", (instance: Pickr) => {
           instance.hide();
           classInput.inputEl.setAttribute(
@@ -253,7 +259,7 @@ export class SettingTab extends PluginSettingTab {
       }
     }
 
-    const hexValue = pickrInstance.getSelectedColor()?.toHEXA().toString();
+    const hexValue = pickrInstanceStatic.getSelectedColor()?.toHEXA().toString();
     const queryValue = queryInput.inputEl.value;
     const queryTypeValue = queryTypeInput.getValue();
     const customCss = this.editor.state.doc.toString();
@@ -315,7 +321,7 @@ discardButton
       if (currentClassName != null) {
       const options = config.queries[currentClassName];
       classInput.inputEl.value = currentClassName;
-      pickrInstance.setColor(options.color);
+      pickrInstanceStatic.setColor(options.color);
       queryInput.inputEl.value = options.query;
       queryTypeInput.setValue(options.regex);
       this.editor.setState(
@@ -329,8 +335,8 @@ discardButton
       // Clear all fields in "creating" mode
       classInput.inputEl.value = "";
       queryInput.inputEl.value = "";
-      pickrInstance.setColor(null);
-      pickrInstance.hide();
+      pickrInstanceStatic.setColor(null);
+      pickrInstanceStatic.hide();
       queryTypeInput.setValue(false);
       this.editor.setState(
         EditorState.create({
@@ -424,9 +430,9 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
           classInput.inputEl.value = highlighter;
           classInput.inputEl.dataset.original = highlighter; // Store original name
           
-          pickrInstance.setColor(options.color);
+          pickrInstanceStatic.setColor(options.color);
           queryInput.inputEl.value = options.query;
-          pickrInstance.setColor(options.color);
+          pickrInstanceStatic.setColor(options.color);
           queryTypeInput.setValue(options.regex);
 
           const extensions = basicSetup;
@@ -503,7 +509,13 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
     containerEl.createEl("h3", {
       text: "Selection Highlights",
     });
-    new Setting(containerEl)
+
+
+//########################## ##########################   
+//########################## Cursor Highlighter ##########################   
+//########################## ##########################   
+
+    const cursorHighlighterContainer = new Setting(containerEl)
       .setName("Highlight all occurrences of the word under the cursor")
       .addToggle((toggle) => {
         toggle
@@ -517,7 +529,83 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
             this.plugin.updateSelectionHighlighter();
           });
       });
-    new Setting(containerEl)
+
+      const colorPickerCursor = new ButtonComponent(cursorHighlighterContainer.controlEl);
+      colorPickerCursor.setClass("highlightr-color-picker").then(() => {
+        this.pickrInstanceCursor = pickrInstanceCursor = new Pickr({
+          el: colorPickerCursor.buttonEl,
+          container: colorWrapper,
+          theme: "nano",
+          defaultRepresentation: "HEXA",
+          default: "#42188038",
+          comparison: false,
+          components: {
+            preview: true,
+            opacity: true,
+            hue: true,
+            interaction: {
+              hex: true,
+              rgba: false,
+              hsla: true,
+              hsva: false,
+              cmyk: false,
+              input: true,
+              clear: true,
+              cancel: true,
+              save: true,
+            },
+          },
+        });
+        
+        const button = colorWrapper.querySelector(".pcr-button");
+        if (!button) {
+         throw new Error("Button is null (see ui.ts)");
+        }
+        button.ariaLabel = "Color picker for the cursor highlighter";
+  
+        pickrInstanceCursor
+          .on("clear", (instance: Pickr) => {
+            instance.hide();
+            classInput.inputEl.setAttribute(
+              "style",
+              `background-color: none; color: var(--text-normal);`
+            );
+          })
+          .on("cancel", (instance: Pickr) => {
+            instance.hide();
+          })
+          .on("change", (color: Pickr.HSVaColor) => {
+            const colorHex = color?.toHEXA().toString() || "";
+            let newColor;
+            colorHex && colorHex.length == 6
+              ? (newColor = `${colorHex}A6`)
+              : (newColor = colorHex);
+            classInput.inputEl.setAttribute(
+              "style",
+              `background-color: ${newColor}; color: var(--text-normal);`
+            );
+          })
+          .on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
+            instance.hide();
+          });
+      });
+  
+      const highlightColor = this.pickrInstanceCursor.getSelectedColor()?.toHEXA().toString();
+      this.plugin.settings.selectionHighlighter.cursorHighlighter.highlightColor = highlightColor;
+
+      // const highlightStyle = cursorDropDown.getValue();
+      // this.plugin.settings.selectionHighlighter.cursorHighlighter.highlightStyle = highlightStyle;
+        
+        this.plugin.saveSettings();
+        this.plugin.updateSelectionHighlighter();
+
+
+
+//########################## ##########################   
+//########################## Selection Highlighter ##########################   
+//########################## ##########################   
+
+   const selectionHighlighterContainer = new Setting(containerEl)
       .setName("Highlight all occurrences of the actively selected text")
       .addToggle((toggle) => {
         toggle
@@ -531,6 +619,93 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
             this.plugin.updateSelectionHighlighter();
           });
       });
+      const colorPickerSelection = new ButtonComponent(selectionHighlighterContainer.controlEl);
+      colorPickerSelection.setClass("highlightr-color-picker").then(() => {
+        this.pickrInstanceSelection = pickrInstanceSelection = new Pickr({
+          el: colorPickerSelection.buttonEl,
+          container: colorWrapper,
+          theme: "nano",
+          defaultRepresentation: "HEXA",
+          default: "#42188038",
+          comparison: false,
+          components: {
+            preview: true,
+            opacity: true,
+            hue: true,
+            interaction: {
+              hex: true,
+              rgba: false,
+              hsla: true,
+              hsva: false,
+              cmyk: false,
+              input: true,
+              clear: true,
+              cancel: true,
+              save: true,
+            },
+          },
+        });
+        
+        const button = cursorHighlighterContainer.controlEl.querySelector(".pcr-button");
+        if (!button) {
+         throw new Error("Button is null (see ui.ts)");
+        }
+        button.ariaLabel = "Color picker";
+  
+        pickrInstanceSelection
+          .on("clear", (instance: Pickr) => {
+            instance.hide();
+            classInput.inputEl.setAttribute(
+              "style",
+              `background-color: none; color: var(--text-normal);`
+            );
+          })
+          .on("cancel", (instance: Pickr) => {
+            instance.hide();
+          })
+          .on("change", (color: Pickr.HSVaColor) => {
+            const colorHex = color?.toHEXA().toString() || "";
+            let newColor;
+            colorHex && colorHex.length == 6
+              ? (newColor = `${colorHex}A6`)
+              : (newColor = colorHex);
+            classInput.inputEl.setAttribute(
+              "style",
+              `background-color: ${newColor}; color: var(--text-normal);`
+            );
+          })
+          .on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
+            instance.hide();
+          });
+      });
+  
+         
+  /*
+      const hexValue = pickrInstanceSelection.getSelectedColor()?.toHEXA().toString();
+  
+        config.queries[currentClassName] = {
+          class: currentClassName,
+          color: hexValue || "",
+          regex: queryTypeValue,
+          query: queryValue,
+          mark: enabledMarks,
+          css: customCss,
+          enabled: true,
+        };
+  
+        await this.plugin.saveSettings();
+        this.plugin.updateStaticHighlighter();
+        this.plugin.updateCustomCSS();
+        this.plugin.updateStyles();
+        this.display();*/
+
+ 
+
+
+
+
+
+      
     new Setting(containerEl)
       .setName("Highlight delay")
       .setDesc(

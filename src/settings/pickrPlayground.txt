@@ -1,0 +1,41 @@
+        /*
+  
+      const highlightColor = pickrInstanceCursor.getSelectedColor()?.toHEXA().toString();
+      this.plugin.settings.selectionHighlighter.cursorHighlighter.highlightColor = highlightColor;
+
+      // const highlightStyle = cursorDropDown.getValue();
+      // this.plugin.settings.selectionHighlighter.cursorHighlighter.highlightStyle = highlightStyle;
+  
+        await this.plugin.saveSettings();
+        this.plugin.updateSelectionHighlighter();;*/
+
+onst defaultHighlightOptions: SelectionHighlightOptions = {
+  highlightWordAroundCursor: true,
+  cursorHighlighter: {
+    highlightStyle: "dotted",
+    highlightColor: "",
+    css: function() {
+      if (this.highlightStyle === "background") {
+        return `background-color: var(--highlightColor, var(--accent));`;
+      } else {
+        return `border-bottom: 1px ${this.highlightStyle} var(--highlightColor, var(--accent));`;
+      }
+    }
+  },
+  highlightSelectedText: true,
+  selectedHighlighter: {
+    highlightStyle: "dotted",
+    highlightColor: "",
+    css: function() {
+      if (this.highlightStyle === "background") {
+        return `background-color: var(--highlightColor, var(--accent));`;
+      } else {
+        return `border-bottom: 1px ${this.highlightStyle} var(--highlightColor, var(--accent));`;
+      }
+    }
+  },
+minSelectionLength: 3,
+maxMatches: 100,
+ignoredWords: ignoredWords,
+highlightDelay: 0,
+};

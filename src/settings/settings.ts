@@ -42,13 +42,35 @@ export interface AnotherDynamicHighlightsSettings {
 }
 
 export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
-  selectionHighlighter: {
+  selectionHighlighter: { 
     highlightWordAroundCursor: true,
+    cursorHighlighter: {
+      highlightStyle: "dotted",
+      highlightColor: "",
+      css: function() {
+        if (this.highlightStyle === "background") {
+          return `background-color: var(--highlightColor, var(--accent));`;
+        } else {
+          return `border-bottom: 1px ${this.highlightStyle} var(--highlightColor, var(--accent));`;
+        }
+      }
+    },
     highlightSelectedText: true,
-    maxMatches: 100,
-    minSelectionLength: 3,
-    highlightDelay: 200,
-    ignoredWords: ignoredWords,
+    selectedHighlighter: {
+      highlightStyle: "dotted",
+      highlightColor: "",
+      css: function() {
+        if (this.highlightStyle === "background") {
+          return `background-color: var(--highlightColor, var(--accent));`;
+        } else {
+          return `border-bottom: 1px ${this.highlightStyle} var(--highlightColor, var(--accent));`;
+        }
+      }
+    },
+  minSelectionLength: 3,
+  maxMatches: 100,
+  ignoredWords: ignoredWords,
+  highlightDelay: 0,
   },
   staticHighlighter: {
     queries: {},

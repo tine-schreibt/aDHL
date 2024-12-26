@@ -18,28 +18,56 @@ import { cloneDeep } from "lodash";
 import { debounce, Debouncer } from "obsidian";
 import { ignoredWords } from "src/settings/ignoredWords";
 
+
 export type SelectionHighlightOptions = {
-  /// Determines whether, when nothing is selected, the word around
-  /// the cursor is matched instead. Defaults to false.
-  highlightWordAroundCursor: boolean;
-  highlightSelectedText: boolean;
-  /// The minimum length of the selection before it is highlighted.
-  /// Defaults to 1 (always highlight non-cursor selections).
-  minSelectionLength: number;
-  /// The amount of matches (in the viewport) at which to disable
-  /// highlighting. Defaults to 100.
-  maxMatches: number;
-  ignoredWords: string;
-  highlightDelay: number;
+  highlightWordAroundCursor: boolean,
+  cursorHighlighter: {
+    highlightStyle: string,
+    highlightColor: string | null,
+    css: () => string;
+  },
+  highlightSelectedText: boolean,
+  selectedHighlighter: {
+    highlightStyle: string,
+    highlightColor: string | null,
+    css: () => string;
+  },
+  minSelectionLength: number,
+  maxMatches: number,
+  ignoredWords: string,
+  highlightDelay: number,
 };
+
 
 const defaultHighlightOptions: SelectionHighlightOptions = {
   highlightWordAroundCursor: true,
+  cursorHighlighter: {
+    highlightStyle: "dotted",
+    highlightColor: "",
+    css: function() {
+      if (this.highlightStyle === "background") {
+        return `background-color: var(--highlightColor, var(--accent));`;
+      } else {
+        return `border-bottom: 1px ${this.highlightStyle} var(--highlightColor, var(--accent));`;
+      }
+    }
+  },
   highlightSelectedText: true,
-  minSelectionLength: 3,
-  maxMatches: 100,
-  ignoredWords: ignoredWords,
-  highlightDelay: 0,
+  selectedHighlighter: {
+    highlightStyle: "dotted",
+    highlightColor: "",
+    css: function() {
+      if (this.highlightStyle === "background") {
+        return `background-color: var(--highlightColor, var(--accent));`;
+      } else {
+        return `border-bottom: 1px ${this.highlightStyle} var(--highlightColor, var(--accent));`;
+      }
+    }
+  },
+minSelectionLength: 3,
+maxMatches: 100,
+ignoredWords: ignoredWords,
+highlightDelay: 0,
 };
 
 export const highlightConfig = Facet.define<
@@ -76,6 +104,7 @@ export function reconfigureSelectionHighlighter(
     highlightConfig.of(cloneDeep(options))
   );
 }
+
 
 const matchHighlighter = ViewPlugin.fromClass(
   class {
