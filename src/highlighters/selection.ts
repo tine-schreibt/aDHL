@@ -198,13 +198,13 @@ const matchHighlighter = ViewPlugin.fromClass(
             let string = state.sliceDoc(from, to).trim();
             if (check && from <= range.from && to >= range.to) {
               const mainMatchDeco = Decoration.mark({
-                class: `cm-current-${matchType}`,
+                class: conf.selectedHighlighter.css(),
                 attributes: { "data-contents": string },
               });
               deco.push(mainMatchDeco.range(from, to));
             } else if (from >= range.to || to <= range.from) {
               const matchDeco = Decoration.mark({
-                class: `cm-matched-${matchType}`,
+                class: conf.cursorHighlighter.css(),
                 attributes: { "data-contents": string },
               });
               deco.push(matchDeco.range(from, to));

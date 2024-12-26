@@ -33,7 +33,6 @@ export class SettingTab extends PluginSettingTab {
   scope: Scope;
   pickrInstanceStatic: Pickr;
   pickrInstanceSelection: Pickr;
-  pickrInstanceCursor: Pickr;
 
   constructor(app: App, plugin: AnotherDynamicHighlightsPlugin) {
     super(app, plugin);
@@ -45,7 +44,6 @@ export class SettingTab extends PluginSettingTab {
     this.editor?.destroy();
     this.pickrInstanceStatic && this.pickrInstanceStatic.destroyAndRemove();
     this.pickrInstanceSelection && this.pickrInstanceSelection.destroyAndRemove();
-    this.pickrInstanceCursor && this.pickrInstanceCursor.destroyAndRemove();
     this.app.keymap.popScope(this.scope);
   }
 
@@ -109,11 +107,11 @@ export class SettingTab extends PluginSettingTab {
     classInput.inputEl.ariaLabel = "Highlighter name";
     classInput.inputEl.addClass("highlighter-name");
 
-    const colorWrapper = defineQueryUI.controlEl.createDiv("color-wrapper");
 
     let pickrInstanceStatic: Pickr;
     let pickrInstanceSelection: Pickr;
-    let pickrInstanceCursor: Pickr;
+
+    const colorWrapper = defineQueryUI.controlEl.createDiv("color-wrapper");
 
     const colorPickerStatic = new ButtonComponent(colorWrapper);
     colorPickerStatic.setClass("highlightr-color-picker").then(() => {
@@ -509,13 +507,77 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
     containerEl.createEl("h3", {
       text: "Selection Highlights",
     });
+    const colorWrapperSelection = containerEl.createDiv("color-wrapper",);
 
+    const colorPickerSelection = new ButtonComponent(colorWrapperSelection);
+    colorPickerSelection.setClass("highlightr-color-picker").then(() => {
+      this.pickrInstanceSelection = pickrInstanceSelection = new Pickr({
+        el: colorPickerSelection.buttonEl,
+        container: colorWrapperSelection,
+        theme: "nano",
+        defaultRepresentation: "HEXA",
+        default: "#42188038",
+        comparison: false,
+        components: {
+          preview: true,
+          opacity: true,
+          hue: true,
+          interaction: {
+            hex: true,
+            rgba: false,
+            hsla: true,
+            hsva: false,
+            cmyk: false,
+            input: true,
+            clear: true,
+            cancel: true,
+            save: true,
+          },
+        },
+      });
+      
+      const button = colorWrapperSelection.querySelector(".pcr-button");
+      if (!button) {
+       throw new Error("Button is null (see ui.ts)");
+      }
+      button.ariaLabel = "Color picker for the cursor highlighter";
 
-//########################## ##########################   
-//########################## Cursor Highlighter ##########################   
-//########################## ##########################   
+      pickrInstanceSelection
+        .on("clear", (instance: Pickr) => {
+          instance.hide();
+          classInput.inputEl.setAttribute(
+            "style",
+            `background-color: none; color: var(--text-normal);`
+          );
+        })
+        .on("cancel", (instance: Pickr) => {
+          instance.hide();
+        })
+        .on("change", (color: Pickr.HSVaColor) => {
+          const colorHex = color?.toHEXA().toString() || "";
+          let newColor;
+          colorHex && colorHex.length == 6
+            ? (newColor = `${colorHex}A6`)
+            : (newColor = colorHex);
+          classInput.inputEl.setAttribute(
+            "style",
+            `background-color: ${newColor}; color: var(--text-normal);`
+          );
+          const highlightColor = this.pickrInstanceSelection.getSelectedColor()?.toHEXA().toString();
+          this.plugin.settings.selectionHighlighter.cursorHighlighter.highlightColor = highlightColor;
+          // const highlightStyle = cursorDropDown.getValue();
+          // this.plugin.settings.selectionHighlighter.cursorHighlighter.highlightStyle = highlightStyle;
+        })
+        .on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
+          instance.hide();
+          this.plugin.saveSettings();
+          this.plugin.updateSelectionHighlighter();
+        });
+    });
 
-    const cursorHighlighterContainer = new Setting(containerEl)
+    containerEl.appendChild(colorWrapperSelection);
+
+    new Setting(containerEl)
       .setName("Highlight all occurrences of the word under the cursor")
       .addToggle((toggle) => {
         toggle
@@ -530,82 +592,7 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
           });
       });
 
-      const colorPickerCursor = new ButtonComponent(cursorHighlighterContainer.controlEl);
-      colorPickerCursor.setClass("highlightr-color-picker").then(() => {
-        this.pickrInstanceCursor = pickrInstanceCursor = new Pickr({
-          el: colorPickerCursor.buttonEl,
-          container: colorWrapper,
-          theme: "nano",
-          defaultRepresentation: "HEXA",
-          default: "#42188038",
-          comparison: false,
-          components: {
-            preview: true,
-            opacity: true,
-            hue: true,
-            interaction: {
-              hex: true,
-              rgba: false,
-              hsla: true,
-              hsva: false,
-              cmyk: false,
-              input: true,
-              clear: true,
-              cancel: true,
-              save: true,
-            },
-          },
-        });
-        
-        const button = colorWrapper.querySelector(".pcr-button");
-        if (!button) {
-         throw new Error("Button is null (see ui.ts)");
-        }
-        button.ariaLabel = "Color picker for the cursor highlighter";
-  
-        pickrInstanceCursor
-          .on("clear", (instance: Pickr) => {
-            instance.hide();
-            classInput.inputEl.setAttribute(
-              "style",
-              `background-color: none; color: var(--text-normal);`
-            );
-          })
-          .on("cancel", (instance: Pickr) => {
-            instance.hide();
-          })
-          .on("change", (color: Pickr.HSVaColor) => {
-            const colorHex = color?.toHEXA().toString() || "";
-            let newColor;
-            colorHex && colorHex.length == 6
-              ? (newColor = `${colorHex}A6`)
-              : (newColor = colorHex);
-            classInput.inputEl.setAttribute(
-              "style",
-              `background-color: ${newColor}; color: var(--text-normal);`
-            );
-          })
-          .on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
-            instance.hide();
-          });
-      });
-  
-      const highlightColor = this.pickrInstanceCursor.getSelectedColor()?.toHEXA().toString();
-      this.plugin.settings.selectionHighlighter.cursorHighlighter.highlightColor = highlightColor;
-
-      // const highlightStyle = cursorDropDown.getValue();
-      // this.plugin.settings.selectionHighlighter.cursorHighlighter.highlightStyle = highlightStyle;
-        
-        this.plugin.saveSettings();
-        this.plugin.updateSelectionHighlighter();
-
-
-
-//########################## ##########################   
-//########################## Selection Highlighter ##########################   
-//########################## ##########################   
-
-   const selectionHighlighterContainer = new Setting(containerEl)
+   new Setting(containerEl)
       .setName("Highlight all occurrences of the actively selected text")
       .addToggle((toggle) => {
         toggle
@@ -619,93 +606,7 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
             this.plugin.updateSelectionHighlighter();
           });
       });
-      const colorPickerSelection = new ButtonComponent(selectionHighlighterContainer.controlEl);
-      colorPickerSelection.setClass("highlightr-color-picker").then(() => {
-        this.pickrInstanceSelection = pickrInstanceSelection = new Pickr({
-          el: colorPickerSelection.buttonEl,
-          container: colorWrapper,
-          theme: "nano",
-          defaultRepresentation: "HEXA",
-          default: "#42188038",
-          comparison: false,
-          components: {
-            preview: true,
-            opacity: true,
-            hue: true,
-            interaction: {
-              hex: true,
-              rgba: false,
-              hsla: true,
-              hsva: false,
-              cmyk: false,
-              input: true,
-              clear: true,
-              cancel: true,
-              save: true,
-            },
-          },
-        });
-        
-        const button = cursorHighlighterContainer.controlEl.querySelector(".pcr-button");
-        if (!button) {
-         throw new Error("Button is null (see ui.ts)");
-        }
-        button.ariaLabel = "Color picker";
-  
-        pickrInstanceSelection
-          .on("clear", (instance: Pickr) => {
-            instance.hide();
-            classInput.inputEl.setAttribute(
-              "style",
-              `background-color: none; color: var(--text-normal);`
-            );
-          })
-          .on("cancel", (instance: Pickr) => {
-            instance.hide();
-          })
-          .on("change", (color: Pickr.HSVaColor) => {
-            const colorHex = color?.toHEXA().toString() || "";
-            let newColor;
-            colorHex && colorHex.length == 6
-              ? (newColor = `${colorHex}A6`)
-              : (newColor = colorHex);
-            classInput.inputEl.setAttribute(
-              "style",
-              `background-color: ${newColor}; color: var(--text-normal);`
-            );
-          })
-          .on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
-            instance.hide();
-          });
-      });
-  
-         
-  /*
-      const hexValue = pickrInstanceSelection.getSelectedColor()?.toHEXA().toString();
-  
-        config.queries[currentClassName] = {
-          class: currentClassName,
-          color: hexValue || "",
-          regex: queryTypeValue,
-          query: queryValue,
-          mark: enabledMarks,
-          css: customCss,
-          enabled: true,
-        };
-  
-        await this.plugin.saveSettings();
-        this.plugin.updateStaticHighlighter();
-        this.plugin.updateCustomCSS();
-        this.plugin.updateStyles();
-        this.display();*/
-
- 
-
-
-
-
-
-      
+    
     new Setting(containerEl)
       .setName("Highlight delay")
       .setDesc(
