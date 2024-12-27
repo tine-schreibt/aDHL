@@ -240,6 +240,14 @@
 
 /* #region selection highlighter settings */
 
+.selection-highlighter-button-text {
+  align-content: center;
+  align-items: center;
+  /* TODO: switch to using grid with columns and rows */
+  flex-wrap: wrap;
+  grid-gap: 6px;
+}
+
 .dynamic-highlights-settings .ignored-words-input {
   width: 25rem;
   height: 10em;

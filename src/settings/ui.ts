@@ -410,9 +410,9 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
 
     // ####### endTOGGLE ENABLED/DISABLED########################
 
-            .addButton((button) => {
-              button.buttonEl.setAttribute("aria-label", `Edit ${highlighter} highlighter`);
-              button
+      .addButton((button) => {
+        button.buttonEl.setAttribute("aria-label", `Edit ${highlighter} highlighter`);
+        button
         .setClass("action-button")
         .setClass("action-button-edit")
         .setClass("mod-cta")
@@ -503,6 +503,83 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
     containerEl.createEl("h3", {
       text: "Selection Highlights",
     });
+    const selectionHighlightUI = new Setting(containerEl);
+    selectionHighlightUI
+      .setName("Choose a color")
+      .setClass("selection-highlighter-button-text")
+    const selectionColorPicker = new ButtonComponent(selectionHighlightUI.controlEl);
+    selectionColorPicker.setClass("selection-color-picker").then(() => {
+      const colorPickerInstance = new Pickr({
+        el: selectionColorPicker.buttonEl,
+        theme: "nano",
+        default: "#42188038",
+        components: {
+          preview: true,
+          opacity: true,
+          hue: true,
+          interaction: {
+            hex: true,
+            rgba: false,
+            hsla: true,
+            hsva: false,
+            cmyk: false,
+            input: true,
+            clear: true,
+            cancel: true,
+            save: true,
+          },
+        },
+      });
+
+      colorPickerInstance.on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
+        const hexValue = color.toHEXA().toString();
+        this.plugin.settings.selectionHighlighter.selectionColor = hexValue;
+        this.plugin.saveSettings();
+      });
+    });
+
+    const decorationDropdown = new Setting(selectionHighlightUI.controlEl)
+      .setName("Choose a decoration style.")
+      .setClass("selection-highlighter-button-text")
+      .addDropdown((dropdown) => {
+        dropdown
+          .addOption("underline", "Underline")
+          .addOption("dotted", "Dotted")
+          .addOption("dashed", "Dashed")
+          .addOption("wavy", "Wavy")
+          .addOption("bold", "Bold")
+          .addOption("background", "Backround")
+          .setValue("standard")
+          .onChange((value) => {
+            this.plugin.settings.selectionHighlighter.selectionDecoration = value;
+            this.plugin.saveSettings();
+          });
+      });
+
+      const cssSaveButton = new ButtonComponent(selectionHighlightUI.controlEl);
+      cssSaveButton
+        .setClass("action-button")
+        .setClass("mod-cta")
+        .setIcon("save")
+        .setTooltip("Save CSS Snippet")
+        .onClick(async () => {
+          const color = this.plugin.settings.selectionHighlighter.selectionColor;
+          const decoration = this.plugin.settings.selectionHighlighter.selectionDecoration;
+          let cssSnippet;
+          if (decoration == "background") {
+             // cssSnippet = `.selection-highlight { background-color: ${color}; }`;
+            cssSnippet = `background-color: ${color}`;
+          } else {
+            cssSnippet = `text-decoration: ${decoration} ${color} }`;
+          }
+      
+          // Save the CSS snippet to the settings
+          this.plugin.settings.selectionHighlighter.css = cssSnippet;
+          await this.plugin.saveSettings();
+          new Notice("CSS Snippet saved successfully!");
+        });
+
+
     new Setting(containerEl)
       .setName("Highlight all occurrences of the word under the cursor")
       .addToggle((toggle) => {
@@ -517,6 +594,10 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
             this.plugin.updateSelectionHighlighter();
           });
       });
+
+
+
+
     new Setting(containerEl)
       .setName("Highlight all occurrences of the actively selected text")
       .addToggle((toggle) => {
