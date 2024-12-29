@@ -529,10 +529,31 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
             save: true,
           },
         },
-      });
-
+      })
+      .on("clear", (instance: Pickr) => {
+        instance.hide();
+        classInput.inputEl.setAttribute(
+          "style",
+          `background-color: none; color: var(--text-normal);`
+        );
+      })
+      .on("cancel", (instance: Pickr) => {
+        instance.hide();
+      })
+      .on("change", (color: Pickr.HSVaColor) => {
+        const colorHex = color?.toHEXA().toString() || "";
+        let newColor;
+        colorHex && colorHex.length == 6
+          ? (newColor = `${colorHex}A6`)
+          : (newColor = colorHex);
+        classInput.inputEl.setAttribute(
+          "style",
+          `background-color: ${newColor}; color: var(--text-normal);`
+        );
+      })
       colorPickerInstance.on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
         const hexValue = color.toHEXA().toString();
+        instance.hide();
         this.plugin.settings.selectionHighlighter.selectionColor = hexValue;
         this.plugin.saveSettings();
       });
@@ -543,12 +564,16 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
       .setClass("selection-highlighter-button-text")
       .addDropdown((dropdown) => {
         dropdown
+          .addOption("default", "Default")
           .addOption("underline", "Underline")
           .addOption("dotted", "Dotted")
           .addOption("dashed", "Dashed")
           .addOption("wavy", "Wavy")
-          .addOption("bold", "Bold")
-          .addOption("background", "Backround")
+          .addOption("border", "Border")
+          .addOption("background", "Background")
+          .addOption("bold", "Bold, colored text")
+          .addOption("line-through", "Strikethrough, line")
+          .addOption("line-through", "Strikethrough, line + text")
           .setValue("standard")
           .onChange((value) => {
             this.plugin.settings.selectionHighlighter.selectionDecoration = value;
@@ -566,13 +591,18 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
           const color = this.plugin.settings.selectionHighlighter.selectionColor;
           const decoration = this.plugin.settings.selectionHighlighter.selectionDecoration;
           let cssSnippet;
+
           if (decoration == "background") {
-             // cssSnippet = `.selection-highlight { background-color: ${color}; }`;
-            cssSnippet = `background-color: ${color}`;
-          } else {
-            cssSnippet = `text-decoration: ${decoration} ${color} }`;
+            cssSnippet = `background-color: ${color}`
+          } else if (decoration == "bold") {
+            cssSnippet = `font-weight: bold; color ${color}`
+          } else if (decoration == "line-through+text") {
+            cssSnippet = `text-decoration: line-through; text-decoration-color: ${color}; color: ${color};`
+          } else if (decoration == "default") {
+            cssSnippet = `text-decoration: underline dashed; text-decoration-color: var(--text-accent)`
+            } else {
+            cssSnippet = `text-decoration: ${decoration}; text-decoration-color: ${color}`
           }
-      
           // Save the CSS snippet to the settings
           this.plugin.settings.selectionHighlighter.css = cssSnippet;
           await this.plugin.saveSettings();

@@ -37,9 +37,9 @@ const defaultHighlightOptions: SelectionHighlightOptions = {
   maxMatches: 100,
   ignoredWords: ignoredWords,
   highlightDelay: 0,
-  selectionColor: "",
-  selectionDecoration: "",
-  css: "text-decoration: underline dashed var(--text-accent)",
+  selectionColor: "var(--text-accent)",
+  selectionDecoration: "underline dashed",
+  css: "text-decoration: underline dashed; text-decoration-color: #000000",
 };
 
 export const highlightConfig = Facet.define<
@@ -174,8 +174,9 @@ const matchHighlighter = ViewPlugin.fromClass(
               });
               deco.push(mainMatchDeco.range(from, to));
             } else if (from >= range.to || to <= range.from) {
+              console.log("CSS Styles:", conf.css);
               const matchDeco = Decoration.mark({
-                class: `cm-matched-${matchType}`,
+                class: `cm-current-${matchType}`,
                 attributes: { "data-contents": string },
               });
               deco.push(matchDeco.range(from, to));
