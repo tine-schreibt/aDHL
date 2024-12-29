@@ -297,7 +297,7 @@ export class SettingTab extends PluginSettingTab {
       new Notice("Highlighter values missing");
     }
   });
-    saveButton.buttonEl.setAttribute("aria-label", "Save");
+    saveButton.buttonEl.setAttribute("aria-label", "Save Highlighter");
 
     // Create the discard button
 const discardButton = new ButtonComponent(queryWrapper);
@@ -504,11 +504,15 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
       text: "Selection Highlights",
     });
     const selectionHighlightUI = new Setting(containerEl);
-    selectionHighlightUI
-      .setName("Choose a color")
-      .setClass("selection-highlighter-button-text")
-    const selectionColorPicker = new ButtonComponent(selectionHighlightUI.controlEl);
-    selectionColorPicker.setClass("selection-color-picker").then(() => {
+
+    const rowWrapper = selectionHighlightUI.controlEl.createDiv("selectedHighlightsStylingsContainer");
+    rowWrapper.addClass("mark-wrapper");
+
+    const descriptionText = rowWrapper.createDiv("choose-color-text");
+    descriptionText.setText("Choose a color");
+
+    const selectionColorPicker = new ButtonComponent(rowWrapper);
+    selectionColorPicker.setClass("selected-color-picker").then(() => {
       const colorPickerInstance = new Pickr({
         el: selectionColorPicker.buttonEl,
         theme: "nano",
@@ -529,31 +533,34 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
             save: true,
           },
         },
-      })
-      .on("clear", (instance: Pickr) => {
-        instance.hide();}
-        )
-      .on("cancel", (instance: Pickr) => {
-        instance.hide();
-      })
-      .on("change", (color: Pickr.HSVaColor) => {
-        const colorHex = color?.toHEXA().toString() || "";
-        let newColor;
-        colorHex && colorHex.length == 6
-          ? (newColor = `${colorHex}A6`)
-          : (newColor = colorHex);
-      })
-      colorPickerInstance.on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
-        const hexValue = color.toHEXA().toString();
-        instance.hide();
-        this.plugin.settings.selectionHighlighter.selectionColor = hexValue;
-        this.plugin.saveSettings();
       });
+      colorPickerInstance
+        .on("clear", (instance: Pickr) => {
+          instance.hide();
+        })
+        .on("cancel", (instance: Pickr) => {
+          instance.hide();
+        })
+        .on("change", (color: Pickr.HSVaColor) => {
+          const colorHex = color?.toHEXA().toString() || "";
+          let newColor;
+          colorHex && colorHex.length == 6
+            ? (newColor = `${colorHex}A6`)
+            : (newColor = colorHex);
+        })
+        colorPickerInstance.on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
+          const hexValue = color.toHEXA().toString();
+          instance.hide();
+          this.plugin.settings.selectionHighlighter.selectionColor = hexValue;
+          this.plugin.saveSettings();
+        });
     });
 
-    const decorationDropdown = new Setting(selectionHighlightUI.controlEl)
+    const decorationDropdown = new Setting(rowWrapper)
       .setName("Choose a decoration style.")
-      .setClass("selection-highlighter-button-text")
+      .setClass("choose-decoration-text")
+      decorationDropdown
+      .setClass("decoration-dropdown")
       .addDropdown((dropdown) => {
         dropdown
           .addOption("default", "Default")
@@ -563,8 +570,7 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
           .addOption("underline wavy", "Wavy")
           .addOption("background", "Background")
           .addOption("bold", "Bold, colored text")
-          .addOption("line-through", "Strikethrough, line")
-          .addOption("line-through", "Strikethrough, line + text")
+          .addOption("line-through", "Strikethrough")
           .setValue("standard")
           .onChange((value) => {
             this.plugin.settings.selectionHighlighter.selectionDecoration = value;
@@ -572,10 +578,10 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
           });
       });
 
-      const cssSaveButton = new ButtonComponent(selectionHighlightUI.controlEl);
-      cssSaveButton
+      const cssSaveButton = new ButtonComponent(rowWrapper)
         .setClass("action-button")
         .setClass("mod-cta")
+        .setClass("selected-save-button")
         .setIcon("save")
         .setTooltip("Save CSS Snippet")
         .onClick(async () => {
@@ -586,17 +592,11 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
             }
           let cssSnippet;
 
-          /*  selectionColor: "default",
-  selectionDecoration: "default", text-decoration-thickness: 2px;
-  css: "text-decoration: dotted var(--text-accent)",*/
-
           if (color == "default") {
             if (decoration == "background") {
               cssSnippet = `background-color: var(--text-accent)`
             } else if (decoration == "bold") {
               cssSnippet = `font-weight: bold; color: var(--text-accent)`
-            } else if (decoration == "line-through+text") {
-              cssSnippet = `text-decoration: line-through; text-decoration-color: var(--text-accent); color: var(--text-accent);`
             } else if (decoration == "default") {
               cssSnippet = `text-decoration: underline dashed; text-decoration-color: var(--text-accent)`
             } else if (decoration == "underline wavy") {
@@ -610,8 +610,6 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
               cssSnippet = `background-color: ${color}`
             } else if (decoration == "bold") {
               cssSnippet = `font-weight: bold; color ${color}`
-            } else if (decoration == "line-through+text") {
-              cssSnippet = `text-decoration: line-through; text-decoration-color: ${color}; color: ${color};`
             } else if (decoration == "default") {
               cssSnippet = `text-decoration: underline dashed; text-decoration-color: var(--text-accent)`
             } else if (decoration == "underline wavy") {
@@ -626,6 +624,8 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
           this.plugin.updateSelectionHighlighter()
           new Notice("CSS Snippet saved successfully!");
         });
+        cssSaveButton.buttonEl.setAttribute("aria-label", "Save Highlighter");
+
 
 
     new Setting(containerEl)
