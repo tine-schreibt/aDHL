@@ -508,14 +508,14 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
     const rowWrapper = selectionHighlightUI.controlEl.createDiv("selectedHighlightsStylingsContainer");
 
     const descriptionText = rowWrapper.createDiv("choose-color-text");
-    descriptionText.setText("Choose a color");
+    descriptionText.setText("Choose a color.");
 
     const selectionColorPicker = new ButtonComponent(rowWrapper);
     selectionColorPicker.setClass("selected-color-picker").then(() => {
       const colorPickerInstance = new Pickr({
         el: selectionColorPicker.buttonEl,
         theme: "nano",
-        default: "#42188038",
+        default: this.plugin.settings.selectionHighlighter.selectionColor,
         components: {
           preview: true,
           opacity: true,
@@ -562,7 +562,6 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
       .setClass("decoration-dropdown")
       .addDropdown((dropdown) => {
         dropdown
-          .addOption("default", "Default")
           .addOption("underline", "Underline")
           .addOption("underline dotted", "Dotted")
           .addOption("underline dashed", "Dashed")
@@ -570,7 +569,7 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
           .addOption("background", "Background")
           .addOption("bold", "Bold, colored text")
           .addOption("line-through", "Strikethrough")
-          .setValue("standard")
+          .setValue(this.plugin.settings.selectionHighlighter.selectionDecoration)
           .onChange((value) => {
             this.plugin.settings.selectionHighlighter.selectionDecoration = value;
             this.plugin.saveSettings();
@@ -596,21 +595,16 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
               cssSnippet = `background-color: var(--text-accent)`
             } else if (decoration == "bold") {
               cssSnippet = `font-weight: bold; color: var(--text-accent)`
-            } else if (decoration == "default") {
-              cssSnippet = `text-decoration: underline dashed; text-decoration-color: var(--text-accent)`
             } else if (decoration == "underline wavy") {
-              if (decoration == "underline wavy") {
-                cssSnippet = `background-image: linear-gradient(to right, var(--text-accent) 0%, var(--text-accent) 25%, transparent 25%, transparent 50%); background-size: 4px 1px; background-repeat: repeat-x; background-position: bottom; text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: var(--text-accent);`
-              }
+              cssSnippet = `background-image: linear-gradient(to right, var(--text-accent) 0%, var(--text-accent) 25%, transparent 25%, transparent 50%); background-size: 4px 1px; background-repeat: repeat-x; background-position: bottom; text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: var(--text-accent);`
             } else {
               cssSnippet = `text-decoration: ${decoration}; text-decoration-color: var(--text-accent)`
-          }} else {
+            }
+        } else {
             if (decoration == "background") {
               cssSnippet = `background-color: ${color}`
             } else if (decoration == "bold") {
               cssSnippet = `font-weight: bold; color: ${color}`
-            } else if (decoration == "default") {
-              cssSnippet = `text-decoration: underline dashed; text-decoration-color: var(--text-accent)`
             } else if (decoration == "underline wavy") {
               cssSnippet = `background-image: linear-gradient(to right, ${color} 0%, ${color} 25%, transparent 25%, transparent 50%); background-size: 4px 1px; background-repeat: repeat-x; background-position: bottom; text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: var(--text-accent);`
             } else {
@@ -626,6 +620,11 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
         cssSaveButton.buttonEl.setAttribute("aria-label", "Save Highlighter");
 
 
+        const dropdownSpacer = new Setting(rowWrapper)
+        .setName("")
+        .setClass("selected-spacer")
+        dropdownSpacer
+        .setClass("selected-spacer");
 
     new Setting(containerEl)
       .setName("Highlight all occurrences of the word under the cursor")

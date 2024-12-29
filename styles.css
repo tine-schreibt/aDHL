@@ -11,7 +11,7 @@
 
 .selectedHighlightsStylingsContainer {
   display: grid;
-  grid-template-columns: [choose_color] auto [color-picker] auto [spacer] 10px [choose_deco] auto [drop-down] auto [spacer] 10px [save] auto [end];
+  grid-template-columns: [choose_color] auto [color-picker] auto [spacer1] 10px [choose_deco] auto [drop-down] auto [spacer2] 10px [save] auto [spacer3] 120px [end];
   grid-template-rows: [row] auto;
   gap: 10px;
   width: 100%;
@@ -20,8 +20,8 @@
 
 .selectedHighlightsStylingsContainer .choose-color-text {
   grid-column: choose_color; /* Place in 'choose_color' column */
-  text-align: right;
-  width: 100%; /* Align text to the right */
+  text-align: left;
+  width: 100%;
 }
 
 .selectedHighlightsStylingsContainer .selected-color-picker {
@@ -35,10 +35,20 @@
 
 .selectedHighlightsStylingsContainer .decoration-dropdown {
   grid-column: drop-down; /* Place in 'drop-down' column */
+  border: none;
 }
 
 .selectedHighlightsStylingsContainer .selected-save-button {
   grid-column: save; /* Place in 'save' column */
+}
+
+.selectedHighlightsStylingsContainer .selected-save-button {
+  grid-column: save; /* Place in 'save' column */
+}
+
+.selectedHighlightsStylingsContainer .selected-spacer {
+  grid-column: spacer3; /* Place in 'save' column */
+  border: none;
 }
 
 /* 
@@ -46,12 +56,12 @@
   border: 1px dashed red; 
 }*/
 
-/* Reset Default Styles */
+/* Reset Default Styles 
 .selectedHighlightsStylingsContainer button,
 .selectedHighlightsStylingsContainer select {
   display: block;
-  width: 100%; /* Optional: Stretch elements to fill grid cells */
-}
+  width: 100%; 
+}*/
 
 
 
