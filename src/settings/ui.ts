@@ -506,7 +506,6 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
     const selectionHighlightUI = new Setting(containerEl);
 
     const rowWrapper = selectionHighlightUI.controlEl.createDiv("selectedHighlightsStylingsContainer");
-    rowWrapper.addClass("mark-wrapper");
 
     const descriptionText = rowWrapper.createDiv("choose-color-text");
     descriptionText.setText("Choose a color");
@@ -609,7 +608,7 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
             if (decoration == "background") {
               cssSnippet = `background-color: ${color}`
             } else if (decoration == "bold") {
-              cssSnippet = `font-weight: bold; color ${color}`
+              cssSnippet = `font-weight: bold; color: ${color}`
             } else if (decoration == "default") {
               cssSnippet = `text-decoration: underline dashed; text-decoration-color: var(--text-accent)`
             } else if (decoration == "underline wavy") {
