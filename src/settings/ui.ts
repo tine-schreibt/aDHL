@@ -531,12 +531,8 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
         },
       })
       .on("clear", (instance: Pickr) => {
-        instance.hide();
-        classInput.inputEl.setAttribute(
-          "style",
-          `background-color: none; color: var(--text-normal);`
-        );
-      })
+        instance.hide();}
+        )
       .on("cancel", (instance: Pickr) => {
         instance.hide();
       })
@@ -546,10 +542,6 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
         colorHex && colorHex.length == 6
           ? (newColor = `${colorHex}A6`)
           : (newColor = colorHex);
-        classInput.inputEl.setAttribute(
-          "style",
-          `background-color: ${newColor}; color: var(--text-normal);`
-        );
       })
       colorPickerInstance.on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
         const hexValue = color.toHEXA().toString();
@@ -566,10 +558,9 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
         dropdown
           .addOption("default", "Default")
           .addOption("underline", "Underline")
-          .addOption("dotted", "Dotted")
-          .addOption("dashed", "Dashed")
-          .addOption("wavy", "Wavy")
-          .addOption("border", "Border")
+          .addOption("underline dotted", "Dotted")
+          .addOption("underline dashed", "Dashed")
+          .addOption("underline wavy", "Wavy")
           .addOption("background", "Background")
           .addOption("bold", "Bold, colored text")
           .addOption("line-through", "Strikethrough, line")
@@ -588,24 +579,51 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
         .setIcon("save")
         .setTooltip("Save CSS Snippet")
         .onClick(async () => {
-          const color = this.plugin.settings.selectionHighlighter.selectionColor;
-          const decoration = this.plugin.settings.selectionHighlighter.selectionDecoration;
+          let color = this.plugin.settings.selectionHighlighter.selectionColor;
+          let decoration = this.plugin.settings.selectionHighlighter.selectionDecoration;
+            if (decoration == "default") {
+               decoration = "dotted"
+            }
           let cssSnippet;
 
-          if (decoration == "background") {
-            cssSnippet = `background-color: ${color}`
-          } else if (decoration == "bold") {
-            cssSnippet = `font-weight: bold; color ${color}`
-          } else if (decoration == "line-through+text") {
-            cssSnippet = `text-decoration: line-through; text-decoration-color: ${color}; color: ${color};`
-          } else if (decoration == "default") {
-            cssSnippet = `text-decoration: underline dashed; text-decoration-color: var(--text-accent)`
+          /*  selectionColor: "default",
+  selectionDecoration: "default", text-decoration-thickness: 2px;
+  css: "text-decoration: dotted var(--text-accent)",*/
+
+          if (color == "default") {
+            if (decoration == "background") {
+              cssSnippet = `background-color: var(--text-accent)`
+            } else if (decoration == "bold") {
+              cssSnippet = `font-weight: bold; color: var(--text-accent)`
+            } else if (decoration == "line-through+text") {
+              cssSnippet = `text-decoration: line-through; text-decoration-color: var(--text-accent); color: var(--text-accent);`
+            } else if (decoration == "default") {
+              cssSnippet = `text-decoration: underline dashed; text-decoration-color: var(--text-accent)`
+            } else if (decoration == "underline wavy") {
+              if (decoration == "underline wavy") {
+                cssSnippet = `background-image: linear-gradient(to right, var(--text-accent) 0%, var(--text-accent) 25%, transparent 25%, transparent 50%); background-size: 4px 1px; background-repeat: repeat-x; background-position: bottom; text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: var(--text-accent);`
+              }
             } else {
-            cssSnippet = `text-decoration: ${decoration}; text-decoration-color: ${color}`
+              cssSnippet = `text-decoration: ${decoration}; text-decoration-color: var(--text-accent)`
+          }} else {
+            if (decoration == "background") {
+              cssSnippet = `background-color: ${color}`
+            } else if (decoration == "bold") {
+              cssSnippet = `font-weight: bold; color ${color}`
+            } else if (decoration == "line-through+text") {
+              cssSnippet = `text-decoration: line-through; text-decoration-color: ${color}; color: ${color};`
+            } else if (decoration == "default") {
+              cssSnippet = `text-decoration: underline dashed; text-decoration-color: var(--text-accent)`
+            } else if (decoration == "underline wavy") {
+              cssSnippet = `background-image: linear-gradient(to right, ${color} 0%, ${color} 25%, transparent 25%, transparent 50%); background-size: 4px 1px; background-repeat: repeat-x; background-position: bottom; text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: var(--text-accent);`
+            } else {
+              cssSnippet = `text-decoration: ${decoration}; text-decoration-color: ${color}`
+            }
           }
           // Save the CSS snippet to the settings
           this.plugin.settings.selectionHighlighter.css = cssSnippet;
           await this.plugin.saveSettings();
+          this.plugin.updateSelectionHighlighter()
           new Notice("CSS Snippet saved successfully!");
         });
 

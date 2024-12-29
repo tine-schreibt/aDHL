@@ -49,9 +49,9 @@ export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
     minSelectionLength: 3,
     highlightDelay: 200,
     ignoredWords: ignoredWords,
-    selectionColor: "var(--text-accent)",
-    selectionDecoration: "underline dashed",
-    css: "text-decoration: underline dashed var(--text-accent)",
+    selectionColor: "default",
+    selectionDecoration: "default",
+    css: "text-decoration: underline dotted var(--text-accent)",
   },
   staticHighlighter: {
     queries: {},

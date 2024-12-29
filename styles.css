@@ -9,7 +9,7 @@
 
 .cm-current-word,
 .cm-current-string {
-  text-decoration: underline dotted var(--text-accent);
+  text-decoration: underline dotted red;
 }
 
 /* #endregion selection highlighter styles */

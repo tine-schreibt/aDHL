@@ -37,9 +37,9 @@ const defaultHighlightOptions: SelectionHighlightOptions = {
   maxMatches: 100,
   ignoredWords: ignoredWords,
   highlightDelay: 0,
-  selectionColor: "var(--text-accent)",
-  selectionDecoration: "underline dashed",
-  css: "text-decoration: underline dashed; text-decoration-color: #000000",
+  selectionColor: "default",
+  selectionDecoration: "default",
+  css: "text-decoration: dashed var(--text-accent)",
 };
 
 export const highlightConfig = Facet.define<
@@ -53,6 +53,7 @@ export const highlightConfig = Facet.define<
       maxMatches: Math.min,
       highlightDelay: Math.min,
       ignoredWords: (a, b) => a || b,
+      css: (a, b) => b || a, // Use the custom css if available, otherwise fallback to default
     });
   },
 });
@@ -114,9 +115,10 @@ const matchHighlighter = ViewPlugin.fromClass(
     }
 
     getDeco(view: EditorView): DecorationSet {
-      let conf = view.state.facet(highlightConfig);
+      let conf = view.state.facet(highlightConfig);      
       if (this.highlightDelay != conf.highlightDelay)
         this.updateDebouncer(view);
+      let selectionDecoration = conf.css;
       let { state } = view,
         sel = state.selection;
       if (sel.ranges.length > 1) return Decoration.none;
@@ -168,16 +170,15 @@ const matchHighlighter = ViewPlugin.fromClass(
           ) {
             let string = state.sliceDoc(from, to).trim();
             if (check && from <= range.from && to >= range.to) {
+              console.log("CSS Styles: (if)", conf.css);
               const mainMatchDeco = Decoration.mark({
-                class: `cm-current-${matchType}`,
-                attributes: { "data-contents": string },
+                attributes: { "data-contents": string, style: selectionDecoration },
               });
               deco.push(mainMatchDeco.range(from, to));
             } else if (from >= range.to || to <= range.from) {
-              console.log("CSS Styles:", conf.css);
-              const matchDeco = Decoration.mark({
-                class: `cm-current-${matchType}`,
-                attributes: { "data-contents": string },
+              console.log("CSS Styles:(else if)", conf.css);
+              const matchDeco = Decoration.mark({              
+                attributes: { "data-contents": string, style: selectionDecoration },
               });
               deco.push(matchDeco.range(from, to));
             }
