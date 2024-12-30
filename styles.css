@@ -11,7 +11,7 @@
 
 .selectedHighlightsStylingsContainer {
   display: grid;
-  grid-template-columns: [choose_color] auto [color-picker] auto [spacer1] 10px [choose_deco] auto [drop-down] auto [spacer2] 10px [save] auto [spacer3] 120px [end];
+  grid-template-columns: [choose_color] auto [color-picker] auto [spacer1] 5px [choose_deco] auto [drop-down] auto [spacer2] 10px [save] auto [selected-reset-button] auto [spacer3] 10px [end];
   grid-template-rows: [row] auto;
   gap: 10px;
   width: 100%;
@@ -42,8 +42,8 @@
   grid-column: save; /* Place in 'save' column */
 }
 
-.selectedHighlightsStylingsContainer .selected-save-button {
-  grid-column: save; /* Place in 'save' column */
+.selectedHighlightsStylingsContainer .selected-reset-button {
+  grid-column: selected-reset-button; /* Place in 'reset' column */
 }
 
 .selectedHighlightsStylingsContainer .selected-spacer {

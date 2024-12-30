@@ -216,6 +216,28 @@ export class SettingTab extends PluginSettingTab {
     };
     const marks = buildMarkerTypes(defineQueryUI.controlEl);
 
+   /* const decorationDropdown = new Setting(rowWrapper)
+      .setName("Choose a decoration style.")
+      .setClass("choose-decoration-text")
+      decorationDropdown
+      .setClass("decoration-dropdown")
+      .addDropdown((dropdown) => {
+        dropdown
+          .addOption("underline", "Underline")
+          .addOption("underline dotted", "Dotted")
+          .addOption("underline dashed", "Dashed")
+          .addOption("underline wavy", "Wavy")
+          .addOption("background", "Background")
+          .addOption("bold", "Bold, colored text")
+          .addOption("line-through", "Strikethrough")
+          .setValue(this.plugin.settings.selectionHighlighter.selectionDecoration)
+          .onChange((value) => {
+            this.plugin.settings.selectionHighlighter.selectionDecoration = value;
+            this.plugin.saveSettings();
+          });
+      });*/
+
+
     const customCSSWrapper =
       defineQueryUI.controlEl.createDiv("custom-css-wrapper");
     customCSSWrapper.createSpan("setting-item-name").setText("Custom CSS");
@@ -315,6 +337,10 @@ discardButton
       if (currentClassName != null) {
       const options = config.queries[currentClassName];
       classInput.inputEl.value = currentClassName;
+      classInput.inputEl.setAttribute(
+        "style",
+        `background-color: none; color: var(--text-normal);`
+      );
       pickrInstance.setColor(options.color);
       queryInput.inputEl.value = options.query;
       queryTypeInput.setValue(options.regex);
@@ -329,7 +355,11 @@ discardButton
       // Clear all fields in "creating" mode
       classInput.inputEl.value = "";
       queryInput.inputEl.value = "";
-      pickrInstance.setColor(null);
+      pickrInstance.setColor("#42188038");
+      classInput.inputEl.setAttribute(
+        "style",
+        `background-color: none; color: var(--text-normal);`
+      );
       pickrInstance.hide();
       queryTypeInput.setValue(false);
       this.editor.setState(
@@ -344,10 +374,6 @@ discardButton
     // Reset state (optional)
     saveButton.buttonEl.removeAttribute("state");
   }});
-
-
-console.log("Save and discard buttons created:", saveButton.buttonEl, discardButton.buttonEl);
-
     
    // ################## HIGHTLIGHER CONTAINER ##################
     const highlightersContainer = containerEl.createEl("div", {
@@ -504,64 +530,72 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
       text: "Selection Highlights",
     });
     const selectionHighlightUI = new Setting(containerEl);
-
     const rowWrapper = selectionHighlightUI.controlEl.createDiv("selectedHighlightsStylingsContainer");
 
     const descriptionText = rowWrapper.createDiv("choose-color-text");
     descriptionText.setText("Choose a color.");
 
-    const selectionColorPicker = new ButtonComponent(rowWrapper);
-    selectionColorPicker.setClass("selected-color-picker").then(() => {
-      const colorPickerInstance = new Pickr({
-        el: selectionColorPicker.buttonEl,
-        theme: "nano",
-        default: this.plugin.settings.selectionHighlighter.selectionColor,
-        components: {
-          preview: true,
-          opacity: true,
-          hue: true,
-          interaction: {
-            hex: true,
-            rgba: false,
-            hsla: true,
-            hsva: false,
-            cmyk: false,
-            input: true,
-            clear: true,
-            cancel: true,
-            save: true,
-          },
-        },
-      });
-      colorPickerInstance
-        .on("clear", (instance: Pickr) => {
-          instance.hide();
-        })
-        .on("cancel", (instance: Pickr) => {
-          instance.hide();
-        })
-        .on("change", (color: Pickr.HSVaColor) => {
-          const colorHex = color?.toHEXA().toString() || "";
-          let newColor;
-          colorHex && colorHex.length == 6
-            ? (newColor = `${colorHex}A6`)
-            : (newColor = colorHex);
-        })
-        colorPickerInstance.on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
-          const hexValue = color.toHEXA().toString();
-          instance.hide();
-          this.plugin.settings.selectionHighlighter.selectionColor = hexValue;
-          this.plugin.saveSettings();
-        });
+    let selectionColorPickerInstance: Pickr; // Define outside
+
+const selectionColorPicker = new ButtonComponent(rowWrapper);
+let selectionColorPickerDefault: string;
+if (this.plugin.settings.selectionHighlighter.selectionColor === "default") {
+  selectionColorPickerDefault = "#42188038";
+} else {
+  selectionColorPickerDefault = this.plugin.settings.selectionHighlighter.selectionColor;
+}
+selectionColorPicker.setClass("selected-color-picker").then(() => {
+  selectionColorPickerInstance = new Pickr({
+    el: selectionColorPicker.buttonEl,
+    theme: "nano",
+    default: selectionColorPickerDefault,
+    components: {
+      preview: true,
+      opacity: true,
+      hue: true,
+      interaction: {
+        hex: true,
+        rgba: false,
+        hsla: true,
+        hsva: false,
+        cmyk: false,
+        input: true,
+        clear: true,
+        cancel: true,
+        save: true,
+      },
+    },
+  });
+  selectionColorPickerInstance
+    .on("clear", (instance: Pickr) => {
+      instance.hide();
+    })
+    .on("cancel", (instance: Pickr) => {
+      instance.hide();
+    })
+    .on("change", (color: Pickr.HSVaColor) => {
+      const colorHex = color?.toHEXA().toString() || "";
+      let newColor;
+      colorHex && colorHex.length == 6
+        ? (newColor = `${colorHex}A6`)
+        : (newColor = colorHex);
+    })
+    .on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
+      const hexValue = color.toHEXA().toString();
+      instance.hide();
+      this.plugin.settings.selectionHighlighter.selectionColor = hexValue;
+      this.plugin.saveSettings();
     });
+});
 
     const decorationDropdown = new Setting(rowWrapper)
-      .setName("Choose a decoration style.")
+      .setName("Choose a decoration.")
       .setClass("choose-decoration-text")
       decorationDropdown
       .setClass("decoration-dropdown")
       .addDropdown((dropdown) => {
         dropdown
+          .addOption("default", "Default")
           .addOption("underline", "Underline")
           .addOption("underline dotted", "Dotted")
           .addOption("underline dashed", "Dashed")
@@ -619,6 +653,23 @@ console.log("Save and discard buttons created:", saveButton.buttonEl, discardBut
         });
         cssSaveButton.buttonEl.setAttribute("aria-label", "Save Highlighter");
 
+
+        const selectedDiscardButton = new ButtonComponent(rowWrapper);
+        selectedDiscardButton
+          .setClass("selected-reset-button")
+          .setClass("action-button")
+          .setClass("mod-cta")
+          .setIcon("x-circle")
+          .setTooltip("Reset to default")
+          .onClick(async () => {
+          this.plugin.settings.selectionHighlighter.selectionColor = "default";
+          this.plugin.settings.selectionHighlighter.selectionDecoration = "default";
+          this.plugin.settings.selectionHighlighter.css = "text-decoration: underline dotted var(--text-accent)";
+          selectionColorPickerInstance.setColor("#42188038");
+          await this.plugin.saveSettings();
+          this.plugin.updateSelectionHighlighter()
+          new Notice("Defaults reset");
+        });
 
         const dropdownSpacer = new Setting(rowWrapper)
         .setName("")

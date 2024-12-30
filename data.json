@@ -6,12 +6,26 @@
     "minSelectionLength": 3,
     "highlightDelay": 200,
     "ignoredWords": "myself, our, ours, ourselves, you, your, yours, yourself, yourselves, him, his, himself, she, her, hers, herself, its, itself, they, them, their, theirs, themselves, what, which, who, whom, this, that, these, those, are, was, were, been, being, have, has, had, having, does, did, doing, the, and, but, because, until, while, for, with, about, against, between, into, through, during, before, after, above, below, from, down, out, off, over, under, again, further, then, once, here, there, when, where, why, how, all, any, both, each, few, more, most, other, some, such, nor, not, only, own, same, than, too, very, can, will, just, don, should,now",
-    "selectionColor": "#782CC461",
+    "selectionColor": "#42188038",
     "selectionDecoration": "background",
-    "css": "background-color: #782CC461"
+    "css": "background-color: #42188038"
   },
   "staticHighlighter": {
-    "queries": {},
-    "queryOrder": []
+    "queries": {
+      "test": {
+        "class": "test",
+        "color": "#1847805C",
+        "regex": false,
+        "query": "test",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": true
+      }
+    },
+    "queryOrder": [
+      "test"
+    ]
   }
 }
