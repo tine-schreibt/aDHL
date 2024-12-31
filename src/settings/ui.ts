@@ -295,103 +295,102 @@ export class SettingTab extends PluginSettingTab {
       }
     }
 
-    // Get the values from the form
-    const staticHexValue = pickrInstance.getSelectedColor()?.toHEXA().toString();
-    const queryValue = queryInput.inputEl.value;
-    const queryTypeValue = queryTypeInput.getValue();
-    const customCss = this.editor.state.doc.toString();
+// Get the values from the form
+const staticHexValue = pickrInstance.getSelectedColor()?.toHEXA().toString();
+const queryValue = queryInput.inputEl.value;
+const queryTypeValue = queryTypeInput.getValue();
+const customCss = this.editor.state.doc.toString();
 
-    // If creating, check if the class name already exists
-    if (currentClassName) {
-      if (state == "creating") {
-        if (!config.queryOrder.includes(currentClassName)) {
-          config.queryOrder.push(currentClassName);
-        } else {
-          new Notice("Highlighter name already exists");
-          return;
-        }
-      }
-
-      // markTypes blablababla
-      const enabledMarks = Object.entries(marks)
-        .map(([type, item]) => (item.component.getValue() && type) as string)
-        .filter((type): type is markTypes => ["line", "match"].includes(type));
-
-  
-      // Logic for the static CSS snippet
-      let staticCssSnippet: StyleSpec = {};
-      if (staticHexValue === "default") {
-        if (staticDecorationValue === "background") {
-          staticCssSnippet = {
-            backgroundColor: "var(--text-accent)",
-          };
-        } else if (staticDecorationValue === "bold") {
-          staticCssSnippet = {
-            fontWeight: "bold",
-            color: "var(--text-accent)",
-          };
-        } else if (staticDecorationValue === "underline wavy") {
-          staticCssSnippet = {
-            textDecoration: "underline wavy",
-            textDecorationColor: "var(--text-accent)",
-          };
-        } else {
-          staticCssSnippet = {
-            textDecoration: staticDecorationValue,
-            textDecorationColor: "var(--text-accent)",
-          };
-        }
-      } else {
-        if (staticDecorationValue === "background") {
-          staticCssSnippet = {
-            backgroundColor: staticHexValue,
-          };
-        } else if (staticDecorationValue === "bold") {
-          staticCssSnippet = {
-            fontWeight: "bold",
-            color: staticHexValue,
-          };
-        } else if (staticDecorationValue === "underline wavy") {
-          staticCssSnippet = {
-            textDecoration: "underline wavy",
-            textDecorationThickness: "1px",
-            textDecorationColor: "var(--text-accent)",
-          };
-        } else {
-          staticCssSnippet = {
-            textDecoration: staticDecorationValue,
-            textDecorationColor: staticHexValue,
-          };
-        }
-      }
-      console.log(`staticCssSnippet:`, staticCssSnippet);
-
-      // Gather all values
-      config.queries[currentClassName] = {
-        class: currentClassName,
-        staticColor: staticHexValue || "#42188038",
-        staticDecoration: staticDecorationValue || "background",
-        staticCss: staticCssSnippet,
-        regex: queryTypeValue,
-        query: queryValue,
-        mark: enabledMarks,
-        css: customCss,
-        enabled: true,
-      };
-      // Save and update
-      await this.plugin.saveSettings();
-      this.plugin.updateStaticHighlighter();
-      this.plugin.updateCustomCSS();
-      this.plugin.updateStyles();
-      this.display();
-      saveButton.buttonEl.setAttribute("state", "creating");
-    } else if (!currentClassName && staticHexValue) {
-      new Notice("Highlighter name missing");
-    } else if (!/^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test(currentClassName)) {
-      new Notice("Highlighter name missing");
+// If creating, check if the class name already exists
+if (currentClassName) {
+  if (state == "creating") {
+    if (!config.queryOrder.includes(currentClassName)) {
+      config.queryOrder.push(currentClassName);
     } else {
-      new Notice("Highlighter values missing");
+      new Notice("Highlighter name already exists");
+      return;
     }
+  }
+
+  // markTypes blablababla
+  const enabledMarks = Object.entries(marks)
+    .map(([type, item]) => (item.component.getValue() && type) as string)
+    .filter((type): type is markTypes => ["line", "match"].includes(type));
+
+  // Logic for the static CSS snippet
+  let staticCssSnippet: StyleSpec = {};
+  if (staticHexValue === "default") {
+    if (staticDecorationValue === "background") {
+      staticCssSnippet = {
+        backgroundColor: "var(--text-accent)",
+      };
+    } else if (staticDecorationValue === "bold") {
+      staticCssSnippet = {
+        fontWeight: "bold",
+        color: "var(--text-accent)",
+      };
+    } else if (staticDecorationValue === "underline wavy") {
+      staticCssSnippet = {
+        textDecoration: "underline wavy",
+        textDecorationColor: "var(--text-accent)",
+      };
+    } else {
+      staticCssSnippet = {
+        textDecoration: staticDecorationValue,
+        textDecorationColor: "var(--text-accent)",
+      };
+    }
+  } else {
+    if (staticDecorationValue === "background") {
+      staticCssSnippet = {
+        backgroundColor: staticHexValue,
+      };
+    } else if (staticDecorationValue === "bold") {
+      staticCssSnippet = {
+        fontWeight: "bold",
+        color: staticHexValue,
+      };
+    } else if (staticDecorationValue === "underline wavy") {
+      staticCssSnippet = {
+        textDecoration: "underline wavy",
+        textDecorationThickness: "1px",
+        textDecorationColor: "var(--text-accent)",
+      };
+    } else {
+      staticCssSnippet = {
+        textDecoration: staticDecorationValue,
+        textDecorationColor: staticHexValue,
+      };
+    }
+  }
+  console.log(`staticCssSnippet:`, staticCssSnippet);
+
+  // Gather all values
+  config.queries[currentClassName] = {
+    class: currentClassName,
+    staticColor: staticHexValue || "#42188038",
+    staticDecoration: staticDecorationValue,
+    staticCss: staticCssSnippet,
+    regex: queryTypeValue,
+    query: queryValue,
+    mark: enabledMarks,
+    css: customCss,
+    enabled: true,
+  };
+  // Save and update
+  await this.plugin.saveSettings();
+  this.plugin.updateStaticHighlighter();
+  this.plugin.updateCustomCSS();
+  this.plugin.updateStyles();
+  this.display();
+  saveButton.buttonEl.setAttribute("state", "creating");
+} else if (!currentClassName && staticHexValue) {
+  new Notice("Highlighter name missing");
+} else if (!/^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test(currentClassName)) {
+  new Notice("Highlighter name missing");
+} else {
+  new Notice("Highlighter values missing");
+}
   });
     saveButton.buttonEl.setAttribute("aria-label", "Save Highlighter");
 
@@ -413,7 +412,6 @@ discardButton
       pickrInstance.setColor(options.staticColor);
       queryInput.inputEl.value = options.query;
       queryTypeInput.setValue(options.regex);
-      staticDecorationDropdownComponent.setValue(options.staticDecoration);
       this.editor.setState(
         EditorState.create({
           doc: options.css || "",
@@ -425,7 +423,7 @@ discardButton
       // Clear all fields in "creating" mode
       classInput.inputEl.value = "";
       queryInput.inputEl.value = "";
-      pickrInstance.setColor("#42188038");
+      pickrInstance.setColor("#42188038"); // This order is so that classInput.inputEl.setAttribute can clear the input field's style
       classInput.inputEl.setAttribute(
         "style",
         `background-color: none; color: var(--text-normal);`
@@ -442,7 +440,7 @@ discardButton
     }
 
     // Reset state (optional)
-    saveButton.buttonEl.removeAttribute("state");
+    saveButton.buttonEl.setAttribute("state", "creating");
   }});
     
    // ################## HIGHTLIGHER CONTAINER ##################
@@ -523,6 +521,7 @@ discardButton
           pickrInstance.setColor(options.staticColor);
           queryInput.inputEl.value = options.query;
           staticDecorationDropdownComponent.setValue(options.staticDecoration);
+          staticDecorationValue = options.staticDecoration; // Set staticDecorationValue to the current value
           pickrInstance.setColor(options.staticColor);
           queryTypeInput.setValue(options.regex);
 
