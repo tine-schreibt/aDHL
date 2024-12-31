@@ -17,6 +17,7 @@ import {
   setIcon,
   Setting,
   TextAreaComponent,
+  DropdownComponent,
   TextComponent,
   ToggleComponent,
 } from "obsidian";
@@ -196,6 +197,8 @@ export class SettingTab extends PluginSettingTab {
     });
 
     let staticDecorationValue: string = "background";
+    let staticDecorationDropdown: Setting;
+    let staticDecorationDropdownComponent: DropdownComponent;
     
     // Create the marker types
     type MarkTypes = Record<
@@ -205,50 +208,54 @@ export class SettingTab extends PluginSettingTab {
     type MarkItems = Partial<
       Record<markTypes, { element: HTMLElement; component: ToggleComponent }>
     >;
-    const buildMarkerTypesHardcoded = (parentEl: HTMLElement): MarkItems => {      const dropdownContainer = parentEl.createDiv("mark-wrapper");
-    // Create the static decoration dropdown
-    const staticDecorationDropdown = new Setting(dropdownContainer)
-      .setName("Deco:")
-      .setClass("choose-decoration-text")
-    staticDecorationDropdown
-      .setClass("decoration-dropdown")
-      .addDropdown((dropdown) => {
-    dropdown
-      .addOption("underline", "Underline")
-      .addOption("underline dotted", "Dotted")
-      .addOption("underline dashed", "Dashed")
-      .addOption("underline wavy", "Wavy")
-      .addOption("background", "Background")
-      .addOption("bold", "Bold, colored text")
-      .addOption("line-through", "Strikethrough")
-      .setValue("background")
-      .onChange((value) => {
-        staticDecorationValue = value;
-      });
-    });
-
-
+    const buildMarkerTypesHardcoded = (parentEl: HTMLElement): MarkItems => {
+      // Create a single grid container
+      const dropdownContainer = parentEl.createDiv("dropdown-and-marks-container");
+    
+      // Create the static decoration dropdown
+      dropdownContainer.createSpan("deco-text").setText("Deco");
+      staticDecorationDropdown = new Setting(dropdownContainer);
+      staticDecorationDropdown
+        .setClass("deco-dropdown")
+        .addDropdown((dropdown) => {
+          staticDecorationDropdownComponent = dropdown;
+          dropdown
+            .addOption("underline", "Underline")
+            .addOption("underline dotted", "Dotted")
+            .addOption("underline dashed", "Dashed")
+            .addOption("underline wavy", "Wavy")
+            .addOption("background", "Background")
+            .addOption("bold", "Bold, colored text")
+            .addOption("line-through", "Strikethrough")
+            .setValue("background")
+            .onChange((value) => {
+              staticDecorationValue = value;
+            });
+        });
+    
       const types: MarkItems = {};
     
-      // Create a wrapper for the "match" toggle
-      const matchWrapper = parentEl.createDiv("mark-wrapper");
-      matchWrapper.createSpan("match-type").setText("matches");
-      const matchToggle = new ToggleComponent(matchWrapper).setValue(true); // Default state: true
+      // Add the "match" toggle
+      dropdownContainer.createSpan("matches-text").setText("matches");
+      const matchToggle = new ToggleComponent(dropdownContainer).setValue(true); // Default state: true
+      matchToggle.toggleEl.addClass("matches-toggle");
       types["match"] = {
-        element: matchWrapper,
+        element: matchToggle.toggleEl,
         component: matchToggle,
       };
     
-      // Create a wrapper for the "line" toggle
-      const lineWrapper = parentEl.createDiv("mark-wrapper");
-      lineWrapper.createSpan("match-type").setText("parent line");
-      const lineToggle = new ToggleComponent(lineWrapper).setValue(false); // Default state: false
+      // Add the "line" toggle
+      dropdownContainer.createSpan("line-text").setText("parent line");
+      const lineToggle = new ToggleComponent(dropdownContainer).setValue(false); // Default state: false
+      lineToggle.toggleEl.addClass("line-toggle");
       types["line"] = {
-        element: lineWrapper,
+        element: lineToggle.toggleEl,
         component: lineToggle,
       };
+    
       return types;
     };
+    
     const marks = buildMarkerTypesHardcoded(defineQueryUI.controlEl);
 
     // Create the custom CSS field
@@ -403,13 +410,10 @@ discardButton
       if (currentClassName != null) {
       const options = config.queries[currentClassName];
       classInput.inputEl.value = currentClassName;
-      classInput.inputEl.setAttribute(
-        "style",
-        `background-color: none; color: var(--text-normal);`
-      );
       pickrInstance.setColor(options.staticColor);
       queryInput.inputEl.value = options.query;
       queryTypeInput.setValue(options.regex);
+      staticDecorationDropdownComponent.setValue(options.staticDecoration);
       this.editor.setState(
         EditorState.create({
           doc: options.css || "",

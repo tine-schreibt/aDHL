@@ -171,33 +171,118 @@
   
   /* #region settings tab -- mark types */
 
-  .dynamic-highlights-settings .dropdown-mark-wrapper {
-    display: grid;
-    /* align-items: flex-end; */
-    width: 100%;
-    align-items: center;
-    grid-template-columns: [dropdown] 1fr [marktoggles] 1fr [end];
-  }
+  /* Contains the dropdown and the marks */
 
-  .dynamic-highlights-settings .dropdown-mark-wrapper .dropdown-container {
-    grid-column: [dropdown];
-    /* add spacing between toggle description and toggle button */
+
+  .dropdown-and-marks-container {
+    display: grid;
+    grid-template-columns: 
+      [deco-text] auto 
+      [deco-dropdown] auto 
+      [spacer1] 5px 
+      [matches-text] auto 
+      [matches-toggle] auto 
+      [spacer2] 10px 
+      [line-text] auto 
+      [line-toggle] auto 
+      [end];
+      grid-template-rows: [row] auto;
+      gap: 10px;
+      width: 100%;
+      align-items: center;
+      justify-content: start;
   }
   
-  .dynamic-highlights-settings .dropdown-mark-wrapper  .mark-wrapper {
+  .dropdown-and-marks-container .deco-text {
+    grid-column: deco-text; /* Corrected column names */
+    align-self: center;
+    text-align: end;
+    width: 100%;
+  }
+  
+  .dropdown-and-marks-container .deco-dropdown {
+    grid-column: deco-dropdown;
+    margin: 0;
+    padding: 0;
+    align-self: center;
+    position: relative;
+    top: -8px; 
+    border: none;
+  }
+  
+  .dropdown-and-marks-container .matches-text {
+    grid-column: matches-text;
+    text-align: end;
+  }
+  
+  .dropdown-and-marks-container .matches-toggle {
+    grid-column: matches-toggle;
+  }
+  
+  .dropdown-and-marks-container .line-text {
+    grid-column: line-text;
+    text-align: end;
+  }
+  
+  .dropdown-and-marks-container .line-toggle {
+    grid-column: line-toggle;
+  }
+  
+  
+
+
+  
+
+ /*###################################################
+ ###############################
+ ############################### 
+  .dynamic-highlights-settings .dropdown-mark-wrapper {
     display: grid;
+    
+    width: 100%;
+    align-items: center;
+    grid-template-columns: [dropdown-desc] auto [dropdown] auto [matchtoggle] auto [linetoggle] auto [end];
+  }
+
+  /* Tells dropdown where to go inside the dropdown-mark-wrapper*/ 
+  .dynamic-highlights-settings .dropdown-mark-wrapper .dropdown-container {
+    display: grid;
+    grid-column: dropdown;
+    grid-template-columns: auto auto auto auto;
     /* align-items: flex-end; */
     width: 100%;
     align-items: center;
-    grid-template-columns: auto auto;
+    justify-self: start;
+    border: none;
+    /* add spacing between toggle description and toggle button */
+  }
+
+  /* tells the mark toggles where to go inside the dropdown-mark-wrapper */
+  .dynamic-highlights-settings .dropdown-mark-wrapper .mark-wrapper {
+    display: grid;
     grid-column: marktoggles;
+    grid-template-columns: auto auto auto auto;
+    /* align-items: flex-end; */
+    width: 100%;
+    align-items: center;
+    justify-self: start;
   }
   
   .dynamic-highlights-settings .dropdown-mark-wrapper  .mark-wrapper .checkbox-container {
     /* add spacing between toggle description and toggle button */
     /* TODO: do this properly with grid spacing */
     margin: 0px 18px 0px 8px;
-  }
+  } 
+  
+
+
+
+
+
+
+
+
+
   
   .is-mobile .dynamic-highlights-settings .dropdown-mark-wrapper  .mark-wrapper {
     white-space: nowrap;
