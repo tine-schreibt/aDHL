@@ -45,12 +45,14 @@ export class SettingTab extends PluginSettingTab {
     this.pickrInstance && this.pickrInstance.destroyAndRemove();
     this.app.keymap.popScope(this.scope);
   }
-
+// Display the settings tab
   display(): void {
     this.app.keymap.pushScope(this.scope);
     const { containerEl } = this;
     containerEl.empty();
     const config = this.plugin.settings.staticHighlighter;
+
+// Import/Export buttons
     const importExportEl = containerEl.createDiv("import-export-wrapper");
     importExportEl.createEl(
       "a",
@@ -85,6 +87,8 @@ export class SettingTab extends PluginSettingTab {
         });
       }
     );
+
+// Persistent Highlights Container
     containerEl
       .createEl("h3", {
         text: "Persistent Highlights",
@@ -92,25 +96,27 @@ export class SettingTab extends PluginSettingTab {
       .addClass("persistent-highlights");
     containerEl.addClass("dynamic-highlights-settings");
 
+    // Define Query UI
     const defineQueryUI = new Setting(containerEl);
-
     defineQueryUI
       .setName("Define persistent highlighters")
       .setClass("highlighter-definition")
       .setDesc(
         `In this section you define a unique highlighter name along with a background color and a search term/expression. Enable the regex toggle when entering a regex query. Make sure to click the save button once you're done defining the highlighter.`
       );
-
+    
+    // Create the input field for the highlighter name
     const classInput = new TextComponent(defineQueryUI.controlEl);
     classInput.setPlaceholder("Highlighter name");
     classInput.inputEl.ariaLabel = "Highlighter name";
     classInput.inputEl.addClass("highlighter-name");
 
+    // Create the color picker
     const colorWrapper = defineQueryUI.controlEl.createDiv("color-wrapper");
 
     let pickrInstance: Pickr;
     const colorPicker = new ButtonComponent(colorWrapper);
-
+      // Set the defaults for the picker
     colorPicker.setClass("highlightr-color-picker").then(() => {
       this.pickrInstance = pickrInstance = new Pickr({
         el: colorPicker.buttonEl,
@@ -136,13 +142,14 @@ export class SettingTab extends PluginSettingTab {
           },
         },
       });
-      
+      // Make the button and aria label
       const button = colorWrapper.querySelector(".pcr-button");
       if (!button) {
        throw new Error("Button is null (see ui.ts)");
       }
       button.ariaLabel = "Background color picker";
 
+      // Picker functionality
       pickrInstance
         .on("clear", (instance: Pickr) => {
           instance.hide();
@@ -170,11 +177,13 @@ export class SettingTab extends PluginSettingTab {
         });
     });
 
+    // Create the query input field
     const queryWrapper = defineQueryUI.controlEl.createDiv("query-wrapper");
     const queryInput = new TextComponent(queryWrapper);
     queryInput.setPlaceholder("Search term");
     queryInput.inputEl.addClass("highlighter-settings-query");
 
+    // Create the regex toggle
     const queryTypeInput = new ToggleComponent(queryWrapper);
     queryTypeInput.toggleEl.addClass("highlighter-settings-regex");
     queryTypeInput.toggleEl.ariaLabel = "Enable Regex";
@@ -185,15 +194,21 @@ export class SettingTab extends PluginSettingTab {
         queryInput.setPlaceholder("Search term");
       }
     });
-//#################################################
-//#################################################
-//#################################################
-//#################################################
 
     let staticDecorationValue: string = "background";
     
-    const staticDecorationDropdown = new Setting(queryWrapper)
-      .setName("Choose a decoration.")
+    // Create the marker types
+    type MarkTypes = Record<
+      markTypes,
+      { description: string; defaultState: boolean }
+    >;
+    type MarkItems = Partial<
+      Record<markTypes, { element: HTMLElement; component: ToggleComponent }>
+    >;
+    const buildMarkerTypesHardcoded = (parentEl: HTMLElement): MarkItems => {      const dropdownContainer = parentEl.createDiv("mark-wrapper");
+    // Create the static decoration dropdown
+    const staticDecorationDropdown = new Setting(dropdownContainer)
+      .setName("Deco:")
       .setClass("choose-decoration-text")
     staticDecorationDropdown
       .setClass("decoration-dropdown")
@@ -211,43 +226,32 @@ export class SettingTab extends PluginSettingTab {
         staticDecorationValue = value;
       });
     });
-//#################################################
-//#################################################
-//#################################################
 
 
-    type MarkTypes = Record<
-      markTypes,
-      { description: string; defaultState: boolean }
-    >;
-    type MarkItems = Partial<
-      Record<markTypes, { element: HTMLElement; component: ToggleComponent }>
-    >;
-    const buildMarkerTypes = (parentEl: HTMLElement) => {
       const types: MarkItems = {};
-      const marks: MarkTypes = {
-        match: { description: "matches", defaultState: true },
-        line: { description: "parent line", defaultState: false },
+    
+      // Create a wrapper for the "match" toggle
+      const matchWrapper = parentEl.createDiv("mark-wrapper");
+      matchWrapper.createSpan("match-type").setText("matches");
+      const matchToggle = new ToggleComponent(matchWrapper).setValue(true); // Default state: true
+      types["match"] = {
+        element: matchWrapper,
+        component: matchToggle,
       };
-      const container = parentEl.createDiv("mark-wrapper");
-      let type: markTypes;
-      for (type in marks) {
-        const mark = marks[type];
-        const wrapper = container.createDiv("mark-wrapper");
-        wrapper.createSpan("match-type").setText(mark.description);
-        const component = new ToggleComponent(wrapper).setValue(
-          mark.defaultState
-        );
-        types[type] = {
-          element: wrapper,
-          component: component,
-        };
-      }
+    
+      // Create a wrapper for the "line" toggle
+      const lineWrapper = parentEl.createDiv("mark-wrapper");
+      lineWrapper.createSpan("match-type").setText("parent line");
+      const lineToggle = new ToggleComponent(lineWrapper).setValue(false); // Default state: false
+      types["line"] = {
+        element: lineWrapper,
+        component: lineToggle,
+      };
       return types;
     };
-    const marks = buildMarkerTypes(defineQueryUI.controlEl);
+    const marks = buildMarkerTypesHardcoded(defineQueryUI.controlEl);
 
-
+    // Create the custom CSS field
     const customCSSWrapper =
       defineQueryUI.controlEl.createDiv("custom-css-wrapper");
     customCSSWrapper.createSpan("setting-item-name").setText("Custom CSS");
@@ -257,6 +261,7 @@ export class SettingTab extends PluginSettingTab {
 
     let currentClassName: string | null = null;
 
+    // Create the save button
     const saveButton = new ButtonComponent(queryWrapper);
     saveButton.buttonEl.setAttribute("state", "creating");
     saveButton
@@ -272,7 +277,7 @@ export class SettingTab extends PluginSettingTab {
     const previousClassName = classInput.inputEl.dataset.original; // Store the original name when editing
     currentClassName = classInput.inputEl.value.replace(/ /g, "-");
 
-    // Check if the edit mode and class name has changed
+    // Delete old highlighter when editing
     if (state === "editing" && previousClassName && previousClassName !== currentClassName) {
       // Remove the entry for the original class name
       delete config.queries[previousClassName];
@@ -283,11 +288,13 @@ export class SettingTab extends PluginSettingTab {
       }
     }
 
+    // Get the values from the form
     const staticHexValue = pickrInstance.getSelectedColor()?.toHEXA().toString();
     const queryValue = queryInput.inputEl.value;
     const queryTypeValue = queryTypeInput.getValue();
     const customCss = this.editor.state.doc.toString();
 
+    // If creating, check if the class name already exists
     if (currentClassName) {
       if (state == "creating") {
         if (!config.queryOrder.includes(currentClassName)) {
@@ -298,19 +305,14 @@ export class SettingTab extends PluginSettingTab {
         }
       }
 
+      // markTypes blablababla
       const enabledMarks = Object.entries(marks)
         .map(([type, item]) => (item.component.getValue() && type) as string)
         .filter((type): type is markTypes => ["line", "match"].includes(type));
 
-      //##############################################
-//#################################
-      //#################################
-//#################################
-      //#################################
-
   
+      // Logic for the static CSS snippet
       let staticCssSnippet: StyleSpec = {};
-
       if (staticHexValue === "default") {
         if (staticDecorationValue === "background") {
           staticCssSnippet = {
@@ -357,6 +359,7 @@ export class SettingTab extends PluginSettingTab {
       }
       console.log(`staticCssSnippet:`, staticCssSnippet);
 
+      // Gather all values
       config.queries[currentClassName] = {
         class: currentClassName,
         staticColor: staticHexValue || "#42188038",
@@ -368,7 +371,7 @@ export class SettingTab extends PluginSettingTab {
         css: customCss,
         enabled: true,
       };
-
+      // Save and update
       await this.plugin.saveSettings();
       this.plugin.updateStaticHighlighter();
       this.plugin.updateCustomCSS();

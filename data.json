@@ -42,11 +42,27 @@
         ],
         "css": "",
         "enabled": true
+      },
+      "test": {
+        "class": "test",
+        "staticColor": "#42188038",
+        "staticDecoration": "background",
+        "staticCss": {
+          "backgroundColor": "#42188038"
+        },
+        "regex": false,
+        "query": "test",
+        "mark": [
+          "line"
+        ],
+        "css": "",
+        "enabled": true
       }
     },
     "queryOrder": [
       "test01",
-      "test02"
+      "test02",
+      "test"
     ]
   }
 }

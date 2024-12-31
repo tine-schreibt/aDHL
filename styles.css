@@ -2,13 +2,6 @@
 
 /* #region selection highlighter styles */
 
-.rowWrapperClass {
-  display: grid;
-  grid-template-columns: [first] 100% [end];
-  gap: 10px;
-  align-items: center; /* Aligns items vertically in the center */
-}
-
 .selectedHighlightsStylingsContainer {
   display: grid;
   grid-template-columns: [choose_color] auto [color-picker] auto [spacer1] 5px [choose_deco] auto [drop-down] auto [spacer2] 10px [save] auto [selected-reset-button] auto [spacer3] 10px [end];
@@ -83,6 +76,7 @@
   
   .dynamic-highlights-settings h3.persistent-highlights {
     margin: 0;
+    border: none;
   }
   
   /* #region import/export */
@@ -176,24 +170,38 @@
   /* #endregion search term & save */
   
   /* #region settings tab -- mark types */
-  
-  .dynamic-highlights-settings .mark-wrapper {
+
+  .dynamic-highlights-settings .dropdown-mark-wrapper {
     display: grid;
     /* align-items: flex-end; */
     width: 100%;
     align-items: center;
-    grid-template-columns: repeat(10, auto);
+    grid-template-columns: [dropdown] 1fr [marktoggles] 1fr [end];
+  }
+
+  .dynamic-highlights-settings .dropdown-mark-wrapper .dropdown-container {
+    grid-column: [dropdown];
+    /* add spacing between toggle description and toggle button */
   }
   
-  .dynamic-highlights-settings .mark-wrapper .checkbox-container {
+  .dynamic-highlights-settings .dropdown-mark-wrapper  .mark-wrapper {
+    display: grid;
+    /* align-items: flex-end; */
+    width: 100%;
+    align-items: center;
+    grid-template-columns: auto auto;
+    grid-column: marktoggles;
+  }
+  
+  .dynamic-highlights-settings .dropdown-mark-wrapper  .mark-wrapper .checkbox-container {
     /* add spacing between toggle description and toggle button */
     /* TODO: do this properly with grid spacing */
     margin: 0px 18px 0px 8px;
   }
   
-  .is-mobile .dynamic-highlights-settings .mark-wrapper {
+  .is-mobile .dynamic-highlights-settings .dropdown-mark-wrapper  .mark-wrapper {
     white-space: nowrap;
-    grid-template-columns: repeat(2, auto);
+    grid-template-columns: repeat(3, auto);
   }
   
   /* #endregion settings tab -- mark types */
@@ -287,8 +295,8 @@
   
   .dynamic-highlights-settings .highlighter-setting-icon {
     display: flex;
-    height: 24px;
-    width: 24px;
+    height: 20px;
+    width: 20px;
   }
   
   /* #region selection highlighter settings */
