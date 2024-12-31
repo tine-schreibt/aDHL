@@ -26,6 +26,7 @@ import AnotherDynamicHighlightsPlugin from "../../main";
 import { ExportModal } from "./export";
 import { ImportModal } from "./import";
 import { markTypes } from "./settings";
+import { StyleSpec } from "style-mod";
 
 export class SettingTab extends PluginSettingTab {
   plugin: AnotherDynamicHighlightsPlugin;
@@ -189,27 +190,26 @@ export class SettingTab extends PluginSettingTab {
 //#################################################
 //#################################################
 
-    let staticDecorationValue: string;
+    let staticDecorationValue: string = "background";
     
     const staticDecorationDropdown = new Setting(queryWrapper)
-    .setName("Choose a decoration.")
-    .setClass("choose-decoration-text")
+      .setName("Choose a decoration.")
+      .setClass("choose-decoration-text")
     staticDecorationDropdown
-    .setClass("decoration-dropdown")
-    .addDropdown((dropdown) => {
+      .setClass("decoration-dropdown")
+      .addDropdown((dropdown) => {
     dropdown
-    .addOption("default", "Default")
-    .addOption("underline", "Underline")
-    .addOption("underline dotted", "Dotted")
-    .addOption("underline dashed", "Dashed")
-    .addOption("underline wavy", "Wavy")
-    .addOption("background", "Background")
-    .addOption("bold", "Bold, colored text")
-    .addOption("line-through", "Strikethrough")
-    .setValue("background")
-    .onChange((value) => {
-      staticDecorationValue = value;
-    });
+      .addOption("underline", "Underline")
+      .addOption("underline dotted", "Dotted")
+      .addOption("underline dashed", "Dashed")
+      .addOption("underline wavy", "Wavy")
+      .addOption("background", "Background")
+      .addOption("bold", "Bold, colored text")
+      .addOption("line-through", "Strikethrough")
+      .setValue("background")
+      .onChange((value) => {
+        staticDecorationValue = value;
+      });
     });
 //#################################################
 //#################################################
@@ -266,11 +266,9 @@ export class SettingTab extends PluginSettingTab {
   .setIcon("save")
   .setTooltip("Save")
   .onClick(async (buttonEl: MouseEvent) => {
-    console.log("Save button clicked");
 
     // Determine the current state (creating/editing)
     const state = saveButton.buttonEl.getAttribute("state");
-    console.log(`saveButton initial state:`, "state", state)
     const previousClassName = classInput.inputEl.dataset.original; // Store the original name when editing
     currentClassName = classInput.inputEl.value.replace(/ /g, "-");
 
@@ -304,10 +302,66 @@ export class SettingTab extends PluginSettingTab {
         .map(([type, item]) => (item.component.getValue() && type) as string)
         .filter((type): type is markTypes => ["line", "match"].includes(type));
 
+      //##############################################
+//#################################
+      //#################################
+//#################################
+      //#################################
+
+  
+      let staticCssSnippet: StyleSpec = {};
+
+      if (staticHexValue === "default") {
+        if (staticDecorationValue === "background") {
+          staticCssSnippet = {
+            backgroundColor: "var(--text-accent)",
+          };
+        } else if (staticDecorationValue === "bold") {
+          staticCssSnippet = {
+            fontWeight: "bold",
+            color: "var(--text-accent)",
+          };
+        } else if (staticDecorationValue === "underline wavy") {
+          staticCssSnippet = {
+            textDecoration: "underline wavy",
+            textDecorationColor: "var(--text-accent)",
+          };
+        } else {
+          staticCssSnippet = {
+            textDecoration: staticDecorationValue,
+            textDecorationColor: "var(--text-accent)",
+          };
+        }
+      } else {
+        if (staticDecorationValue === "background") {
+          staticCssSnippet = {
+            backgroundColor: staticHexValue,
+          };
+        } else if (staticDecorationValue === "bold") {
+          staticCssSnippet = {
+            fontWeight: "bold",
+            color: staticHexValue,
+          };
+        } else if (staticDecorationValue === "underline wavy") {
+          staticCssSnippet = {
+            textDecoration: "underline wavy",
+            textDecorationThickness: "1px",
+            textDecorationColor: "var(--text-accent)",
+          };
+        } else {
+          staticCssSnippet = {
+            textDecoration: staticDecorationValue,
+            textDecorationColor: staticHexValue,
+          };
+        }
+      }
+      console.log(`staticCssSnippet:`, staticCssSnippet);
+
       config.queries[currentClassName] = {
         class: currentClassName,
         staticColor: staticHexValue || "#42188038",
         staticDecoration: staticDecorationValue || "background",
+        staticCss: staticCssSnippet,
         regex: queryTypeValue,
         query: queryValue,
         mark: enabledMarks,
@@ -321,7 +375,6 @@ export class SettingTab extends PluginSettingTab {
       this.plugin.updateStyles();
       this.display();
       saveButton.buttonEl.setAttribute("state", "creating");
-      console.log(`saveButton state after saving:`, "state", state)
     } else if (!currentClassName && staticHexValue) {
       new Notice("Highlighter name missing");
     } else if (!/^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test(currentClassName)) {
@@ -341,7 +394,6 @@ discardButton
   .setTooltip("Discard Changes")
   .onClick(() => {
     const state = saveButton.buttonEl.getAttribute("state");
-    console.log("Discard button clicked, current state:", state);
 
     if (state === "editing") {
       // Reset to original values
@@ -606,7 +658,6 @@ selectionColorPicker.setClass("selected-color-picker").then(() => {
       .setClass("decoration-dropdown")
       .addDropdown((dropdown) => {
         dropdown
-          .addOption("default", "Default")
           .addOption("underline", "Underline")
           .addOption("underline dotted", "Dotted")
           .addOption("underline dashed", "Dashed")
@@ -630,9 +681,7 @@ selectionColorPicker.setClass("selected-color-picker").then(() => {
         .onClick(async () => {
           let color = this.plugin.settings.selectionHighlighter.selectionColor;
           let decoration = this.plugin.settings.selectionHighlighter.selectionDecoration;
-            if (decoration == "default") {
-               decoration = "dotted"
-            }
+
           let cssSnippet;
 
           if (color == "default") {
@@ -702,9 +751,6 @@ selectionColorPicker.setClass("selected-color-picker").then(() => {
             this.plugin.updateSelectionHighlighter();
           });
       });
-
-
-
 
     new Setting(containerEl)
       .setName("Highlight all occurrences of the actively selected text")

@@ -6,9 +6,9 @@
     "minSelectionLength": 3,
     "highlightDelay": 200,
     "ignoredWords": "myself, our, ours, ourselves, you, your, yours, yourself, yourselves, him, his, himself, she, her, hers, herself, its, itself, they, them, their, theirs, themselves, what, which, who, whom, this, that, these, those, are, was, were, been, being, have, has, had, having, does, did, doing, the, and, but, because, until, while, for, with, about, against, between, into, through, during, before, after, above, below, from, down, out, off, over, under, again, further, then, once, here, there, when, where, why, how, all, any, both, each, few, more, most, other, some, such, nor, not, only, own, same, than, too, very, can, will, just, don, should,now",
-    "selectionColor": "#42188038",
-    "selectionDecoration": "background",
-    "css": "background-color: #42188038"
+    "selectionColor": "default",
+    "selectionDecoration": "underline dotted",
+    "css": "text-decoration: underline dotted; text-decoration-color: var(--text-accent)"
   },
   "staticHighlighter": {
     "queries": {
@@ -16,6 +16,9 @@
         "class": "test01",
         "staticColor": "#42188038",
         "staticDecoration": "background",
+        "staticCss": {
+          "backgroundColor": "#42188038"
+        },
         "regex": false,
         "query": "test01",
         "mark": [
@@ -27,7 +30,11 @@
       "test02": {
         "class": "test02",
         "staticColor": "#42188038",
-        "staticDecoration": "underline dotted",
+        "staticDecoration": "underline dashed",
+        "staticCss": {
+          "textDecoration": "underline dashed",
+          "textDecorationColor": "#42188038"
+        },
         "regex": false,
         "query": "test02",
         "mark": [

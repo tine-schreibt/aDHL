@@ -70,9 +70,12 @@ export function buildStyles(plugin: AnotherDynamicHighlightsPlugin) {
 	let queries = Object.values(plugin.settings.staticHighlighter.queries);
 	let styles: Styles = {};
 	for (let query of queries) {
-		let className = "." + query.class;
+		if (query.staticCss) {
+			let css = query.staticCss;
+		}
+		let className = "." + query.class; 
 		if (!query.staticColor) continue;
-		styles[className] = { backgroundColor: query.staticColor };
+		styles[className] = query.staticCss;
 	}
 	let theme = EditorView.theme(styles);
 	return theme;

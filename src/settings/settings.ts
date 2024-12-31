@@ -3,6 +3,8 @@
 import { staticHighlightConfig, StaticHighlightOptions } from "src/highlighters/static";
 import { SelectionHighlightOptions } from "../highlighters/selection";
 import { ignoredWords } from "./ignoredWords";
+import { StyleSpec } from "style-mod";
+
 
 /*
 interface SearchConfig {
@@ -24,6 +26,7 @@ interface SearchQuery {
   class: string;
   staticColor: string;
   staticDecoration: string;
+  staticCss: StyleSpec;
   regex: boolean;
   mark?: markTypes[];
   css?: string;

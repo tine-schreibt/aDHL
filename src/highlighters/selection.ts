@@ -49,10 +49,13 @@ export const highlightConfig = Facet.define<
   combine(options: readonly SelectionHighlightOptions[]) {
     return combineConfig(options, defaultHighlightOptions, {
       highlightWordAroundCursor: (a, b) => a || b,
+      highlightSelectedText: (a, b) => a || b,
       minSelectionLength: Math.min,
       maxMatches: Math.min,
       highlightDelay: Math.min,
       ignoredWords: (a, b) => a || b,
+      selectionColor: (a, b) => b || a,
+      selectionDecoration: (a, b) => b || a,
       css: (a, b) => b || a, // Use the custom css if available, otherwise fallback to default
     });
   },
