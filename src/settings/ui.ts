@@ -522,6 +522,7 @@ discardButton
           
           pickrInstance.setColor(options.staticColor);
           queryInput.inputEl.value = options.query;
+          staticDecorationDropdownComponent.setValue(options.staticDecoration);
           pickrInstance.setColor(options.staticColor);
           queryTypeInput.setValue(options.regex);
 
