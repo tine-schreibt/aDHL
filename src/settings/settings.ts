@@ -1,6 +1,6 @@
 /* added decoType */
 
-import { StaticHighlightOptions } from "src/highlighters/static";
+import { staticHighlightConfig, StaticHighlightOptions } from "src/highlighters/static";
 import { SelectionHighlightOptions } from "../highlighters/selection";
 import { ignoredWords } from "./ignoredWords";
 
@@ -22,8 +22,9 @@ export interface CSSSettings {
 interface SearchQuery {
   query: string;
   class: string;
-  color: string | null;
-    regex: boolean;
+  staticColor: string;
+  staticDecoration: string;
+  regex: boolean;
   mark?: markTypes[];
   css?: string;
   enabled?: boolean;

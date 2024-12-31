@@ -184,6 +184,37 @@ export class SettingTab extends PluginSettingTab {
         queryInput.setPlaceholder("Search term");
       }
     });
+//#################################################
+//#################################################
+//#################################################
+//#################################################
+
+    let staticDecorationValue: string;
+    
+    const staticDecorationDropdown = new Setting(queryWrapper)
+    .setName("Choose a decoration.")
+    .setClass("choose-decoration-text")
+    staticDecorationDropdown
+    .setClass("decoration-dropdown")
+    .addDropdown((dropdown) => {
+    dropdown
+    .addOption("default", "Default")
+    .addOption("underline", "Underline")
+    .addOption("underline dotted", "Dotted")
+    .addOption("underline dashed", "Dashed")
+    .addOption("underline wavy", "Wavy")
+    .addOption("background", "Background")
+    .addOption("bold", "Bold, colored text")
+    .addOption("line-through", "Strikethrough")
+    .setValue("background")
+    .onChange((value) => {
+      staticDecorationValue = value;
+    });
+    });
+//#################################################
+//#################################################
+//#################################################
+
 
     type MarkTypes = Record<
       markTypes,
@@ -215,27 +246,6 @@ export class SettingTab extends PluginSettingTab {
       return types;
     };
     const marks = buildMarkerTypes(defineQueryUI.controlEl);
-
-   /* const decorationDropdown = new Setting(rowWrapper)
-      .setName("Choose a decoration style.")
-      .setClass("choose-decoration-text")
-      decorationDropdown
-      .setClass("decoration-dropdown")
-      .addDropdown((dropdown) => {
-        dropdown
-          .addOption("underline", "Underline")
-          .addOption("underline dotted", "Dotted")
-          .addOption("underline dashed", "Dashed")
-          .addOption("underline wavy", "Wavy")
-          .addOption("background", "Background")
-          .addOption("bold", "Bold, colored text")
-          .addOption("line-through", "Strikethrough")
-          .setValue(this.plugin.settings.selectionHighlighter.selectionDecoration)
-          .onChange((value) => {
-            this.plugin.settings.selectionHighlighter.selectionDecoration = value;
-            this.plugin.saveSettings();
-          });
-      });*/
 
 
     const customCSSWrapper =
@@ -275,7 +285,7 @@ export class SettingTab extends PluginSettingTab {
       }
     }
 
-    const hexValue = pickrInstance.getSelectedColor()?.toHEXA().toString();
+    const staticHexValue = pickrInstance.getSelectedColor()?.toHEXA().toString();
     const queryValue = queryInput.inputEl.value;
     const queryTypeValue = queryTypeInput.getValue();
     const customCss = this.editor.state.doc.toString();
@@ -296,7 +306,8 @@ export class SettingTab extends PluginSettingTab {
 
       config.queries[currentClassName] = {
         class: currentClassName,
-        color: hexValue || "",
+        staticColor: staticHexValue || "#42188038",
+        staticDecoration: staticDecorationValue || "background",
         regex: queryTypeValue,
         query: queryValue,
         mark: enabledMarks,
@@ -311,7 +322,7 @@ export class SettingTab extends PluginSettingTab {
       this.display();
       saveButton.buttonEl.setAttribute("state", "creating");
       console.log(`saveButton state after saving:`, "state", state)
-    } else if (!currentClassName && hexValue) {
+    } else if (!currentClassName && staticHexValue) {
       new Notice("Highlighter name missing");
     } else if (!/^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test(currentClassName)) {
       new Notice("Highlighter name missing");
@@ -341,7 +352,7 @@ discardButton
         "style",
         `background-color: none; color: var(--text-normal);`
       );
-      pickrInstance.setColor(options.color);
+      pickrInstance.setColor(options.staticColor);
       queryInput.inputEl.value = options.query;
       queryTypeInput.setValue(options.regex);
       this.editor.setState(
@@ -385,8 +396,8 @@ discardButton
     this.plugin.settings.staticHighlighter.queryOrder.forEach((highlighter) => {
       const queryConfig = config.queries[highlighter];
       if (queryConfig) {
-        const { color, query, regex } = queryConfig;
-        const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=${color} stroke=${color} stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M20.707 5.826l-3.535-3.533a.999.999 0 0 0-1.408-.006L7.096 10.82a1.01 1.01 0 0 0-.273.488l-1.024 4.437L4 18h2.828l1.142-1.129l3.588-.828c.18-.042.345-.133.477-.262l8.667-8.535a1 1 0 0 0 .005-1.42zm-9.369 7.833l-2.121-2.12l7.243-7.131l2.12 2.12l-7.242 7.131zM4 20h16v2H4z"/></svg>`;
+        const { staticColor, query, regex } = queryConfig;
+        const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=${staticColor} stroke=${staticColor} stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M20.707 5.826l-3.535-3.533a.999.999 0 0 0-1.408-.006L7.096 10.82a1.01 1.01 0 0 0-.273.488l-1.024 4.437L4 18h2.828l1.142-1.129l3.588-.828c.18-.042.345-.133.477-.262l8.667-8.535a1 1 0 0 0 .005-1.42zm-9.369 7.833l-2.121-2.12l7.243-7.131l2.12 2.12l-7.242 7.131zM4 20h16v2H4z"/></svg>`;
         const settingItem = highlightersContainer.createEl("div");
         settingItem.id = "dh-" + highlighter;
         settingItem.addClass("highlighter-item-draggable");
@@ -403,7 +414,7 @@ discardButton
         const desc: string[] = [];
         desc.push((regex ? "search expression: " : "search term: ") + query);
         desc.push("css class: " + highlighter);
-        desc.push("color: " + config.queries[highlighter].color);
+        desc.push("color: " + config.queries[highlighter].staticColor);
 
         new Setting(settingItem)
           .setClass("highlighter-details")
@@ -450,9 +461,9 @@ discardButton
           classInput.inputEl.value = highlighter;
           classInput.inputEl.dataset.original = highlighter; // Store original name
           
-          pickrInstance.setColor(options.color);
+          pickrInstance.setColor(options.staticColor);
           queryInput.inputEl.value = options.query;
-          pickrInstance.setColor(options.color);
+          pickrInstance.setColor(options.staticColor);
           queryTypeInput.setValue(options.regex);
 
           const extensions = basicSetup;
@@ -588,10 +599,10 @@ selectionColorPicker.setClass("selected-color-picker").then(() => {
     });
 });
 
-    const decorationDropdown = new Setting(rowWrapper)
+    const selectionDecorationDropdown = new Setting(rowWrapper)
       .setName("Choose a decoration.")
       .setClass("choose-decoration-text")
-      decorationDropdown
+      selectionDecorationDropdown
       .setClass("decoration-dropdown")
       .addDropdown((dropdown) => {
         dropdown

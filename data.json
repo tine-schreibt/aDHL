@@ -12,11 +12,24 @@
   },
   "staticHighlighter": {
     "queries": {
-      "test": {
-        "class": "test",
-        "color": "#1847805C",
+      "test01": {
+        "class": "test01",
+        "staticColor": "#42188038",
+        "staticDecoration": "background",
         "regex": false,
-        "query": "test",
+        "query": "test01",
+        "mark": [
+          "match"
+        ],
+        "css": "",
+        "enabled": true
+      },
+      "test02": {
+        "class": "test02",
+        "staticColor": "#42188038",
+        "staticDecoration": "underline dotted",
+        "regex": false,
+        "query": "test02",
         "mark": [
           "match"
         ],
@@ -25,7 +38,8 @@
       }
     },
     "queryOrder": [
-      "test"
+      "test01",
+      "test02"
     ]
   }
 }
