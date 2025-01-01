@@ -177,7 +177,6 @@
   .dropdown-and-marks-container {
     display: grid;
     grid-template-columns: 
-      [deco-text] auto 
       [deco-dropdown] auto 
       [spacer1] 5px 
       [matches-text] auto 
@@ -185,19 +184,13 @@
       [spacer2] 10px 
       [line-text] auto 
       [line-toggle] auto 
+      [group-drowdown] auto
       [end];
       grid-template-rows: [row] auto;
       gap: 10px;
       width: 100%;
       align-items: center;
       justify-content: start;
-  }
-  
-  .dropdown-and-marks-container .deco-text {
-    grid-column: deco-text; /* Corrected column names */
-    align-self: center;
-    text-align: end;
-    width: 100%;
   }
   
   .dropdown-and-marks-container .deco-dropdown {
@@ -209,7 +202,7 @@
     top: -8px; 
     border: none;
   }
-  
+
   .dropdown-and-marks-container .matches-text {
     grid-column: matches-text;
     text-align: end;
@@ -226,6 +219,16 @@
   
   .dropdown-and-marks-container .line-toggle {
     grid-column: line-toggle;
+  }
+
+  .dropdown-and-marks-container .group-dropdown {
+    grid-column: group-dropdown;
+    margin: 0;
+    padding: 0;
+    align-self: center;
+    position: relative;
+    top: -8px; 
+    border: none;
   }
 
   .group-modal-text {
