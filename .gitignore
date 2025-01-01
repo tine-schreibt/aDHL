@@ -1,3 +1,6 @@
 /node_modules
 /main.js
-yarn.lock
+/yarn.lock
+/data.json
+/main.js
+.gitignore

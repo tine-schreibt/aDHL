@@ -30,6 +30,8 @@ interface SearchQuery {
   regex: boolean;
   mark?: markTypes[];
   css?: string;
+  group: string; 
+  groupEnabled: boolean;
   enabled?: boolean;
 }
 export interface SearchQueries {

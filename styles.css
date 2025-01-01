@@ -227,6 +227,10 @@
   .dropdown-and-marks-container .line-toggle {
     grid-column: line-toggle;
   }
+
+  .group-modal-text {
+    width: 400px;
+  }
   
   
 

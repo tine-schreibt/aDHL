@@ -20,6 +20,7 @@ import {
   DropdownComponent,
   TextComponent,
   ToggleComponent,
+  Modal,
 } from "obsidian";
 import Sortable from "sortablejs";
 import { basicSetup } from "src/editor/extensions";
@@ -199,6 +200,9 @@ export class SettingTab extends PluginSettingTab {
     let staticDecorationValue: string = "background";
     let staticDecorationDropdown: Setting;
     let staticDecorationDropdownComponent: DropdownComponent;
+    let groupDropdown: DropdownComponent;
+    let groupName: string; 
+    let groupStatus: boolean;
     
     // Create the marker types
     type MarkTypes = Record<
@@ -208,6 +212,7 @@ export class SettingTab extends PluginSettingTab {
     type MarkItems = Partial<
       Record<markTypes, { element: HTMLElement; component: ToggleComponent }>
     >;
+
     const buildMarkerTypesHardcoded = (parentEl: HTMLElement): MarkItems => {
       // Create a single grid container
       const dropdownContainer = parentEl.createDiv("dropdown-and-marks-container");
@@ -253,6 +258,33 @@ export class SettingTab extends PluginSettingTab {
         component: lineToggle,
       };
     
+      // GROUP DROPDOWN
+    groupDropdown = new DropdownComponent(dropdownContainer);
+    groupDropdown.addOption("Ungrouped", "Ungrouped"); // Default option
+     // Create a Set to track unique group names
+    const uniqueGroups = new Set<string>(); 
+
+    Object.keys(config.queries).forEach((highlighter) => {
+      const grouping = config.queries[highlighter].group;
+      const groupingStatus = config.queries[highlighter].groupEnabled;
+      if (grouping && !uniqueGroups.has(grouping)) {
+        uniqueGroups.add(grouping); // Add to the Set to track uniqueness
+        groupDropdown.addOption(grouping, grouping);
+      }
+      groupDropdown.onChange(value => {
+        groupName = value; 
+        groupStatus = groupingStatus;
+      })
+    });
+    // Add the "Create new group" option
+    groupDropdown.addOption("create-new", "Create new group");
+    groupDropdown.onChange((value) => {
+      if (value === "create-new") {
+        // Open modal to create a new group
+      openNewGroupModal(groupDropdown, groupName, groupStatus);
+      }
+    });
+
       return types;
     };
     
@@ -300,6 +332,8 @@ const staticHexValue = pickrInstance.getSelectedColor()?.toHEXA().toString();
 const queryValue = queryInput.inputEl.value;
 const queryTypeValue = queryTypeInput.getValue();
 const customCss = this.editor.state.doc.toString();
+const groupNameValue = groupDropdown.getValue(); // Get the current value from the dropdown
+const groupStatusValue = groupStatus; // Use the current groupStatus
 
 // If creating, check if the class name already exists
 if (currentClassName) {
@@ -376,6 +410,8 @@ if (currentClassName) {
     mark: enabledMarks,
     css: customCss,
     enabled: true,
+    group: groupNameValue, // Save the group name
+    groupEnabled: groupStatusValue, // Save the group status
   };
   // Save and update
   await this.plugin.saveSettings();
@@ -411,6 +447,7 @@ discardButton
       classInput.inputEl.value = currentClassName;
       pickrInstance.setColor(options.staticColor);
       queryInput.inputEl.value = options.query;
+      groupDropdown.setValue(options.group);
       queryTypeInput.setValue(options.regex);
       this.editor.setState(
         EditorState.create({
@@ -444,7 +481,7 @@ discardButton
   }});
     
    // ################## HIGHTLIGHER CONTAINER ##################
-    const highlightersContainer = containerEl.createEl("div", {
+const highlightersContainer = containerEl.createEl("div", {
       cls: "highlighter-container",
     });
 
@@ -470,8 +507,7 @@ discardButton
         dragIcon.ariaLabel = "Drag to rearrange";
         const desc: string[] = [];
         desc.push((regex ? "search expression: " : "search term: ") + query);
-        desc.push("css class: " + highlighter);
-        desc.push("color: " + config.queries[highlighter].staticColor);
+        desc.push("group: " + config.queries[highlighter].group);
 
         new Setting(settingItem)
           .setClass("highlighter-details")
@@ -522,6 +558,9 @@ discardButton
           queryInput.inputEl.value = options.query;
           staticDecorationDropdownComponent.setValue(options.staticDecoration);
           staticDecorationValue = options.staticDecoration; // Set staticDecorationValue to the current value
+          groupName = options.group;
+          groupDropdown.setValue(options.group);
+          groupStatus = options.groupEnabled;
           pickrInstance.setColor(options.staticColor);
           queryTypeInput.setValue(options.regex);
 
@@ -827,3 +866,36 @@ function editorFromTextArea(
   return view;
 }
 
+
+function openNewGroupModal(dropdown: DropdownComponent, nameHolder: string, statusHolder: boolean) {
+  const modal = new Modal(this.app);
+  modal.titleEl.appendText("Create New Group")
+// input element for groupName
+  const input = modal.contentEl.createEl("input", {
+    type: "text",
+    placeholder: "Enter new group name (case sensitive).",
+  })
+  input.addClass("group-modal-text")
+  ;
+  // save button
+  const createButton = modal.contentEl.createEl("button", {
+    text: "Create",
+  });
+
+  createButton.onclick = async () => {
+    const newGroupName = input.value.trim();
+    // if a group name is entered, hand over name and set status to enabled
+      if (newGroupName) {
+        nameHolder = newGroupName;
+        statusHolder = true;
+        dropdown.addOption(newGroupName, newGroupName);
+        dropdown.setValue(newGroupName);
+        new Notice(`Group "${newGroupName}" created successfully!`);
+        } else {
+        new Notice(`Please enter a group name.`);
+      }
+      modal.close(); 
+    };
+
+  modal.open();
+}
