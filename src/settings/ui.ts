@@ -60,7 +60,7 @@ export class SettingTab extends PluginSettingTab {
 		importExportEl.createEl(
 			"a",
 			{
-				cls: "dynamic-highlighter-import",
+				cls: "dynamic-highlighter-import-export",
 				text: "Import",
 				href: "#",
 			},
@@ -74,7 +74,7 @@ export class SettingTab extends PluginSettingTab {
 		importExportEl.createEl(
 			"a",
 			{
-				cls: "dynamic-highlighter-export",
+				cls: "dynamic-highlighter-import-export",
 				text: "Export",
 				href: "#",
 			},
@@ -309,13 +309,13 @@ export class SettingTab extends PluginSettingTab {
 
 		const marks = buildMarkerTypesHardcoded(defineQueryUI.controlEl);
 
-		// Create the custom CSS field
+		/*	// Create the custom CSS field
 		const customCSSWrapper =
 			defineQueryUI.controlEl.createDiv("custom-css-wrapper");
 		customCSSWrapper.createSpan("setting-item-name").setText("Custom CSS");
 		const customCSSEl = new TextAreaComponent(customCSSWrapper);
 		this.editor = editorFromTextArea(customCSSEl.inputEl, basicSetup);
-		customCSSEl.inputEl.addClass("custom-css");
+		customCSSEl.inputEl.addClass("custom-css");*/
 
 		let currentClassName: string | null = null;
 
@@ -513,10 +513,15 @@ export class SettingTab extends PluginSettingTab {
 		// #########################################################################################################
 		// ########################################### HIGHTLIGHER CONTAINER #######################################
 		// #########################################################################################################
+
 		const highlightersContainer = containerEl.createEl("div", {
 			cls: "highlighter-container",
 		});
-
+		// Create an h3 element for the title
+		const titleElement = highlightersContainer.createEl("h3", {
+			text: "Your grouped highlighters",
+			cls: "your-highlighters",
+		});
 		// Create a map to hold group containers
 		const groupContainers: { [key: string]: HTMLElement } = {};
 
@@ -532,6 +537,7 @@ export class SettingTab extends PluginSettingTab {
 				const { staticColor, query, regex, group } = queryConfig;
 
 				// Create or get the group container
+				// Create or get the group container
 				if (!groupContainers[group]) {
 					const groupContainer = highlightersContainer.createEl("div", {
 						cls: "group-container",
@@ -539,12 +545,47 @@ export class SettingTab extends PluginSettingTab {
 					const groupHeader = groupContainer.createEl("div", {
 						cls: "group-header",
 					});
-					const groupName = groupHeader.createSpan("group-name");
-					groupName.style.cursor = "pointer"; // Change cursor to pointer for better UX
+
+					// Create a clickable icon for expand/collapse
+					const toggleIcon = groupHeader.createEl("div", {
+						cls: "toggle-icon",
+					});
+					setIcon(toggleIcon, "chevron-down"); // Add a down arrow icon (expand state)
+
+					const groupName = groupHeader.createSpan("group-header");
 					groupName.setText(group);
+					groupName.addClass("group-name");
+					groupName.style.cursor = "pointer";
+
+					let highlightersList = groupContainer.createEl("div", {
+						cls: "highlighters-list",
+					});
+					highlightersList.style.display =
+						group === "Ungrouped" ? "block" : "none";
+
+					const toggleVisibility = () => {
+						const isHidden =
+							highlightersList.style.display === "none" ||
+							highlightersList.style.display === "";
+						highlightersList.style.display = isHidden ? "block" : "none"; // Toggle visibility
+
+						// Update the icon
+						setIcon(toggleIcon, isHidden ? "chevron-up" : "chevron-down");
+					};
+
+					// Handle click to toggle the icon and container
+					toggleIcon.addClass("group-icon");
+					toggleIcon.style.cursor = "pointer"; // Change cursor to pointer for better UX
+
+					groupName.onclick = () => {
+						toggleVisibility();
+					};
+					toggleIcon.onclick = () => {
+						toggleVisibility();
+					};
 
 					// Create a highlighters list container
-					const highlightersList = groupContainer.createEl("div", {
+					highlightersList = groupContainer.createEl("div", {
 						cls: "highlighters-list",
 					});
 					// Store the highlightersList in the groupContainers map
@@ -557,23 +598,13 @@ export class SettingTab extends PluginSettingTab {
 					}
 
 					// Add click event to the group name to toggle visibility
-					groupName.onclick = () => {
-						if (
-							highlightersList.style.display === "none" ||
-							highlightersList.style.display === ""
-						) {
-							highlightersList.style.display = "block"; // Show the highlighters
-						} else {
-							highlightersList.style.display = "none"; // Hide the highlighters
-						}
-					};
 
 					// Create the toggle for enabling/disabling the group
 					const groupToggle = new Setting(groupHeader);
 					groupHeader.style.cursor = "default"; // Force default cursor for the entire container
 					groupToggle.setClass("group-toggle").addToggle((toggle) => {
 						toggle.setValue(config.queries[highlighter].groupEnabled ?? true);
-						toggle.onChange(async (value) => {
+						toggle.onChange((value) => {
 							// Update the groupEnabled status for the specific group
 							this.plugin.settings.staticHighlighter.queryOrder.forEach(
 								(highlighter) => {
@@ -586,15 +617,19 @@ export class SettingTab extends PluginSettingTab {
 										this.plugin.settings.staticHighlighter.queries[
 											highlighter
 										].groupEnabled = value;
-								}
+								},
+								(async () => {
+									// Call the save function to persist the changes
+									await this.plugin.saveSettings();
+
+									// Refresh the highlighter decorations
+									this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
+								})()
 							);
-							console.log(config.queries[highlighter], group, value);
 							toggle.toggleEl.setAttribute(
 								"aria-label",
 								value ? `Disable ${group}` : `Enable ${group}`
 							);
-							await this.plugin.saveSettings();
-							this.plugin.updateSelectionHighlighter();
 						});
 					});
 
@@ -735,15 +770,24 @@ export class SettingTab extends PluginSettingTab {
 								new Notice(`${highlighter} highlight deleted`);
 								delete config.queries[highlighter];
 								config.queryOrder.remove(highlighter);
+								// Ensure this method exists in your plugin
+
+								// Check if the group container is empty and remove it if necessary
+								const groupContainer = groupContainers[queryConfig.group];
+								if (groupContainer) {
+									const remainingHighlighters = Object.keys(
+										config.queries
+									).filter(
+										(key) => config.queries[key].group === queryConfig.group
+									);
+									if (remainingHighlighters.length === 0) {
+										groupContainer.detach(); // Remove the group container if no highlighters remain
+										delete groupContainers[queryConfig.group]; // Clean up the reference
+									}
+								}
 								await this.plugin.saveSettings();
 								this.plugin.updateStyles();
 								this.plugin.updateStaticHighlighter();
-								const highlighterElement = highlightersContainer.querySelector(
-									`#dh-${highlighter}`
-								);
-								if (highlighterElement) {
-									highlighterElement.detach();
-								}
 							});
 					});
 

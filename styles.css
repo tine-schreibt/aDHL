@@ -74,7 +74,9 @@
 
 .dynamic-highlights-settings h3.persistent-highlights {
 	margin: 0;
-	border: none;
+	border-bottom: 1px solid #ccc; /* Add a complete border */
+	border-radius: 5px; /* Optional: Add some rounding to the corners */
+	padding: 10px; /* Optional: Add some padding for better spacing */
 }
 
 /* #region import/export */
@@ -192,6 +194,9 @@
 	width: 100%;
 	align-items: center;
 	justify-content: start;
+	border-bottom: 1px solid #ccc; /* Add a complete border */
+	border-radius: 5px; /* Optional: Add some rounding to the corners */
+	padding: 10px; /* Optional: Add some padding for better spacing */
 }
 
 .dropdown-and-marks-container .deco-dropdown {
@@ -236,47 +241,41 @@
 	width: 400px;
 }
 
-.group-container {
-	margin-bottom: 10px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	padding: 10px;
+/* styles.css */
+.your-highlighters {
+	border-bottom: solid #ccc;
 }
 
-.group-header {
-	font-weight: bold;
+.group-container .group-header {
+	display: flex; /* Use flexbox for layout */
+	align-items: center; /* Center items vertically */
+	cursor: pointer; /* Keep the pointer cursor */
+	border-bottom: 1px solid #ccc; /* Add a complete border */
+	/*border-radius: 5px; /* Optional: Add some rounding to the corners */
+	padding: 10px; /* Optional: Add some padding for better spacing */
+}
+
+.group-header .highlighters-list {
+	border-top: 1px;
+	border-bottom: 1px;
+}
+
+.group-header .toggle-icon {
+	margin-right: 5px; /* Push the toggle to the left */
 	cursor: pointer;
-	.dropdown-and-marks-container {
-		display: grid;
-		grid-template-columns:
-			[group-name] auto
-			[spacer1] 5px
-			[group-toggle] auto
-			[group-edit-button] auto
-			[spacer2] 10px
-			[group-delete-button] auto
-			[end];
-		grid-template-rows: [row] auto;
-		gap: 10px;
-		width: 100%;
-		align-items: center;
-		justify-content: start;
-	}
+	border-top: 1px;
+	border-bottom: 1px;
 }
-
-.group-header .group-text {
-	grid-column: group-name;
-	text-align: end;
-	font-size: medium;
+.group-header .group-name {
+	flex-grow: 1; /* Allow the group name to take available space */
+	border-top: 1px;
+	border-bottom: 1px;
 }
 
 .group-header .group-toggle {
-	grid-column: line-toggle;
-}
-
-.highlighters-list {
-	display: none; /* Initially hidden */
-	margin-top: 5px;
+	margin-left: auto; /* Push the toggle to the right */
+	border-top: 1px;
+	border-bottom: 1px;
 }
 
 /*###################################################

@@ -25,7 +25,7 @@ import AnotherDynamicHighlightsPlugin from "main";
 import { SearchQueries } from "src/settings/settings";
 import { StyleSpec } from "style-mod";
 import { RegExpCursor } from "./regexp-cursor";
-import { NodeProp } from '@lezer/common';
+import { NodeProp } from "@lezer/common";
 
 export type StaticHighlightOptions = {
 	queries: SearchQueries;
@@ -73,7 +73,7 @@ export function buildStyles(plugin: AnotherDynamicHighlightsPlugin) {
 		if (query.staticCss) {
 			let css = query.staticCss;
 		}
-		let className = "." + query.class; 
+		let className = "." + query.class;
 		if (!query.staticColor) continue;
 		styles[className] = query.staticCss;
 	}
@@ -140,7 +140,7 @@ const staticHighlighter = ViewPlugin.fromClass(
 				);
 			for (let part of view.visibleRanges) {
 				for (let query of queries) {
-					if (query.enabled) { 
+					if (query.enabled && query.groupEnabled) {
 						let cursor: RegExpCursor | SearchCursor;
 						try {
 							if (query.regex)
@@ -166,21 +166,14 @@ const staticHighlighter = ViewPlugin.fromClass(
 							let { from, to } = cursor.value;
 							let string = state.sliceDoc(from, to).trim();
 							const linePos = view.state.doc.lineAt(from)?.from;
-							let syntaxNode = syntaxTree(view.state).resolveInner(
-									linePos + 1
-								),
-								nodeProps =
-									syntaxNode.type.prop(tokenClassNodeProp),
-								excludedSection = [
-									"hmd-codeblock",
-									"hmd-frontmatter",
-								].find((token) =>
-									nodeProps?.toString().split(" ").includes(token)
+							let syntaxNode = syntaxTree(view.state).resolveInner(linePos + 1),
+								nodeProps = syntaxNode.type.prop(tokenClassNodeProp),
+								excludedSection = ["hmd-codeblock", "hmd-frontmatter"].find(
+									(token) => nodeProps?.toString().split(" ").includes(token)
 								);
 							if (excludedSection) continue;
 							if (query.mark?.contains("line")) {
-								if (!lineClasses[linePos])
-									lineClasses[linePos] = [];
+								if (!lineClasses[linePos]) lineClasses[linePos] = [];
 								lineClasses[linePos].push(query.class);
 							}
 							if (!query.mark || query.mark?.contains("match")) {
@@ -190,7 +183,7 @@ const staticHighlighter = ViewPlugin.fromClass(
 								});
 								tokenDecos.push(markDeco.range(from, to));
 							}
-						} 
+						}
 					}
 				}
 			}
@@ -205,12 +198,8 @@ const staticHighlighter = ViewPlugin.fromClass(
 
 			return {
 				line: Decoration.set(lineDecos.sort((a, b) => a.from - b.from)),
-				token: Decoration.set(
-					tokenDecos.sort((a, b) => a.from - b.from)
-				),
-				widget: Decoration.set(
-					widgetDecos.sort((a, b) => a.from - b.from)
-				),
+				token: Decoration.set(tokenDecos.sort((a, b) => a.from - b.from)),
+				widget: Decoration.set(widgetDecos.sort((a, b) => a.from - b.from)),
 			};
 		}
 	},

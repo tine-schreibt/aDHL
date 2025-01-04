@@ -1,0 +1,187 @@
+
+
+
+                                                ALPHANUMERIC
+
+
+				// All groups
+				const allGroups = new Set<string>();
+				Object.keys(config.queries).forEach((highlighter) => {
+					const grouping = config.queries[highlighter].group;
+					const groupingStatus = config.queries[highlighter].groupEnabled;
+					if (grouping && !allGroups.has(grouping) && groupingStatus) {
+						allGroups.add(grouping);
+					}
+				});
+				const allGroupsSorted = Array.from(allGroups).sort((a, b) =>
+					a.localeCompare(b, undefined, { numeric: true })
+				);
+
+				const enabledGroups = new Set<string>();
+				Object.keys(config.queries).forEach((highlighter) => {
+					const grouping = config.queries[highlighter].group;
+					const groupingStatus = config.queries[highlighter].groupEnabled;
+					if (grouping && !enabledGroups.has(grouping) && groupingStatus) {
+						enabledGroups.add(grouping);
+					}
+				});
+				const enabledGroupsSorted = Array.from(enabledGroups).sort((a, b) =>
+					a.localeCompare(b, undefined, { numeric: true })
+				);
+
+################### GROUP TOGGLE ########################
+						groupToggle.setClass("group-toggle").addToggle((toggle) => {
+							toggle.setValue(config.queries[highlighter].groupEnabled ?? true);
+							toggle.onChange((value) => {
+								// Update the groupEnabled status for the specific group
+								config.queries[group].groupEnabled = value; // Ensure this targets the correct group
+								console.log(config.queries[highlighter], group, value);
+								toggle.toggleEl.setAttribute(
+									"aria-label",
+									value ? `Disable ${group}` : `Enable ${group}`
+								);
+								this.plugin.saveSettings();
+								this.plugin.updateSelectionHighlighter();
+							});
+						});
+
+
+///////////////// NOT QUTE AS BROKEN
+
+// no problems with downstream, ghosts work, but no updated positions
+
+
+	const highlightersContainer = containerEl.createEl("div", {
+			cls: "highlighter-container",
+		});
+
+		// Create a map to hold group containers
+		const groupContainers: { [key: string]: HTMLElement } = {};
+
+		// Modify the highlighter display logic
+		this.plugin.settings.staticHighlighter.queryOrder.forEach((highlighter) => {
+			const queryConfig = config.queries[highlighter];
+
+			const enabledGroups = new Set<string>();
+			Object.keys(config.queries).forEach((highlighter) => {
+				const grouping = config.queries[highlighter].group;
+				const groupingStatus = config.queries[highlighter].groupEnabled;
+				if (grouping && !enabledGroups.has(grouping) && groupingStatus) {
+					enabledGroups.add(grouping);
+				}
+			});
+
+			if (queryConfig) {
+				const { staticColor, query, regex, group } = queryConfig;
+
+				// Create or get the group container
+				if (!groupContainers[group]) {
+					const groupContainer = highlightersContainer.createEl("div", {
+						cls: "group-container",
+					});
+					const groupHeader = groupContainer.createEl("div", {
+						cls: "group-header",
+					});
+					const groupName = groupHeader.createSpan("group-name");
+					groupName.style.cursor = "pointer"; // Change cursor to pointer for better UX
+					groupName.setText(group);
+
+					// Create a highlighters list container
+					const highlightersList = groupContainer.createEl("div", {
+						cls: "highlighters-list",
+					});
+					// Store the highlightersList in the groupContainers map
+					groupContainers[group] = highlightersList;
+
+					if (group === "Ungrouped") {
+						highlightersList.style.display = "block";
+					} else {
+						highlightersList.style.display = "none";
+					}
+
+					// Add click event to the group name to toggle visibility
+					groupName.onclick = () => {
+						if (
+							highlightersList.style.display === "none" ||
+							highlightersList.style.display === ""
+						) {
+							highlightersList.style.display = "block"; // Show the highlighters
+						} else {
+							highlightersList.style.display = "none"; // Hide the highlighters
+						}
+					};
+
+					// Create the toggle for enabling/disabling the group
+					const groupToggle = new Setting(groupHeader);
+					groupHeader.style.cursor = "default"; // Force default cursor for the entire container
+					if (group === "Ungrouped") {
+						groupToggle.settingEl.style.display = "none";
+					}
+					groupToggle.setClass("group-toggle").addToggle((toggle) => {
+						toggle.setValue(config.queries[highlighter].groupEnabled ?? true);
+						toggle.onChange((value) => {
+							// Update the groupEnabled status for the specific group
+							config.queries[group].groupEnabled = value; // Ensure this targets the correct group
+							console.log(config.queries[highlighter], group, value);
+							toggle.toggleEl.setAttribute(
+								"aria-label",
+								value ? Disable ${group} : Enable ${group}
+							);
+							this.plugin.saveSettings();
+							this.plugin.updateSelectionHighlighter();
+						});
+					});
+
+					// Append the group header and highlighters list to the group container
+					groupContainer.appendChild(groupHeader);
+					groupContainer.appendChild(highlightersList);
+					highlightersContainer.appendChild(groupContainer); // Append the group container to the main container
+				}
+
+				Sortable.create(groupContainers[group], {
+					animation: 500,
+					ghostClass: "highlighter-sortable-ghost",
+					chosenClass: "highlighter-sortable-chosen",
+					dragClass: "highlighter-sortable-drag",
+					handle: ".highlighter-setting-icon-drag",
+					dragoverBubble: true,
+					forceFallback: true,
+					fallbackClass: "highlighter-sortable-fallback",
+					easing: "cubic-bezier(1, 0, 0, 1)",
+					onSort: (event) => {
+						const arrayResult = config.queryOrder;
+						const oldIndex = event.oldIndex;
+						const newIndex = event.newIndex;
+
+						if (typeof oldIndex === "number" && typeof newIndex === "number") {
+							const [removed] = arrayResult.splice(oldIndex, 1); // Remove the item from the old position
+							arrayResult.splice(newIndex, 0, removed); // Insert it at the new position
+
+							// Update the settings to reflect the new order
+							this.plugin.settings.staticHighlighter.queryOrder = arrayResult;
+							this.plugin.saveSettings(); // Save the new order
+						} else {
+							console.error(
+								Invalid indices: oldIndex=${oldIndex}, newIndex=${newIndex}
+							);
+						}
+					},
+				});
+
+				// Create highlighter item
+				const settingItem = groupContainers[group].createEl("div");
+				settingItem.id = "dh-" + highlighter;
+				settingItem.addClass("highlighter-item-draggable");
+				const dragIcon = settingItem.createEl("span");
+				const colorIcon = settingItem.createEl("span");
+				dragIcon.addClass(
+					"highlighter-setting-icon",
+					"highlighter-setting-icon-drag"
+				);
+				colorIcon.addClass("highlighter-setting-icon");
+				colorIcon.innerHTML = <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=${staticColor} stroke=${staticColor} stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M20.707 5.826l-3.535-3.533a.999.999 0 0 0-1.408-.006L7.096 10.82a1.01 1.01 0 0 0-.273.488l-1.024 4.437L4 18h2.828l1.142-1.129l3.588-.828c.18-.042.345-.133.477-.262l8.667-8.535a1 1 0 0 0 .005-1.42zm-9.369 7.833l-2.121-2.12l7.243-7.131l2.12 2.12l-7.242 7.131zM4 20h16v2H4z"/></svg>;
+				setIcon(dragIcon, "three-horizontal-bars");
+				dragIcon.ariaLabel = "Drag to rearrange";
+				const desc: string[] = [];
+				desc.push((regex ? "search expression: " : "search term: ") + query);
+				desc.push("group: " + config.queries[highlighter].group);
