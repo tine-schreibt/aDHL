@@ -53,6 +53,7 @@ export class SettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 		const config = this.plugin.settings.staticHighlighter;
+		const enabledGroups: string[] = [];
 
 		// Import/Export buttons
 		const importExportEl = containerEl.createDiv("import-export-wrapper");
@@ -276,13 +277,16 @@ export class SettingTab extends PluginSettingTab {
 				);
 				// Create a Set to track unique group names
 				const uniqueGroups = new Set<string>();
-
 				Object.keys(config.queries).forEach((highlighter) => {
 					const grouping = config.queries[highlighter].group;
 					const groupingStatus = config.queries[highlighter].groupEnabled;
 					if (grouping && !uniqueGroups.has(grouping)) {
-						uniqueGroups.add(grouping); // Add to the Set to track uniqueness
-						groupDropdownComponent.addOption(grouping, grouping);
+						uniqueGroups.add(grouping);
+					}
+					if (groupingStatus) {
+						enabledGroups.push(grouping);
+					} else {
+						enabledGroups.filter((group) => group !== grouping);
 					}
 					groupDropdownComponent.onChange((value) => {
 						groupName = value;
@@ -291,10 +295,11 @@ export class SettingTab extends PluginSettingTab {
 				});
 				// Add the "Create new group" option
 				groupDropdownComponent.addOption("create-new", "Create new group");
-				groupDropdownComponent.onChange((value) => {
+				groupDropdownComponent.onChange(async (value) => {
 					if (value === "create-new") {
 						// Open modal to create a new group
-						openNewGroupModal(groupDropdownComponent, groupName, groupStatus);
+						await openNewGroupModal(groupDropdownComponent, groupName);
+						groupStatus = true;
 					}
 				});
 			});
@@ -505,19 +510,102 @@ export class SettingTab extends PluginSettingTab {
 				}
 			});
 
-		// ################## HIGHTLIGHER CONTAINER ##################
+		// #########################################################################################################
+		// ########################################### HIGHTLIGHER CONTAINER #######################################
+		// #########################################################################################################
 		const highlightersContainer = containerEl.createEl("div", {
 			cls: "highlighter-container",
 		});
 
-		// ################## HIGHTLIGHER CONTAINER ##################
+		// Create a map to hold group containers
+		const groupContainers: { [key: string]: HTMLElement } = {};
+
+		// Modify the highlighter display logic
+		this.plugin.settings.staticHighlighter.queries;
+
+		// sort by queryConfig.group; groupEnabled wird noch nicht bestückt!
 
 		this.plugin.settings.staticHighlighter.queryOrder.forEach((highlighter) => {
 			const queryConfig = config.queries[highlighter];
+
 			if (queryConfig) {
-				const { staticColor, query, regex } = queryConfig;
-				const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=${staticColor} stroke=${staticColor} stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M20.707 5.826l-3.535-3.533a.999.999 0 0 0-1.408-.006L7.096 10.82a1.01 1.01 0 0 0-.273.488l-1.024 4.437L4 18h2.828l1.142-1.129l3.588-.828c.18-.042.345-.133.477-.262l8.667-8.535a1 1 0 0 0 .005-1.42zm-9.369 7.833l-2.121-2.12l7.243-7.131l2.12 2.12l-7.242 7.131zM4 20h16v2H4z"/></svg>`;
-				const settingItem = highlightersContainer.createEl("div");
+				const { staticColor, query, regex, group } = queryConfig;
+
+				// Create or get the group container
+				if (!groupContainers[group]) {
+					const groupContainer = highlightersContainer.createEl("div", {
+						cls: "group-container",
+					});
+					const groupHeader = groupContainer.createEl("div", {
+						cls: "group-header",
+					});
+					const groupName = groupHeader.createSpan("group-name");
+					groupName.style.cursor = "pointer"; // Change cursor to pointer for better UX
+					groupName.setText(group);
+
+					// Create a highlighters list container
+					const highlightersList = groupContainer.createEl("div", {
+						cls: "highlighters-list",
+					});
+					// Store the highlightersList in the groupContainers map
+					groupContainers[group] = highlightersList;
+
+					if (group === "Ungrouped") {
+						highlightersList.style.display = "block";
+					} else {
+						highlightersList.style.display = "none";
+					}
+
+					// Add click event to the group name to toggle visibility
+					groupName.onclick = () => {
+						if (
+							highlightersList.style.display === "none" ||
+							highlightersList.style.display === ""
+						) {
+							highlightersList.style.display = "block"; // Show the highlighters
+						} else {
+							highlightersList.style.display = "none"; // Hide the highlighters
+						}
+					};
+
+					// Create the toggle for enabling/disabling the group
+					const groupToggle = new Setting(groupHeader);
+					groupHeader.style.cursor = "default"; // Force default cursor for the entire container
+					groupToggle.setClass("group-toggle").addToggle((toggle) => {
+						toggle.setValue(config.queries[highlighter].groupEnabled ?? true);
+						toggle.onChange(async (value) => {
+							// Update the groupEnabled status for the specific group
+							this.plugin.settings.staticHighlighter.queryOrder.forEach(
+								(highlighter) => {
+									if (
+										this.plugin.settings.staticHighlighter.queries[highlighter]
+											.group === queryConfig.group &&
+										this.plugin.settings.staticHighlighter.queries[highlighter]
+											.groupEnabled != value
+									)
+										this.plugin.settings.staticHighlighter.queries[
+											highlighter
+										].groupEnabled = value;
+								}
+							);
+							console.log(config.queries[highlighter], group, value);
+							toggle.toggleEl.setAttribute(
+								"aria-label",
+								value ? `Disable ${group}` : `Enable ${group}`
+							);
+							await this.plugin.saveSettings();
+							this.plugin.updateSelectionHighlighter();
+						});
+					});
+
+					// Append the group header and highlighters list to the group container
+					groupContainer.appendChild(groupHeader);
+					groupContainer.appendChild(highlightersList);
+					highlightersContainer.appendChild(groupContainer); // Append the group container to the main container
+				}
+
+				// Create highlighter item
+				const settingItem = groupContainers[group].createEl("div");
 				settingItem.id = "dh-" + highlighter;
 				settingItem.addClass("highlighter-item-draggable");
 				const dragIcon = settingItem.createEl("span");
@@ -527,8 +615,8 @@ export class SettingTab extends PluginSettingTab {
 					"highlighter-setting-icon-drag"
 				);
 				colorIcon.addClass("highlighter-setting-icon");
-				colorIcon.innerHTML = icon;
-				setIcon(dragIcon, "three-horizontal-bars");
+				colorIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=${staticColor} stroke=${staticColor} stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M20.707 5.826l-3.535-3.533a.999.999 0 0 0-1.408-.006L7.096 10.82a1.01 1.01 0 0 0-.273.488l-1.024 4.437L4 18h2.828l1.142-1.129l3.588-.828c.18-.042.345-.133.477-.262l8.667-8.535a1 1 0 0 0 .005-1.42zm-9.369 7.833l-2.121-2.12l7.243-7.131l2.12 2.12l-7.242 7.131zM4 20h16v2H4z"/></svg>`;
+				// setIcon(dragIcon, "three-horizontal-bars");
 				dragIcon.ariaLabel = "Drag to rearrange";
 				const desc: string[] = [];
 				desc.push((regex ? "search expression: " : "search term: ") + query);
@@ -539,7 +627,7 @@ export class SettingTab extends PluginSettingTab {
 					.setName(highlighter)
 					.setDesc(desc.join(" | "))
 
-					// ####### beginning TOGGLE ENABLED/DISABLED########################
+					// ####### beginning TOGGLE ENABLED/DISABLED ########################
 
 					.addToggle((toggle) => {
 						toggle
@@ -658,37 +746,14 @@ export class SettingTab extends PluginSettingTab {
 								}
 							});
 					});
+
+				// Append the settingItem to the highlightersList
+				groupContainers[group].appendChild(settingItem);
 			} else {
 				console.warn(
 					`Highlighter "${highlighter}" not found in config.queries.`
 				);
 			}
-		});
-
-		Sortable.create(highlightersContainer, {
-			animation: 500,
-			ghostClass: "highlighter-sortable-ghost",
-			chosenClass: "highlighter-sortable-chosen",
-			dragClass: "highlighter-sortable-drag",
-			handle: ".highlighter-setting-icon-drag",
-			dragoverBubble: true,
-			forceFallback: true,
-			fallbackClass: "highlighter-sortable-fallback",
-			easing: "cubic-bezier(1, 0, 0, 1)",
-			onSort: (command) => {
-				const arrayResult = config.queryOrder;
-				const oldIndexNonNull = command.oldIndex;
-				const newIndexNonNull = command.newIndex;
-				if (
-					typeof oldIndexNonNull === "number" &&
-					typeof newIndexNonNull === "number"
-				) {
-					const [removed] = arrayResult.splice(oldIndexNonNull, 1);
-					arrayResult.splice(newIndexNonNull, 0, removed);
-				} else throw new Error(`index is null`);
-				this.plugin.settings.staticHighlighter.queryOrder = arrayResult;
-				this.plugin.saveSettings();
-			},
 		});
 
 		containerEl.createEl("h3", {
@@ -932,11 +997,7 @@ function editorFromTextArea(
 	return view;
 }
 
-function openNewGroupModal(
-	dropdown: DropdownComponent,
-	nameHolder: string,
-	statusHolder: boolean
-) {
+function openNewGroupModal(dropdown: DropdownComponent, nameHolder: string) {
 	const modal = new Modal(this.app);
 	modal.titleEl.appendText("Create New Group");
 	// input element for groupName
@@ -955,7 +1016,6 @@ function openNewGroupModal(
 		// if a group name is entered, hand over name and set status to enabled
 		if (newGroupName) {
 			nameHolder = newGroupName;
-			statusHolder = true;
 			dropdown.addOption(newGroupName, newGroupName);
 			dropdown.setValue(newGroupName);
 			new Notice(`Group "${newGroupName}" created successfully!`);
