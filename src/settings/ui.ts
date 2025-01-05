@@ -53,7 +53,6 @@ export class SettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 		const config = this.plugin.settings.staticHighlighter;
-		let expandedGroups: string[] = [];
 
 		// Import/Export buttons
 		const importExportEl = containerEl.createDiv("import-export-wrapper");
@@ -205,6 +204,14 @@ export class SettingTab extends PluginSettingTab {
 		let groupName: string;
 		let groupStatus: boolean;
 
+		let expandedGroups: string[];
+
+		if (this.plugin.settings.staticHighlighter.expandedGroups) {
+			expandedGroups = this.plugin.settings.staticHighlighter.expandedGroups;
+		} else {
+			expandedGroups = [];
+		}
+
 		// Create the marker types
 		type MarkTypes = Record<
 			markTypes,
@@ -278,7 +285,7 @@ export class SettingTab extends PluginSettingTab {
 				// Create a Set to track unique group names
 				const uniqueGroups = new Set<string>();
 				Object.keys(config.queries).forEach((highlighter) => {
-					console.log(`creatingEntryfor`, config.queries[highlighter].group);
+					// console.log(`creatingEntryfor`, config.queries[highlighter].group);
 					const grouping = config.queries[highlighter].group;
 					const groupingStatus = config.queries[highlighter].groupEnabled;
 					if (grouping && !uniqueGroups.has(grouping)) {
@@ -552,11 +559,8 @@ export class SettingTab extends PluginSettingTab {
 					const toggleIcon = groupHeader.createEl("div", {
 						cls: "toggle-icon",
 					});
-					if (expandedGroups.includes(group)) {
-						setIcon(toggleIcon, "chevron-right"); // Add a down arrow icon (expand state)
-					} else {
-						setIcon(toggleIcon, "chevron-down");
-					}
+					toggleIcon.addClass("group-icon");
+					toggleIcon.style.cursor = "pointer"; // Change cursor to pointer for better UX
 
 					const groupName = groupHeader.createSpan("group-header");
 					groupName.setText(group);
@@ -566,51 +570,51 @@ export class SettingTab extends PluginSettingTab {
 					let highlightersList = groupContainer.createEl("div", {
 						cls: "highlighters-list",
 					});
+
+					// Store the highlightersList in the groupContainers map
+					groupContainers[group] = highlightersList;
+					// Handle click to toggle the icon and container
+
+					// console.log(`expandedGroups: `, expandedGroups);
 					if (expandedGroups.includes(group)) {
+						setIcon(toggleIcon, "chevron-down"); // Add a down arrow icon (expand state)
 						highlightersList.style.display = "block";
 					} else {
+						setIcon(toggleIcon, "chevron-right");
 						highlightersList.style.display = "none";
 					}
 
 					const toggleVisibility = () => {
-						const isHidden =
-							highlightersList.style.display === "none" ||
-							highlightersList.style.display === "";
-						highlightersList.style.display = isHidden ? "block" : "none"; // Toggle visibility
-						if (
-							highlightersList.style.display === "block" &&
-							!expandedGroups.includes(group)
-						) {
-							expandedGroups.push(group);
-						} else {
+						console.log(
+							`initial state of ${group} is ${expandedGroups.includes(group)}`
+						);
+						// toggle to hidden
+						if (expandedGroups.includes(group)) {
+							setIcon(toggleIcon, "chevron-right"); // Add a down arrow icon (expand state)
+							highlightersList.style.display = "none";
 							expandedGroups = expandedGroups.filter((entry) => entry != group);
+							console.log(`now it's ${expandedGroups.includes(group)}`);
+							this.plugin.saveSettings();
+						} else {
+							// toggle to visible
+							setIcon(toggleIcon, "chevron-down");
+							highlightersList.style.display = "block";
+							expandedGroups.push(group);
+							console.log(`now it's ${expandedGroups.includes(group)}`);
 						}
-						// Update the icon
-						setIcon(toggleIcon, isHidden ? "chevron-right" : "chevron-down");
-						console.log(expandedGroups);
-					};
+						this.plugin.settings.staticHighlighter.expandedGroups =
+							expandedGroups;
+						this.plugin.saveSettings();
 
-					// Handle click to toggle the icon and container
-					toggleIcon.addClass("group-icon");
-					toggleIcon.style.cursor = "pointer"; // Change cursor to pointer for better UX
+						console.log(`expandedGroups: `, expandedGroups);
+					};
 
 					groupName.onclick = () => {
 						toggleVisibility();
-						this.plugin.saveSettings();
 					};
 					toggleIcon.onclick = () => {
 						toggleVisibility();
-						this.plugin.saveSettings();
 					};
-
-					// Create a highlighters list container
-					highlightersList = groupContainer.createEl("div", {
-						cls: "highlighters-list",
-					});
-					// Store the highlightersList in the groupContainers map
-					groupContainers[group] = highlightersList;
-
-					// Add click event to the group name to toggle visibility
 
 					// Create the toggle for enabling/disabling the group
 					const groupToggle = new Setting(groupHeader);
