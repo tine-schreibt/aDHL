@@ -616,6 +616,9 @@ export class SettingTab extends PluginSettingTab {
 						toggleVisibility();
 					};
 
+					const groupRename = new ButtonComponent(groupHeader);
+					groupRename; 
+
 					// Create the toggle for enabling/disabling the group
 					const groupToggle = new Setting(groupHeader);
 					groupHeader.style.cursor = "default"; // Force default cursor for the entire container
@@ -1085,6 +1088,55 @@ function openNewGroupModal(
 			dropdown.setValue(newGroupName);
 			expandedGroups.push(newGroupName);
 			new Notice(`Group "${newGroupName}" created successfully!`);
+		} else {
+			new Notice(`Please enter a group name.`);
+		}
+		modal.close();
+	};
+
+	modal.open();
+}
+
+function openRenameGroupModal(
+	oldGroupName: string,
+	dropdown: DropdownComponent,
+	expandedGroups: string[]
+) {
+	const modal = new Modal(this.app);
+	modal.titleEl.appendText("Rename group");
+	// input element for new groupName
+	const input = modal.contentEl.createEl("input", {
+		type: "text",
+		placeholder: "Enter new group name.",
+	});
+	input.addClass("group-modal-text");
+	// save button
+	const createButton = modal.contentEl.createEl("button", {
+		text: "Rename.",
+	});
+
+	createButton.onclick = async () => {
+		const newGroupName = input.value.trim();
+		// if a group name is entered, hand over name and set status to enabled
+		const queries = this.plugin.settings.staticHighlighter.queries;
+
+		if (newGroupName) {
+			let existenceChecker = 0;
+			Object.keys(queries).forEach((highlighter) => {
+				let existenceChecker = 0;
+				let pushChecker = 0;
+				if (queries[highlighter].group === newGroupName) {
+					existenceChecker += 1;
+				} else if (queries[highlighter].group === oldGroupName) {
+					queries.group = newGroupName;
+					dropdown.addOption(newGroupName, newGroupName);
+					if (pushChecker === 0) {
+						expandedGroups.push(newGroupName);
+						pushChecker += 1;
+					}
+				}
+			}),
+				new Notice(`Group "${oldGroupName}" renamed to "${newGroupName}"!`);
 		} else {
 			new Notice(`Please enter a group name.`);
 		}
