@@ -68,6 +68,13 @@ export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
 	},
 };
 
+export interface Highlighter {
+	group: string;
+	// Add other properties as needed
+}
+
+
+
 /*
 export function setAttributes(element: any, attributes: any) {
   for (let key in attributes) {

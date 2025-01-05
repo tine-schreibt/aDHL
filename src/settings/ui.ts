@@ -27,8 +27,9 @@ import { basicSetup } from "src/editor/extensions";
 import AnotherDynamicHighlightsPlugin from "../../main";
 import { ExportModal } from "./export";
 import { ImportModal } from "./import";
-import { markTypes } from "./settings";
+import { HighlighterOptions, markTypes } from "./settings";
 import { StyleSpec } from "style-mod";
+import { StaticHighlightOptions } from "src/highlighters/static";
 
 export class SettingTab extends PluginSettingTab {
 	plugin: AnotherDynamicHighlightsPlugin;
@@ -562,7 +563,7 @@ export class SettingTab extends PluginSettingTab {
 					toggleIcon.addClass("group-icon");
 					toggleIcon.style.cursor = "pointer"; // Change cursor to pointer for better UX
 
-					const groupName = groupHeader.createSpan("group-header");
+					let groupName = groupHeader.createSpan("group-header");
 					groupName.setText(group);
 					groupName.addClass("group-name");
 					groupName.style.cursor = "pointer";
@@ -615,42 +616,77 @@ export class SettingTab extends PluginSettingTab {
 					toggleIcon.onclick = () => {
 						toggleVisibility();
 					};
-
-					const groupRename = new ButtonComponent(groupHeader);
-					groupRename; 
-
-					// Create the toggle for enabling/disabling the group
-					const groupToggle = new Setting(groupHeader);
 					groupHeader.style.cursor = "default"; // Force default cursor for the entire container
-					groupToggle.setClass("group-toggle").addToggle((toggle) => {
-						toggle.setValue(config.queries[highlighter].groupEnabled ?? true);
-						toggle.onChange((value) => {
-							// Update the groupEnabled status for the specific group
-							this.plugin.settings.staticHighlighter.queryOrder.forEach(
-								(highlighter) => {
-									if (
-										this.plugin.settings.staticHighlighter.queries[highlighter]
-											.group === queryConfig.group &&
-										this.plugin.settings.staticHighlighter.queries[highlighter]
-											.groupEnabled != value
-									)
-										this.plugin.settings.staticHighlighter.queries[
-											highlighter
-										].groupEnabled = value;
-								},
-								(async () => {
-									// Call the save function to persist the changes
-									await this.plugin.saveSettings();
-									// Refresh the highlighter decorations
-									this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
-								})()
-							);
-							toggle.toggleEl.setAttribute(
+					// Create the toggle for enabling/disabling the group
+					new Setting(groupHeader)
+						.setClass("group-header-buttons")
+						.addButton((button) => {
+							button.buttonEl.setAttribute(
 								"aria-label",
-								value ? `Disable ${group}` : `Enable ${group}`
+								`Edit this group's name`
 							);
+							button
+								.setClass("action-button")
+								.setClass("action-button-edit")
+								.setClass("mod-cta")
+								.setIcon("pencil")
+								.onClick(async () => {
+									openRenameGroupModal(
+										group,
+										groupDropdownComponent,
+										expandedGroups,
+										this.plugin.settings.staticHighlighter
+									);
+									this.plugin.saveSettings();
+									console.log(`saving settings`);
+								});
+						})
+						.addButton((button) => {
+							button.buttonEl.setAttribute("aria-label", `Delete ${group}`);
+							button
+								.setClass("action-button")
+								.setClass("action-button-delete")
+								.setIcon("trash")
+								.setClass("mod-warning")
+								.onClick(async () => {
+									//openDeleteModal()})
+									await this.plugin.saveSettings();
+									this.plugin.updateStyles();
+									this.plugin.updateStaticHighlighter();
+									this.display();
+								});
+						})
+						.addToggle((toggle) => {
+							toggle.setValue(config.queries[highlighter].groupEnabled ?? true);
+							toggle.onChange((value) => {
+								// Update the groupEnabled status for the specific group
+								this.plugin.settings.staticHighlighter.queryOrder.forEach(
+									(highlighter) => {
+										if (
+											this.plugin.settings.staticHighlighter.queries[
+												highlighter
+											].group === queryConfig.group &&
+											this.plugin.settings.staticHighlighter.queries[
+												highlighter
+											].groupEnabled != value
+										)
+											this.plugin.settings.staticHighlighter.queries[
+												highlighter
+											].groupEnabled = value;
+									},
+									(async () => {
+										// Call the save function to persist the changes
+										await this.plugin.saveSettings();
+										// Refresh the highlighter decorations
+										this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
+									})()
+								);
+								toggle.toggleEl.setAttribute(
+									"aria-label",
+									value ? `Disable ${group}` : `Enable ${group}`
+								);
+							});
 						});
-					});
 
 					// Append the group header and highlighters list to the group container
 					groupContainer.appendChild(groupHeader);
@@ -776,10 +812,7 @@ export class SettingTab extends PluginSettingTab {
 							});
 					})
 					.addButton((button) => {
-						button.buttonEl.setAttribute(
-							"aria-label",
-							`Delete ${highlighter} highlighter`
-						);
+						button.buttonEl.setAttribute("aria-label", `Delete ${highlighter}`);
 						button
 							.setClass("action-button")
 							.setClass("action-button-delete")
@@ -1100,7 +1133,8 @@ function openNewGroupModal(
 function openRenameGroupModal(
 	oldGroupName: string,
 	dropdown: DropdownComponent,
-	expandedGroups: string[]
+	expandedGroups: string[],
+	staticHighlighter: StaticHighlightOptions
 ) {
 	const modal = new Modal(this.app);
 	modal.titleEl.appendText("Rename group");
@@ -1118,17 +1152,24 @@ function openRenameGroupModal(
 	createButton.onclick = async () => {
 		const newGroupName = input.value.trim();
 		// if a group name is entered, hand over name and set status to enabled
-		const queries = this.plugin.settings.staticHighlighter.queries;
-
 		if (newGroupName) {
-			let existenceChecker = 0;
-			Object.keys(queries).forEach((highlighter) => {
+			Object.keys(staticHighlighter.queries).forEach((highlighter) => {
 				let existenceChecker = 0;
 				let pushChecker = 0;
-				if (queries[highlighter].group === newGroupName) {
+				if (staticHighlighter.queries[highlighter].group === newGroupName) {
 					existenceChecker += 1;
-				} else if (queries[highlighter].group === oldGroupName) {
-					queries.group = newGroupName;
+				} else if (
+					staticHighlighter.queries[highlighter].group === oldGroupName
+				) {
+					staticHighlighter.queries[highlighter].group = newGroupName;
+					console.log(
+						`changed`,
+						oldGroupName,
+						`in `,
+						highlighter,
+						`to`,
+						newGroupName
+					);
 					dropdown.addOption(newGroupName, newGroupName);
 					if (pushChecker === 0) {
 						expandedGroups.push(newGroupName);

@@ -278,11 +278,13 @@
 	border-bottom: 1px;
 }
 
-.group-header .group-toggle {
+.group-header .group-toggle { /*.group-header-buttons */
 	margin-left: auto; /* Push the toggle to the right */
 	border-top: 1px;
 	border-bottom: 1px;
 }
+
+
 
 /*###################################################
  ###############################
