@@ -23,10 +23,11 @@ declare module "obsidian" {
 	}
 }
 
+/*
 interface CustomCSS {
 	css: string;
 	enabled: boolean;
-}
+}*/
 
 export default class AnotherDynamicHighlightsPlugin extends Plugin {
 	settings: AnotherDynamicHighlightsSettings;
@@ -34,7 +35,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 	styles: Extension;
 	staticHighlighter: Extension;
 	selectionHighlighter: Extension;
-	customCSS: Record<string, CustomCSS>;
+	// customCSS: Record<string, CustomCSS>;
 	styleEl: HTMLElement;
 	settingsTab: SettingTab;
 
@@ -74,17 +75,17 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 		styleEl.setAttribute("type", "text/css");
 		document.head.appendChild(styleEl);
 		this.register(() => styleEl.detach());
-		this.updateCustomCSS();
+		// this.updateCustomCSS();
 	}
 
-	updateCustomCSS() {
+	/*updateCustomCSS() {
 		this.styleEl.textContent = Object.values(
 			this.settings.staticHighlighter.queries
 		)
 			.map((q) => q && q.css)
 			.join("\n");
 		this.app.workspace.trigger("css-change");
-	}
+	}*/
 
 	updateStyles() {
 		this.extensions.remove(this.styles);
@@ -108,7 +109,6 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 		this.extensions.push(this.selectionHighlighter);
 		this.app.workspace.updateOptions();
 	}
-
 
 	iterateCM6(callback: (editor: EditorView) => unknown) {
 		this.app.workspace.iterateAllLeaves((leaf) => {

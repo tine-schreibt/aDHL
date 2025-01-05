@@ -53,7 +53,7 @@ export class SettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 		const config = this.plugin.settings.staticHighlighter;
-		const enabledGroups: string[] = [];
+		let expandedGroups: string[] = [];
 
 		// Import/Export buttons
 		const importExportEl = containerEl.createDiv("import-export-wrapper");
@@ -278,15 +278,12 @@ export class SettingTab extends PluginSettingTab {
 				// Create a Set to track unique group names
 				const uniqueGroups = new Set<string>();
 				Object.keys(config.queries).forEach((highlighter) => {
+					console.log(`creatingEntryfor`, config.queries[highlighter].group);
 					const grouping = config.queries[highlighter].group;
 					const groupingStatus = config.queries[highlighter].groupEnabled;
 					if (grouping && !uniqueGroups.has(grouping)) {
 						uniqueGroups.add(grouping);
-					}
-					if (groupingStatus) {
-						enabledGroups.push(grouping);
-					} else {
-						enabledGroups.filter((group) => group !== grouping);
+						groupDropdownComponent.addOption(grouping, grouping);
 					}
 					groupDropdownComponent.onChange((value) => {
 						groupName = value;
@@ -298,7 +295,11 @@ export class SettingTab extends PluginSettingTab {
 				groupDropdownComponent.onChange(async (value) => {
 					if (value === "create-new") {
 						// Open modal to create a new group
-						await openNewGroupModal(groupDropdownComponent, groupName);
+						await openNewGroupModal(
+							groupDropdownComponent,
+							groupName,
+							expandedGroups
+						);
 						groupStatus = true;
 					}
 				});
@@ -356,9 +357,12 @@ export class SettingTab extends PluginSettingTab {
 					.toString();
 				const queryValue = queryInput.inputEl.value;
 				const queryTypeValue = queryTypeInput.getValue();
-				const customCss = this.editor.state.doc.toString();
+				//const customCss = this.editor.state.doc.toString();
 				const groupNameValue = groupDropdownComponent.getValue(); // Get the current value from the dropdown
-				const groupStatusValue = groupStatus; // Use the current groupStatus
+				let groupStatusValue = groupStatus; // Use the current groupStatus
+				if (groupStatusValue == undefined) {
+					groupStatusValue = true;
+				}
 
 				// If creating, check if the class name already exists
 				if (currentClassName) {
@@ -426,7 +430,7 @@ export class SettingTab extends PluginSettingTab {
 							};
 						}
 					}
-					console.log(`staticCssSnippet:`, staticCssSnippet);
+					console.log(`groupstatusvalue:`, groupStatusValue);
 
 					// Gather all values
 					config.queries[currentClassName] = {
@@ -437,7 +441,6 @@ export class SettingTab extends PluginSettingTab {
 						regex: queryTypeValue,
 						query: queryValue,
 						mark: enabledMarks,
-						css: customCss,
 						enabled: true,
 						group: groupNameValue, // Save the group name
 						groupEnabled: groupStatusValue, // Save the group status
@@ -445,7 +448,7 @@ export class SettingTab extends PluginSettingTab {
 					// Save and update
 					await this.plugin.saveSettings();
 					this.plugin.updateStaticHighlighter();
-					this.plugin.updateCustomCSS();
+					//this.plugin.updateCustomCSS();
 					this.plugin.updateStyles();
 					this.display();
 					saveButton.buttonEl.setAttribute("state", "creating");
@@ -478,12 +481,12 @@ export class SettingTab extends PluginSettingTab {
 						queryInput.inputEl.value = options.query;
 						groupDropdownComponent.setValue(options.group);
 						queryTypeInput.setValue(options.regex);
-						this.editor.setState(
+						/*this.editor.setState(
 							EditorState.create({
-								doc: options.css || "",
+								//doc: options.css || "",
 								extensions: basicSetup,
 							})
-						);
+						);*/
 						new Notice("Changes discarded");
 					} else {
 						// Clear all fields in "creating" mode
@@ -496,12 +499,12 @@ export class SettingTab extends PluginSettingTab {
 						);
 						pickrInstance.hide();
 						queryTypeInput.setValue(false);
-						this.editor.setState(
+						/*this.editor.setState(
 							EditorState.create({
 								doc: "",
 								extensions: basicSetup,
 							})
-						);
+						);*/
 						new Notice("Form cleared");
 					}
 
@@ -535,7 +538,6 @@ export class SettingTab extends PluginSettingTab {
 
 			if (queryConfig) {
 				const { staticColor, query, regex, group } = queryConfig;
-
 				// Create or get the group container
 				// Create or get the group container
 				if (!groupContainers[group]) {
@@ -550,7 +552,11 @@ export class SettingTab extends PluginSettingTab {
 					const toggleIcon = groupHeader.createEl("div", {
 						cls: "toggle-icon",
 					});
-					setIcon(toggleIcon, "chevron-down"); // Add a down arrow icon (expand state)
+					if (expandedGroups.includes(group)) {
+						setIcon(toggleIcon, "chevron-right"); // Add a down arrow icon (expand state)
+					} else {
+						setIcon(toggleIcon, "chevron-down");
+					}
 
 					const groupName = groupHeader.createSpan("group-header");
 					groupName.setText(group);
@@ -560,17 +566,28 @@ export class SettingTab extends PluginSettingTab {
 					let highlightersList = groupContainer.createEl("div", {
 						cls: "highlighters-list",
 					});
-					highlightersList.style.display =
-						group === "Ungrouped" ? "block" : "none";
+					if (expandedGroups.includes(group)) {
+						highlightersList.style.display = "block";
+					} else {
+						highlightersList.style.display = "none";
+					}
 
 					const toggleVisibility = () => {
 						const isHidden =
 							highlightersList.style.display === "none" ||
 							highlightersList.style.display === "";
 						highlightersList.style.display = isHidden ? "block" : "none"; // Toggle visibility
-
+						if (
+							highlightersList.style.display === "block" &&
+							!expandedGroups.includes(group)
+						) {
+							expandedGroups.push(group);
+						} else {
+							expandedGroups = expandedGroups.filter((entry) => entry != group);
+						}
 						// Update the icon
-						setIcon(toggleIcon, isHidden ? "chevron-up" : "chevron-down");
+						setIcon(toggleIcon, isHidden ? "chevron-right" : "chevron-down");
+						console.log(expandedGroups);
 					};
 
 					// Handle click to toggle the icon and container
@@ -579,9 +596,11 @@ export class SettingTab extends PluginSettingTab {
 
 					groupName.onclick = () => {
 						toggleVisibility();
+						this.plugin.saveSettings();
 					};
 					toggleIcon.onclick = () => {
 						toggleVisibility();
+						this.plugin.saveSettings();
 					};
 
 					// Create a highlighters list container
@@ -590,12 +609,6 @@ export class SettingTab extends PluginSettingTab {
 					});
 					// Store the highlightersList in the groupContainers map
 					groupContainers[group] = highlightersList;
-
-					if (group === "Ungrouped") {
-						highlightersList.style.display = "block";
-					} else {
-						highlightersList.style.display = "none";
-					}
 
 					// Add click event to the group name to toggle visibility
 
@@ -621,7 +634,6 @@ export class SettingTab extends PluginSettingTab {
 								(async () => {
 									// Call the save function to persist the changes
 									await this.plugin.saveSettings();
-
 									// Refresh the highlighter decorations
 									this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
 								})()
@@ -730,12 +742,12 @@ export class SettingTab extends PluginSettingTab {
 								queryTypeInput.setValue(options.regex);
 
 								const extensions = basicSetup;
-								this.editor.setState(
+								/*this.editor.setState(
 									EditorState.create({
-										doc: options.css ? options.css : "",
+										//doc: options.css ? options.css : "",
 										extensions: extensions,
 									})
-								);
+								);*/
 								if (options?.mark) {
 									const marksSet = new Set<markTypes>(options.mark); // Convert to a Set for efficient lookups
 									Object.entries(marks).forEach(([key, value]) => {
@@ -788,6 +800,7 @@ export class SettingTab extends PluginSettingTab {
 								await this.plugin.saveSettings();
 								this.plugin.updateStyles();
 								this.plugin.updateStaticHighlighter();
+								this.display();
 							});
 					});
 
@@ -802,6 +815,7 @@ export class SettingTab extends PluginSettingTab {
 
 		containerEl.createEl("h3", {
 			text: "Selection Highlights",
+			cls: "selectedHighlightsStylingsContainerHeader",
 		});
 		const selectionHighlightUI = new Setting(containerEl);
 		const rowWrapper = selectionHighlightUI.controlEl.createDiv(
@@ -929,7 +943,6 @@ export class SettingTab extends PluginSettingTab {
 				this.plugin.settings.selectionHighlighter.css = cssSnippet;
 				await this.plugin.saveSettings();
 				this.plugin.updateSelectionHighlighter();
-				new Notice("CSS Snippet saved successfully!");
 			});
 		cssSaveButton.buttonEl.setAttribute("aria-label", "Save Highlighter");
 
@@ -1022,7 +1035,7 @@ export class SettingTab extends PluginSettingTab {
 	}
 }
 
-function editorFromTextArea(
+/*function editorFromTextArea(
 	textarea: HTMLTextAreaElement,
 	extensions: Extension
 ) {
@@ -1039,9 +1052,13 @@ function editorFromTextArea(
 			textarea.value = view.state.doc.toString();
 		});
 	return view;
-}
+}*/
 
-function openNewGroupModal(dropdown: DropdownComponent, nameHolder: string) {
+function openNewGroupModal(
+	dropdown: DropdownComponent,
+	nameHolder: string,
+	expandedGroups: string[]
+) {
 	const modal = new Modal(this.app);
 	modal.titleEl.appendText("Create New Group");
 	// input element for groupName
@@ -1062,6 +1079,7 @@ function openNewGroupModal(dropdown: DropdownComponent, nameHolder: string) {
 			nameHolder = newGroupName;
 			dropdown.addOption(newGroupName, newGroupName);
 			dropdown.setValue(newGroupName);
+			expandedGroups.push(newGroupName);
 			new Notice(`Group "${newGroupName}" created successfully!`);
 		} else {
 			new Notice(`Please enter a group name.`);

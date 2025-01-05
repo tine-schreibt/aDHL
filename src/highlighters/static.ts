@@ -30,6 +30,7 @@ import { NodeProp } from "@lezer/common";
 export type StaticHighlightOptions = {
 	queries: SearchQueries;
 	queryOrder: string[];
+	expandedGroups: string[];
 };
 
 const tokenClassNodeProp = new NodeProp();
@@ -37,6 +38,7 @@ const tokenClassNodeProp = new NodeProp();
 const defaultOptions: StaticHighlightOptions = {
 	queries: {},
 	queryOrder: [],
+	expandedGroups: [],
 };
 
 export const staticHighlightConfig = Facet.define<

@@ -2,6 +2,10 @@
 
 /* #region selection highlighter styles */
 
+.selectedHighlightsStylingsContainerHeader {
+	padding-top: 10px;
+}
+
 .selectedHighlightsStylingsContainer {
 	display: grid;
 	grid-template-columns: [choose_color] auto [color-picker] auto [spacer1] 5px [choose_deco] auto [drop-down] auto [spacer2] 10px [save] auto [selected-reset-button] auto [spacer3] 10px [end];
@@ -73,9 +77,9 @@
 }
 
 .dynamic-highlights-settings h3.persistent-highlights {
-	margin: 0;
+	/*margin: 0;*/
 	border-bottom: 1px solid #ccc; /* Add a complete border */
-	border-radius: 5px; /* Optional: Add some rounding to the corners */
+	/*border-radius: 5px; /* Optional: Add some rounding to the corners */
 	padding: 10px; /* Optional: Add some padding for better spacing */
 }
 
@@ -195,8 +199,8 @@
 	align-items: center;
 	justify-content: start;
 	border-bottom: 1px solid #ccc; /* Add a complete border */
-	border-radius: 5px; /* Optional: Add some rounding to the corners */
-	padding: 10px; /* Optional: Add some padding for better spacing */
+	/*border-radius: 5px; /* Optional: Add some rounding to the corners */
+	/*padding: 10px; /* Optional: Add some padding for better spacing */
 }
 
 .dropdown-and-marks-container .deco-dropdown {
@@ -243,7 +247,9 @@
 
 /* styles.css */
 .your-highlighters {
-	border-bottom: solid #ccc;
+	border-bottom: 1px solid #ccc;
+	padding-bottom: 10px;
+	margin-bottom: 0px;
 }
 
 .group-container .group-header {
@@ -376,6 +382,8 @@
 	/* allow for copy and paste */
 	user-select: text;
 	border-bottom: 1px solid var(--background-modifier-border);
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 .dynamic-highlights-settings .highlighter-container .highlighter-details {
@@ -406,6 +414,7 @@
 	/* TODO: switch to using grid with columns and rows */
 	flex-wrap: wrap;
 	grid-gap: 6px;
+	margin-top: 10px;
 	margin-bottom: 10px; /* Medium gap below the decoration style text */
 }
 
