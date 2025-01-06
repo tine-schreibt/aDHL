@@ -4,7 +4,7 @@
 /* attempting save logic v1 */
 /* added save/update logic*/
 /*duplicate check, name change*/
-
+import * as Modals from "./modals";
 import { EditorState, Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import Pickr from "@simonwep/pickr";
@@ -22,7 +22,6 @@ import {
 	ToggleComponent,
 	Modal,
 } from "obsidian";
-import Sortable from "sortablejs";
 import { basicSetup } from "src/editor/extensions";
 import AnotherDynamicHighlightsPlugin from "../../main";
 import { ExportModal } from "./export";
@@ -90,6 +89,11 @@ export class SettingTab extends PluginSettingTab {
 				});
 			}
 		);
+
+		const modalSaveAndReload = async () => {
+			await this.plugin.saveSettings();
+			this.display(); // Refresh the UI after saving
+		};
 
 		// Persistent Highlights Container
 		containerEl
@@ -302,17 +306,16 @@ export class SettingTab extends PluginSettingTab {
 				groupDropdownComponent.addOption("create-new", "Create new group");
 				groupDropdownComponent.onChange(async (value) => {
 					if (value === "create-new") {
-						// Open modal to create a new group
-						await openNewGroupModal(
+						const createNewGroup = new Modals.newGroupModal(
+							this.app,
 							groupDropdownComponent,
 							groupName,
 							expandedGroups
 						);
-						groupStatus = true;
+						createNewGroup.open();
 					}
 				});
 			});
-
 			return types;
 		};
 
@@ -331,6 +334,7 @@ export class SettingTab extends PluginSettingTab {
 		// Create the save button
 		const saveButton = new ButtonComponent(queryWrapper);
 		saveButton.buttonEl.setAttribute("state", "creating");
+		saveButton.buttonEl.setAttribute("aria-label", "Save Highlighter");
 		saveButton
 			.setClass("action-button")
 			.setClass("action-button-save")
@@ -468,7 +472,6 @@ export class SettingTab extends PluginSettingTab {
 					new Notice("Highlighter values missing");
 				}
 			});
-		saveButton.buttonEl.setAttribute("aria-label", "Save Highlighter");
 
 		// Create the discard button
 		const discardButton = new ButtonComponent(queryWrapper);
@@ -620,42 +623,6 @@ export class SettingTab extends PluginSettingTab {
 					// Create the toggle for enabling/disabling the group
 					new Setting(groupHeader)
 						.setClass("group-header-buttons")
-						.addButton((button) => {
-							button.buttonEl.setAttribute(
-								"aria-label",
-								`Edit this group's name`
-							);
-							button
-								.setClass("action-button")
-								.setClass("action-button-edit")
-								.setClass("mod-cta")
-								.setIcon("pencil")
-								.onClick(async () => {
-									openRenameGroupModal(
-										group,
-										groupDropdownComponent,
-										expandedGroups,
-										this.plugin.settings.staticHighlighter
-									);
-									this.plugin.saveSettings();
-									console.log(`saving settings`);
-								});
-						})
-						.addButton((button) => {
-							button.buttonEl.setAttribute("aria-label", `Delete ${group}`);
-							button
-								.setClass("action-button")
-								.setClass("action-button-delete")
-								.setIcon("trash")
-								.setClass("mod-warning")
-								.onClick(async () => {
-									//openDeleteModal()})
-									await this.plugin.saveSettings();
-									this.plugin.updateStyles();
-									this.plugin.updateStaticHighlighter();
-									this.display();
-								});
-						})
 						.addToggle((toggle) => {
 							toggle.setValue(config.queries[highlighter].groupEnabled ?? true);
 							toggle.onChange((value) => {
@@ -686,6 +653,45 @@ export class SettingTab extends PluginSettingTab {
 									value ? `Disable ${group}` : `Enable ${group}`
 								);
 							});
+						})
+						.addButton((button) => {
+							button.buttonEl.setAttribute(
+								"aria-label",
+								`Edit this group's name`
+							);
+							button
+								.setClass("action-button")
+								.setClass("action-button-edit")
+								.setClass("mod-cta")
+								.setIcon("pencil")
+								.onClick(async () => {
+									const renameGroup = new Modals.RenameGroupModal(
+										this.app,
+										group,
+										groupDropdownComponent,
+										expandedGroups,
+										this.plugin.settings.staticHighlighter,
+										modalSaveAndReload
+									);
+									renameGroup.open();
+								});
+						})
+						.addButton((button) => {
+							button.buttonEl.setAttribute("aria-label", `Delete ${group}`);
+							button
+								.setClass("action-button")
+								.setClass("action-button-delete")
+								.setIcon("trash")
+								.setClass("mod-warning")
+								.onClick(async () => {
+									const deleteGroup = new Modals.DeleteGroupModal(
+										this.app,
+										group,
+										this.plugin.settings.staticHighlighter,
+										modalSaveAndReload
+									);
+									deleteGroup.open();
+								});
 						});
 
 					// Append the group header and highlighters list to the group container
@@ -762,7 +768,7 @@ export class SettingTab extends PluginSettingTab {
 						);
 						button
 							.setClass("action-button")
-							.setClass("action-button-edit")
+							.setClass("action-button-highlighterslist")
 							.setClass("mod-cta")
 							.setIcon("pencil")
 							.onClick(async (evt) => {
@@ -811,6 +817,7 @@ export class SettingTab extends PluginSettingTab {
 								containerEl.scrollTop = 0;
 							});
 					})
+
 					.addButton((button) => {
 						button.buttonEl.setAttribute("aria-label", `Delete ${highlighter}`);
 						button
@@ -819,28 +826,14 @@ export class SettingTab extends PluginSettingTab {
 							.setIcon("trash")
 							.setClass("mod-warning")
 							.onClick(async () => {
-								new Notice(`${highlighter} highlight deleted`);
-								delete config.queries[highlighter];
-								config.queryOrder.remove(highlighter);
-								// Ensure this method exists in your plugin
-
-								// Check if the group container is empty and remove it if necessary
-								const groupContainer = groupContainers[queryConfig.group];
-								if (groupContainer) {
-									const remainingHighlighters = Object.keys(
-										config.queries
-									).filter(
-										(key) => config.queries[key].group === queryConfig.group
-									);
-									if (remainingHighlighters.length === 0) {
-										groupContainer.detach(); // Remove the group container if no highlighters remain
-										delete groupContainers[queryConfig.group]; // Clean up the reference
-									}
-								}
-								await this.plugin.saveSettings();
-								this.plugin.updateStyles();
-								this.plugin.updateStaticHighlighter();
-								this.display();
+								const deleteHighlighter = new Modals.DeleteHighlighterModal(
+									this.app,
+									highlighter,
+									this.plugin.settings.staticHighlighter,
+									config.queryOrder,
+									modalSaveAndReload
+								);
+								deleteHighlighter.open();
 							});
 					});
 
@@ -1093,96 +1086,3 @@ export class SettingTab extends PluginSettingTab {
 		});
 	return view;
 }*/
-
-function openNewGroupModal(
-	dropdown: DropdownComponent,
-	nameHolder: string,
-	expandedGroups: string[]
-) {
-	const modal = new Modal(this.app);
-	modal.titleEl.appendText("Create New Group");
-	// input element for groupName
-	const input = modal.contentEl.createEl("input", {
-		type: "text",
-		placeholder: "Enter new group name (case sensitive).",
-	});
-	input.addClass("group-modal-text");
-	// save button
-	const createButton = modal.contentEl.createEl("button", {
-		text: "Create",
-	});
-
-	createButton.onclick = async () => {
-		const newGroupName = input.value.trim();
-		// if a group name is entered, hand over name and set status to enabled
-		if (newGroupName) {
-			nameHolder = newGroupName;
-			dropdown.addOption(newGroupName, newGroupName);
-			dropdown.setValue(newGroupName);
-			expandedGroups.push(newGroupName);
-			new Notice(`Group "${newGroupName}" created successfully!`);
-		} else {
-			new Notice(`Please enter a group name.`);
-		}
-		modal.close();
-	};
-
-	modal.open();
-}
-
-function openRenameGroupModal(
-	oldGroupName: string,
-	dropdown: DropdownComponent,
-	expandedGroups: string[],
-	staticHighlighter: StaticHighlightOptions
-) {
-	const modal = new Modal(this.app);
-	modal.titleEl.appendText("Rename group");
-	// input element for new groupName
-	const input = modal.contentEl.createEl("input", {
-		type: "text",
-		placeholder: "Enter new group name.",
-	});
-	input.addClass("group-modal-text");
-	// save button
-	const createButton = modal.contentEl.createEl("button", {
-		text: "Rename.",
-	});
-
-	createButton.onclick = async () => {
-		const newGroupName = input.value.trim();
-		// if a group name is entered, hand over name and set status to enabled
-		if (newGroupName) {
-			Object.keys(staticHighlighter.queries).forEach((highlighter) => {
-				let existenceChecker = 0;
-				let pushChecker = 0;
-				if (staticHighlighter.queries[highlighter].group === newGroupName) {
-					existenceChecker += 1;
-				} else if (
-					staticHighlighter.queries[highlighter].group === oldGroupName
-				) {
-					staticHighlighter.queries[highlighter].group = newGroupName;
-					console.log(
-						`changed`,
-						oldGroupName,
-						`in `,
-						highlighter,
-						`to`,
-						newGroupName
-					);
-					dropdown.addOption(newGroupName, newGroupName);
-					if (pushChecker === 0) {
-						expandedGroups.push(newGroupName);
-						pushChecker += 1;
-					}
-				}
-			}),
-				new Notice(`Group "${oldGroupName}" renamed to "${newGroupName}"!`);
-		} else {
-			new Notice(`Please enter a group name.`);
-		}
-		modal.close();
-	};
-
-	modal.open();
-}

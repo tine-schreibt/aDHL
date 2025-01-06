@@ -1,55 +1,55 @@
-/* added decoType */
-
-import {
-	staticHighlightConfig,
-	StaticHighlightOptions,
-} from "src/highlighters/static";
+import { StaticHighlightOptions } from "src/highlighters/static";
 import { SelectionHighlightOptions } from "../highlighters/selection";
 import { ignoredWords } from "./ignoredWords";
-import { StyleSpec } from "style-mod";
+import {
+	SearchColorOption,
+	SearchHighlightOptions,
+} from "../highlighters/real-time";
 
-/*
 interface SearchConfig {
-  value: string;
-  type: string;
-  range: { from: number; to: number };
-}*/
+	value: string;
+	type: string;
+	range: { from: number; to: number };
+}
 
-export type markTypes = "line" | "match";
+export type markTypes = "line" | "match" | "group" | "start" | "end";
 
 export type SettingValue = number | string | boolean;
+
 export interface CSSSettings {
 	[key: string]: SettingValue;
 }
 
-// Enable/Disable Highlighters (searchQuery)
 interface SearchQuery {
 	query: string;
 	class: string;
-	staticColor: string;
-	staticDecoration: string;
-	staticCss: StyleSpec;
+	color: string | null;
 	regex: boolean;
 	mark?: markTypes[];
 	css?: string;
-	group: string;
-	groupEnabled: boolean;
 	enabled?: boolean;
 }
+
 export interface SearchQueries {
 	[key: string]: SearchQuery;
 }
 
-export type HighlighterOptions =
-	| SelectionHighlightOptions
-	| StaticHighlightOptions;
-
-export interface AnotherDynamicHighlightsSettings {
-	selectionHighlighter: SelectionHighlightOptions;
-	staticHighlighter: StaticHighlightOptions;
+export interface SearchHighlightQueries {
+	[key: string]: SearchColorOption[];
 }
 
-export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
+export type HighlighterOptions =
+	| SelectionHighlightOptions
+	| StaticHighlightOptions
+	| SearchHighlightOptions;
+
+export interface DynamicHighlightsSettings {
+	selectionHighlighter: SelectionHighlightOptions;
+	staticHighlighter: StaticHighlightOptions;
+	searchHighlighter: SearchHighlightOptions;
+}
+
+export const DEFAULT_SETTINGS: DynamicHighlightsSettings = {
 	selectionHighlighter: {
 		highlightWordAroundCursor: true,
 		highlightSelectedText: true,
@@ -57,24 +57,19 @@ export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
 		minSelectionLength: 3,
 		highlightDelay: 200,
 		ignoredWords: ignoredWords,
-		selectionColor: "default",
-		selectionDecoration: "default",
-		css: "text-decoration: underline dotted var(--text-accent)",
 	},
 	staticHighlighter: {
 		queries: {},
 		queryOrder: [],
-		expandedGroups: [],
+	},
+	searchHighlighter: {
+		highlightDelay: 200,
+		highlightQuery: {},
 	},
 };
 
-
-
-
-
-/*
 export function setAttributes(element: any, attributes: any) {
-  for (let key in attributes) {
-    element.setAttribute(key, attributes[key]);
-  }
-}*/
+	for (let key in attributes) {
+		element.setAttribute(key, attributes[key]);
+	}
+}

@@ -175,6 +175,10 @@
 	margin-left: auto;
 }
 
+.action-button-delete-modal {
+	margin-right: 5px;
+}
+
 /* #endregion search term & save */
 
 /* #region settings tab -- mark types */
@@ -243,11 +247,13 @@
 
 .group-modal-text {
 	width: 400px;
+	margin-top: -10px;
+	margin-right: 10px;
 }
 
 /* styles.css */
 .your-highlighters {
-	border-bottom: 1px solid #ccc;
+	/*border-bottom: 1px solid #ccc;*/
 	padding-bottom: 10px;
 	margin-bottom: 0px;
 }
@@ -256,35 +262,40 @@
 	display: flex; /* Use flexbox for layout */
 	align-items: center; /* Center items vertically */
 	cursor: pointer; /* Keep the pointer cursor */
-	border-bottom: 1px solid #ccc; /* Add a complete border */
-	/*border-radius: 5px; /* Optional: Add some rounding to the corners */
-	padding: 10px; /* Optional: Add some padding for better spacing */
+	border: 1px solid #ccc; /* Add a complete border */
+	border-radius: 10px; /* Optional: Add some rounding to the corners */
+	padding: 15px;
+	background-color: #bbb3c638;
 }
 
-.group-header .highlighters-list {
-	border-top: 1px;
-	border-bottom: 1px;
+.group-header-buttons {
+	display: flex; /* Use flexbox for layout */
+	align-items: center; /* Center items vertically */
+	border: none;
 }
 
 .group-header .toggle-icon {
 	margin-right: 5px; /* Push the toggle to the left */
 	cursor: pointer;
-	border-top: 1px;
-	border-bottom: 1px;
+	border-top: none;
 }
 .group-header .group-name {
 	flex-grow: 1; /* Allow the group name to take available space */
 	border-top: 1px;
 	border-bottom: 1px;
+	background-color: #ffffff;
 }
 
-.group-header .group-toggle { /*.group-header-buttons */
+.group-header .group-toggle {
+	/*.group-header-buttons */
 	margin-left: auto; /* Push the toggle to the right */
 	border-top: 1px;
 	border-bottom: 1px;
 }
 
-
+.highlighter-details button {
+	opacity: 0.6;
+}
 
 /*###################################################
  ###############################
