@@ -64,6 +64,7 @@ export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
 	staticHighlighter: {
 		queries: {},
 		queryOrder: [],
+		tagOrder: [],
 		expandedTags: [],
 	},
 };

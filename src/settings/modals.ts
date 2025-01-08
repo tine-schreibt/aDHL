@@ -146,16 +146,19 @@ export class RenameTagModal extends Modal {
 export class DeleteTagModal extends Modal {
 	private oldTagName: string;
 	private staticHighlighter: StaticHighlightOptions;
+	private expandedTags: string[];
 	private modalSaveAndReload: () => Promise<void>;
 	constructor(
 		app: App,
 		oldTagName: string,
 		staticHighlighter: StaticHighlightOptions,
+		expandedTags: string[],
 		modalSaveAndReload: () => Promise<void>
 	) {
 		super(app);
 		this.oldTagName = oldTagName;
 		this.staticHighlighter = staticHighlighter;
+		this.expandedTags = expandedTags;
 		this.modalSaveAndReload = modalSaveAndReload;
 	}
 	onOpen() {
@@ -182,13 +185,27 @@ export class DeleteTagModal extends Modal {
 			let decision = tagDeleteDecision.value.trim();
 			// if a tag name is entered, hand over name and set status to enabled
 			if (decision == `Delete ${this.oldTagName}!`) {
+				this.expandedTags = this.expandedTags.filter(
+					([item]) => item != this.oldTagName
+				);
 				Object.keys(this.staticHighlighter.queries).forEach((highlighter) => {
 					if (
 						this.staticHighlighter.queries[highlighter].tag === this.oldTagName
 					) {
 						delete this.staticHighlighter.queries[highlighter];
+						this.staticHighlighter.queryOrder =
+							this.staticHighlighter.queryOrder.filter(
+								([item]) => item != highlighter
+							);
+						this.staticHighlighter.queryOrder.sort();
 					}
 				});
+				console.log(
+					`expandedTags: `,
+					this.expandedTags,
+					` queryOrder:`,
+					this.staticHighlighter.queryOrder
+				);
 				new Notice(`Tag "${this.oldTagName}" was deleted."!`);
 				await this.modalSaveAndReload();
 				this.close();

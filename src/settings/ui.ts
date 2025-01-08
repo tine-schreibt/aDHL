@@ -107,10 +107,10 @@ export class SettingTab extends PluginSettingTab {
 					cssSnippet = `text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: var(--text-accent);`;
 				} else if (deco === "border solid") {
 					cssSnippet =
-						"border: 1px solid var(--text-accent); border-radius: 5px";
+						"border: 1px solid var(--text-accent); border-radius: 5px; padding: 1px; padding-bottom: 2px";
 				} else if (deco === "border dashed") {
 					cssSnippet =
-						"border: 1px dashed var(--text-accent); border-radius: 5px";
+						"border: 1px dashed var(--text-accent); border-radius: 5px; padding: 1px; padding-bottom: 2px";
 				} else {
 					cssSnippet = `text-decoration: ${deco}; text-decoration-color: var(--text-accent)`;
 				}
@@ -124,9 +124,9 @@ export class SettingTab extends PluginSettingTab {
 				} else if (deco == "underline wavy") {
 					cssSnippet = `text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: ${color};`;
 				} else if (deco === "border solid") {
-					cssSnippet = `border: 1px solid ${color}; border-radius: 5px`;
+					cssSnippet = `border: 1px solid ${color}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
 				} else if (deco === "border dashed") {
-					cssSnippet = `border: 1px dashed ${color}; border-radius: 5px`;
+					cssSnippet = `border: 1px dashed ${color}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
 				} else {
 					cssSnippet = `text-decoration: ${deco}; text-decoration-color: ${color}`;
 				}
@@ -134,7 +134,6 @@ export class SettingTab extends PluginSettingTab {
 			return cssSnippet;
 		};
 
-		// Persistent Highlights Container
 		containerEl
 			.createEl("h3", {
 				text: "Persistent Highlights",
@@ -426,7 +425,8 @@ export class SettingTab extends PluginSettingTab {
 				if (currentClassName) {
 					if (state == "creating") {
 						if (!config.queryOrder.includes(currentClassName)) {
-							config.queryOrder.push(currentClassName);
+							config.queryOrder.unshift(currentClassName);
+							config.queryOrder.sort();
 						} else {
 							new Notice("Highlighter name already exists");
 							return;
@@ -468,11 +468,15 @@ export class SettingTab extends PluginSettingTab {
 							staticCssSnippet = {
 								border: "1px solid var(--text-accent)",
 								borderRadius: "5px",
+								padding: "1px",
+								paddingBottom: "2px",
 							};
 						} else if (staticDecorationValue === "border dashed") {
 							staticCssSnippet = {
 								border: "1px dashed var(--text-accent)",
 								borderRadius: "5px",
+								padding: "1px",
+								paddingBottom: "2px",
 							};
 						} else {
 							staticCssSnippet = {
@@ -505,11 +509,14 @@ export class SettingTab extends PluginSettingTab {
 							staticCssSnippet = {
 								border: `1px solid ${staticHexValue}`,
 								borderRadius: "5px",
+								paddingBottom: "2px",
 							};
 						} else if (staticDecorationValue === "border dashed") {
 							staticCssSnippet = {
 								border: `1px dashed ${staticHexValue}`,
 								borderRadius: "5px",
+								padding: "1px",
+								paddingBottom: "2px",
 							};
 						} else {
 							staticCssSnippet = {
@@ -623,12 +630,12 @@ export class SettingTab extends PluginSettingTab {
 		this.plugin.settings.staticHighlighter.queries;
 
 		// sort by queryConfig.tag; tagEnabled wird noch nicht bestückt!
-
+		this.plugin.settings.staticHighlighter.queryOrder.sort();
 		this.plugin.settings.staticHighlighter.queryOrder.forEach((highlighter) => {
 			const queryConfig = config.queries[highlighter];
-
 			if (queryConfig) {
 				const { staticColor, query, regex, tag } = queryConfig;
+
 				// Create or get the tag container
 				if (!tagContainers[tag]) {
 					const tagContainer = highlightersContainer.createEl("div", {
@@ -682,7 +689,8 @@ export class SettingTab extends PluginSettingTab {
 							// toggle to visible
 							setIcon(toggleIcon, "chevron-down");
 							highlightersList.style.display = "block";
-							expandedTags.push(tag);
+							expandedTags.unshift(tag);
+							expandedTags.sort();
 							console.log(`now it's ${expandedTags.includes(tag)}`);
 						}
 						this.plugin.settings.staticHighlighter.expandedTags = expandedTags;
@@ -763,6 +771,7 @@ export class SettingTab extends PluginSettingTab {
 										this.app,
 										tag,
 										this.plugin.settings.staticHighlighter,
+										expandedTags,
 										modalSaveAndReload
 									);
 									deleteTag.open();
@@ -917,9 +926,12 @@ export class SettingTab extends PluginSettingTab {
 				// Append the settingItem to the highlightersList
 				tagContainers[tag].appendChild(settingItem);
 			} else {
-				console.warn(
-					`Highlighter "${highlighter}" not found in config.queries.`
-				);
+				this.plugin.settings.staticHighlighter.queryOrder =
+					this.plugin.settings.staticHighlighter.queryOrder.filter(
+						(item) => item != highlighter
+					);
+				this.plugin.settings.staticHighlighter.queryOrder.sort();
+				this.plugin.saveSettings();
 			}
 		});
 

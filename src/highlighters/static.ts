@@ -30,6 +30,7 @@ import { NodeProp } from "@lezer/common";
 export type StaticHighlightOptions = {
 	queries: SearchQueries;
 	queryOrder: string[];
+	tagOrder: string[];
 	expandedTags: string[];
 };
 
@@ -38,6 +39,7 @@ const tokenClassNodeProp = new NodeProp();
 const defaultOptions: StaticHighlightOptions = {
 	queries: {},
 	queryOrder: [],
+	tagOrder: [],
 	expandedTags: [],
 };
 
