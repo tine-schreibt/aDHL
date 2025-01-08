@@ -78,9 +78,9 @@
 
 .dynamic-highlights-settings h3.persistent-highlights {
 	/*margin: 0;*/
-	border-bottom: 1px solid #ccc; /* Add a complete border */
+	/*border-bottom: 1px solid #ccc; /* Add a complete border */
 	/*border-radius: 5px; /* Optional: Add some rounding to the corners */
-	padding: 10px; /* Optional: Add some padding for better spacing */
+	padding: 5px; /* Optional: Add some padding for better spacing */
 }
 
 /* #region import/export */
@@ -195,7 +195,7 @@
 		[spacer2] 10px
 		[line-text] auto
 		[line-toggle] auto
-		[Tag-drowdown] auto
+		[Tag-dropdown] auto
 		[end];
 	grid-template-rows: [row] auto;
 	gap: 10px;

@@ -94,7 +94,6 @@ export class SettingTab extends PluginSettingTab {
 			await this.plugin.saveSettings();
 			this.display(); // Refresh the UI after saving
 		};
-
 		const snippetMaker = (deco: string, color: string) => {
 			let cssSnippet;
 			if (color == "default" || color == undefined) {
@@ -149,7 +148,6 @@ export class SettingTab extends PluginSettingTab {
 		let tagDropdownComponent: DropdownComponent;
 		let tagName: string;
 		let tagStatus: boolean;
-
 		// Define Query UI
 		const defineQueryUI = new Setting(containerEl);
 		defineQueryUI
@@ -369,6 +367,14 @@ export class SettingTab extends PluginSettingTab {
 
 		const marks = buildMarkerTypesHardcoded(defineQueryUI.controlEl);
 
+		/*	// Create the custom CSS field
+		const customCSSWrapper =
+			defineQueryUI.controlEl.createDiv("custom-css-wrapper");
+		customCSSWrapper.createSpan("setting-item-name").setText("Custom CSS");
+		const customCSSEl = new TextAreaComponent(customCSSWrapper);
+		this.editor = editorFromTextArea(customCSSEl.inputEl, basicSetup);
+		customCSSEl.inputEl.addClass("custom-css");*/
+
 		let currentClassName: string | null = null;
 
 		// Create the save button
@@ -512,12 +518,12 @@ export class SettingTab extends PluginSettingTab {
 							};
 						}
 					}
-					let makeDescSnippet = snippetMaker(
+
+					// Gather all values
+					let makeDescSnippet: string = snippetMaker(
 						staticDecorationValue,
 						staticHexValue
 					);
-					console.log("descSnippet:", makeDescSnippet);
-					// Gather all values
 					config.queries[currentClassName] = {
 						class: currentClassName,
 						staticColor: staticHexValue || "#42188038",
@@ -780,10 +786,11 @@ export class SettingTab extends PluginSettingTab {
 					"highlighter-setting-icon-drag"
 				);
 				colorIcon.addClass("highlighter-setting-icon");
-				// colorIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=${staticColor} stroke=${staticColor} stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M20.707 5.826l-3.535-3.533a.999.999 0 0 0-1.408-.006L7.096 10.82a1.01 1.01 0 0 0-.273.488l-1.024 4.437L4 18h2.828l1.142-1.129l3.588-.828c.18-.042.345-.133.477-.262l8.667-8.535a1 1 0 0 0 .005-1.42zm-9.369 7.833l-2.121-2.12l7.243-7.131l2.12 2.12l-7.242 7.131zM4 20h16v2H4z"/></svg>`;
 				colorIcon.innerHTML = `<span style="font-size: medium; ${config.queries[highlighter].descSnippet}">abc</span>`;
-				// setIcon(dragIcon, "three-horizontal-bars");
-				dragIcon.ariaLabel = "Drag to rearrange";
+				dragIcon.addClass(
+					"highlighter-setting-icon",
+					"highlighter-setting-icon-drag"
+				);
 				const desc: string[] = [];
 				desc.push((regex ? "search expression: " : "search term: ") + query);
 				desc.push("tag: " + config.queries[highlighter].tag);
@@ -792,6 +799,7 @@ export class SettingTab extends PluginSettingTab {
 					.setClass("highlighter-details")
 					.setName(highlighter)
 					.setDesc(desc.join(" | "))
+
 					// ####### beginning TOGGLE ENABLED/DISABLED ########################
 
 					.addToggle((toggle) => {
