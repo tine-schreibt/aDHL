@@ -8,15 +8,15 @@
 
 .selectedHighlightsStylingsContainer {
 	display: grid;
-	grid-template-columns: [choose_color] auto [color-picker] auto [spacer1] 5px [choose_deco] auto [drop-down] auto [spacer2] 10px [save] auto [selected-reset-button] auto [spacer3] 10px [end];
+	grid-template-columns: [example] auto [color-picker] auto [spacer1] 5px [drop-down] auto [spacer2] 10px [save] auto [selected-reset-button] auto [spacer3] 10px [end];
 	grid-template-rows: [row] auto;
 	gap: 10px;
 	width: 100%;
 	align-items: center;
 }
 
-.selectedHighlightsStylingsContainer .choose-color-text {
-	grid-column: choose_color; /* Place in 'choose_color' column */
+.selectedHighlightsStylingsContainer .example {
+	grid-column: example; /* Place in 'choose_color' column */
 	text-align: left;
 	width: 100%;
 }
@@ -195,7 +195,7 @@
 		[spacer2] 10px
 		[line-text] auto
 		[line-toggle] auto
-		[group-drowdown] auto
+		[Tag-drowdown] auto
 		[end];
 	grid-template-rows: [row] auto;
 	gap: 10px;
@@ -235,8 +235,8 @@
 	grid-column: line-toggle;
 }
 
-.dropdown-and-marks-container .group-dropdown {
-	grid-column: group-dropdown;
+.dropdown-and-marks-container .tag-dropdown {
+	grid-column: tag-dropdown;
 	margin: 0;
 	padding: 0;
 	align-self: center;
@@ -245,7 +245,7 @@
 	border: none;
 }
 
-.group-modal-text {
+.tag-modal-text {
 	width: 400px;
 	margin-top: -10px;
 	margin-right: 10px;
@@ -258,36 +258,41 @@
 	margin-bottom: 0px;
 }
 
-.group-container .group-header {
+.tag-container {
+	border: 1px solid #ccc; /* Add a complete border */
+	/*border-radius: 10px; /* Optional: Add some rounding to the corners */
+	padding: 15px;
+	/*background-color: #bbb3c638;*/
+}
+
+.tag-container .tag-header {
 	display: flex; /* Use flexbox for layout */
 	align-items: center; /* Center items vertically */
 	cursor: pointer; /* Keep the pointer cursor */
-	border: 1px solid #ccc; /* Add a complete border */
-	border-radius: 10px; /* Optional: Add some rounding to the corners */
-	padding: 15px;
-	background-color: #bbb3c638;
 }
 
-.group-header-buttons {
+.tag-header-buttons {
 	display: flex; /* Use flexbox for layout */
 	align-items: center; /* Center items vertically */
 	border: none;
 }
 
-.group-header .toggle-icon {
+.tag-header .toggle-icon {
 	margin-right: 5px; /* Push the toggle to the left */
 	cursor: pointer;
 	border-top: none;
 }
-.group-header .group-name {
-	flex-grow: 1; /* Allow the group name to take available space */
+.tag-header .tag-name {
+	flex-grow: 1; /* Allow the Tag name to take available space */
 	border-top: 1px;
+	font-weight: 600;
+	font-size: medium;
 	border-bottom: 1px;
 	background-color: #ffffff;
 }
 
-.group-header .group-toggle {
-	/*.group-header-buttons */
+.tag-header .Tag-toggle {
+	/*.tag-header-buttons */
 	margin-left: auto; /* Push the toggle to the right */
 	border-top: 1px;
 	border-bottom: 1px;
@@ -315,7 +320,7 @@
   
   /* #endregion settings tab -- mark types */
 
-.dynamic-highlights-settings .group-wrapper {
+.dynamic-highlights-settings .Tag-wrapper {
 	display: grid;
 	align-items: center;
 	grid-template-columns: repeat(2, auto);

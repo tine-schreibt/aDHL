@@ -30,7 +30,7 @@ import { NodeProp } from "@lezer/common";
 export type StaticHighlightOptions = {
 	queries: SearchQueries;
 	queryOrder: string[];
-	expandedGroups: string[];
+	expandedTags: string[];
 };
 
 const tokenClassNodeProp = new NodeProp();
@@ -38,7 +38,7 @@ const tokenClassNodeProp = new NodeProp();
 const defaultOptions: StaticHighlightOptions = {
 	queries: {},
 	queryOrder: [],
-	expandedGroups: [],
+	expandedTags: [],
 };
 
 export const staticHighlightConfig = Facet.define<
@@ -142,7 +142,7 @@ const staticHighlighter = ViewPlugin.fromClass(
 				);
 			for (let part of view.visibleRanges) {
 				for (let query of queries) {
-					if (query.enabled && query.groupEnabled) {
+					if (query.enabled && query.tagEnabled) {
 						let cursor: RegExpCursor | SearchCursor;
 						try {
 							if (query.regex)
@@ -208,7 +208,7 @@ const staticHighlighter = ViewPlugin.fromClass(
 	{
 		provide: (plugin) => [
 			// these are separated out so that we can set decoration priority
-			// it's also much easier to sort the decorations when they're grouped
+			// it's also much easier to sort the decorations when they're Taged
 			EditorView.decorations.of(
 				(v) => v.plugin(plugin)?.lineDecorations || Decoration.none
 			),

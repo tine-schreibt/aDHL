@@ -95,6 +95,46 @@ export class SettingTab extends PluginSettingTab {
 			this.display(); // Refresh the UI after saving
 		};
 
+		const snippetMaker = (deco: string, color: string) => {
+			let cssSnippet;
+			if (color == "default" || color == undefined) {
+				if (deco == "background") {
+					cssSnippet = `background-color: var(--text-accent)`;
+				} else if (deco == "color") {
+					cssSnippet = `font-weight: 400; color: var(--text-accent)`;
+				} else if (deco == "bold") {
+					cssSnippet = `font-weight: 600; color: var(--text-accent)`;
+				} else if (deco == "underline wavy") {
+					cssSnippet = `text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: var(--text-accent);`;
+				} else if (deco === "border solid") {
+					cssSnippet =
+						"border: 1px solid var(--text-accent); border-radius: 5px";
+				} else if (deco === "border dashed") {
+					cssSnippet =
+						"border: 1px dashed var(--text-accent); border-radius: 5px";
+				} else {
+					cssSnippet = `text-decoration: ${deco}; text-decoration-color: var(--text-accent)`;
+				}
+			} else {
+				if (deco == "background" || deco == undefined) {
+					cssSnippet = `background-color: ${color}`;
+				} else if (deco == "color") {
+					cssSnippet = `font-weight: 400; color: ${color}`;
+				} else if (deco == "bold") {
+					cssSnippet = `font-weight: 600; color: ${color}`;
+				} else if (deco == "underline wavy") {
+					cssSnippet = `text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: ${color};`;
+				} else if (deco === "border solid") {
+					cssSnippet = `border: 1px solid ${color}; border-radius: 5px`;
+				} else if (deco === "border dashed") {
+					cssSnippet = `border: 1px dashed ${color}; border-radius: 5px`;
+				} else {
+					cssSnippet = `text-decoration: ${deco}; text-decoration-color: ${color}`;
+				}
+			}
+			return cssSnippet;
+		};
+
 		// Persistent Highlights Container
 		containerEl
 			.createEl("h3", {
@@ -102,6 +142,13 @@ export class SettingTab extends PluginSettingTab {
 			})
 			.addClass("persistent-highlights");
 		containerEl.addClass("dynamic-highlights-settings");
+
+		let staticDecorationValue: string = "background";
+		let staticDecorationDropdown: Setting;
+		let staticDecorationDropdownComponent: DropdownComponent;
+		let tagDropdownComponent: DropdownComponent;
+		let tagName: string;
+		let tagStatus: boolean;
 
 		// Define Query UI
 		const defineQueryUI = new Setting(containerEl);
@@ -160,9 +207,9 @@ export class SettingTab extends PluginSettingTab {
 			pickrInstance
 				.on("clear", (instance: Pickr) => {
 					instance.hide();
-					classInput.inputEl.setAttribute(
+					queryInput.inputEl.setAttribute(
 						"style",
-						`background-color: none; color: var(--text-normal);`
+						snippetMaker(staticDecorationValue, "default")
 					);
 				})
 				.on("cancel", (instance: Pickr) => {
@@ -174,9 +221,9 @@ export class SettingTab extends PluginSettingTab {
 					colorHex && colorHex.length == 6
 						? (newColor = `${colorHex}A6`)
 						: (newColor = colorHex);
-					classInput.inputEl.setAttribute(
+					queryInput.inputEl.setAttribute(
 						"style",
-						`background-color: ${newColor}; color: var(--text-normal);`
+						snippetMaker(staticDecorationValue, newColor)
 					);
 				})
 				.on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
@@ -202,19 +249,12 @@ export class SettingTab extends PluginSettingTab {
 			}
 		});
 
-		let staticDecorationValue: string = "background";
-		let staticDecorationDropdown: Setting;
-		let staticDecorationDropdownComponent: DropdownComponent;
-		let groupDropdownComponent: DropdownComponent;
-		let groupName: string;
-		let groupStatus: boolean;
+		let expandedTags: string[];
 
-		let expandedGroups: string[];
-
-		if (this.plugin.settings.staticHighlighter.expandedGroups) {
-			expandedGroups = this.plugin.settings.staticHighlighter.expandedGroups;
+		if (this.plugin.settings.staticHighlighter.expandedTags) {
+			expandedTags = this.plugin.settings.staticHighlighter.expandedTags;
 		} else {
-			expandedGroups = [];
+			expandedTags = [];
 		}
 
 		// Create the marker types
@@ -241,19 +281,27 @@ export class SettingTab extends PluginSettingTab {
 					staticDecorationDropdownComponent = dropdown;
 					dropdown.selectEl.setAttribute(
 						"aria-label",
-						"Select a decoration style for the highlighter"
+						"Select a decoration style for your highlighter"
 					);
 					dropdown
+						.addOption("background", "Background")
 						.addOption("underline", "Underline")
 						.addOption("underline dotted", "Dotted")
 						.addOption("underline dashed", "Dashed")
 						.addOption("underline wavy", "Wavy")
-						.addOption("background", "Background")
-						.addOption("bold", "Bold, colored text")
+						.addOption("color", "Colored text")
+						.addOption("bold", "Bold colored text")
+						.addOption("border solid", "Border, solid")
+						.addOption("border dashed", "Border, dashed")
 						.addOption("line-through", "Strikethrough")
 						.setValue("background")
 						.onChange((value) => {
 							staticDecorationValue = value;
+							let color = pickrInstance.getSelectedColor()?.toHEXA().toString();
+							queryInput.inputEl.setAttribute(
+								"style",
+								snippetMaker(staticDecorationValue, color)
+							);
 						});
 				});
 
@@ -277,42 +325,42 @@ export class SettingTab extends PluginSettingTab {
 				component: lineToggle,
 			};
 
-			// GROUP DROPDOWN
-			const groupDropdown = new Setting(dropdownContainer);
-			groupDropdown.setClass("group-dropdown").addDropdown((dropdown) => {
-				groupDropdownComponent = dropdown;
-				dropdown.addOption("Ungrouped", "Ungrouped"); // Default option
+			// TAG DROPDOWN
+			const tagDropdown = new Setting(dropdownContainer);
+			tagDropdown.setClass("tag-dropdown").addDropdown((dropdown) => {
+				tagDropdownComponent = dropdown;
+				dropdown.addOption("#unsorted", "#unsorted"); // Default option
 				// Set aria-label for accessibility
 				dropdown.selectEl.setAttribute(
 					"aria-label",
-					"Select a group for the highlighter"
+					"Select a tag for your highlighter"
 				);
-				// Create a Set to track unique group names
-				const uniqueGroups = new Set<string>();
+				// Create a Set to track unique tag names
+				const uniqueTags = new Set<string>();
 				Object.keys(config.queries).forEach((highlighter) => {
-					// console.log(`creatingEntryfor`, config.queries[highlighter].group);
-					const grouping = config.queries[highlighter].group;
-					const groupingStatus = config.queries[highlighter].groupEnabled;
-					if (grouping && !uniqueGroups.has(grouping)) {
-						uniqueGroups.add(grouping);
-						groupDropdownComponent.addOption(grouping, grouping);
+					// console.log(`creatingEntryfor`, config.queries[highlighter].tag);
+					const tagging = config.queries[highlighter].tag;
+					const taggingStatus = config.queries[highlighter].tagEnabled;
+					if (tagging && !uniqueTags.has(tagging)) {
+						uniqueTags.add(tagging);
+						tagDropdownComponent.addOption(tagging, tagging);
 					}
-					groupDropdownComponent.onChange((value) => {
-						groupName = value;
-						groupStatus = groupingStatus;
+					tagDropdownComponent.onChange((value) => {
+						tagName = value;
+						tagStatus = taggingStatus;
 					});
 				});
-				// Add the "Create new group" option
-				groupDropdownComponent.addOption("create-new", "Create new group");
-				groupDropdownComponent.onChange(async (value) => {
+				// Add the "Create new tag" option
+				tagDropdownComponent.addOption("create-new", "Create new tag");
+				tagDropdownComponent.onChange(async (value) => {
 					if (value === "create-new") {
-						const createNewGroup = new Modals.newGroupModal(
+						const createNewTag = new Modals.newTagModal(
 							this.app,
-							groupDropdownComponent,
-							groupName,
-							expandedGroups
+							tagDropdownComponent,
+							tagName,
+							expandedTags
 						);
-						createNewGroup.open();
+						createNewTag.open();
 					}
 				});
 			});
@@ -320,14 +368,6 @@ export class SettingTab extends PluginSettingTab {
 		};
 
 		const marks = buildMarkerTypesHardcoded(defineQueryUI.controlEl);
-
-		/*	// Create the custom CSS field
-		const customCSSWrapper =
-			defineQueryUI.controlEl.createDiv("custom-css-wrapper");
-		customCSSWrapper.createSpan("setting-item-name").setText("Custom CSS");
-		const customCSSEl = new TextAreaComponent(customCSSWrapper);
-		this.editor = editorFromTextArea(customCSSEl.inputEl, basicSetup);
-		customCSSEl.inputEl.addClass("custom-css");*/
 
 		let currentClassName: string | null = null;
 
@@ -370,10 +410,10 @@ export class SettingTab extends PluginSettingTab {
 				const queryValue = queryInput.inputEl.value;
 				const queryTypeValue = queryTypeInput.getValue();
 				//const customCss = this.editor.state.doc.toString();
-				const groupNameValue = groupDropdownComponent.getValue(); // Get the current value from the dropdown
-				let groupStatusValue = groupStatus; // Use the current groupStatus
-				if (groupStatusValue == undefined) {
-					groupStatusValue = true;
+				const tagNameValue = tagDropdownComponent.getValue(); // Get the current value from the dropdown
+				let tagStatusValue = tagStatus; // Use the current tagStatus
+				if (tagStatusValue == undefined) {
+					tagStatusValue = true;
 				}
 
 				// If creating, check if the class name already exists
@@ -403,15 +443,30 @@ export class SettingTab extends PluginSettingTab {
 							staticCssSnippet = {
 								backgroundColor: "var(--text-accent)",
 							};
+						} else if (staticDecorationValue === "color") {
+							staticCssSnippet = {
+								fontWeight: "400",
+								color: "var(--text-accent)",
+							};
 						} else if (staticDecorationValue === "bold") {
 							staticCssSnippet = {
-								fontWeight: "bold",
+								fontWeight: "600",
 								color: "var(--text-accent)",
 							};
 						} else if (staticDecorationValue === "underline wavy") {
 							staticCssSnippet = {
 								textDecoration: "underline wavy",
 								textDecorationColor: "var(--text-accent)",
+							};
+						} else if (staticDecorationValue === "border solid") {
+							staticCssSnippet = {
+								border: "1px solid var(--text-accent)",
+								borderRadius: "5px",
+							};
+						} else if (staticDecorationValue === "border dashed") {
+							staticCssSnippet = {
+								border: "1px dashed var(--text-accent)",
+								borderRadius: "5px",
 							};
 						} else {
 							staticCssSnippet = {
@@ -424,9 +479,14 @@ export class SettingTab extends PluginSettingTab {
 							staticCssSnippet = {
 								backgroundColor: staticHexValue,
 							};
+						} else if (staticDecorationValue === "color") {
+							staticCssSnippet = {
+								fontWeight: "400",
+								color: staticHexValue,
+							};
 						} else if (staticDecorationValue === "bold") {
 							staticCssSnippet = {
-								fontWeight: "bold",
+								fontWeight: "600",
 								color: staticHexValue,
 							};
 						} else if (staticDecorationValue === "underline wavy") {
@@ -435,6 +495,16 @@ export class SettingTab extends PluginSettingTab {
 								textDecorationThickness: "1px",
 								textDecorationColor: "var(--text-accent)",
 							};
+						} else if (staticDecorationValue === "border solid") {
+							staticCssSnippet = {
+								border: `1px solid ${staticHexValue}`,
+								borderRadius: "5px",
+							};
+						} else if (staticDecorationValue === "border dashed") {
+							staticCssSnippet = {
+								border: `1px dashed ${staticHexValue}`,
+								borderRadius: "5px",
+							};
 						} else {
 							staticCssSnippet = {
 								textDecoration: staticDecorationValue,
@@ -442,20 +512,24 @@ export class SettingTab extends PluginSettingTab {
 							};
 						}
 					}
-					console.log(`groupstatusvalue:`, groupStatusValue);
-
+					let makeDescSnippet = snippetMaker(
+						staticDecorationValue,
+						staticHexValue
+					);
+					console.log("descSnippet:", makeDescSnippet);
 					// Gather all values
 					config.queries[currentClassName] = {
 						class: currentClassName,
 						staticColor: staticHexValue || "#42188038",
 						staticDecoration: staticDecorationValue,
 						staticCss: staticCssSnippet,
+						descSnippet: makeDescSnippet,
 						regex: queryTypeValue,
 						query: queryValue,
 						mark: enabledMarks,
 						enabled: true,
-						group: groupNameValue, // Save the group name
-						groupEnabled: groupStatusValue, // Save the group status
+						tag: tagNameValue, // Save the tag name
+						tagEnabled: tagStatusValue, // Save the tag status
 					};
 					// Save and update
 					await this.plugin.saveSettings();
@@ -490,7 +564,7 @@ export class SettingTab extends PluginSettingTab {
 						classInput.inputEl.value = currentClassName;
 						pickrInstance.setColor(options.staticColor);
 						queryInput.inputEl.value = options.query;
-						groupDropdownComponent.setValue(options.group);
+						tagDropdownComponent.setValue(options.tag);
 						queryTypeInput.setValue(options.regex);
 						/*this.editor.setState(
 							EditorState.create({
@@ -533,54 +607,53 @@ export class SettingTab extends PluginSettingTab {
 		});
 		// Create an h3 element for the title
 		const titleElement = highlightersContainer.createEl("h3", {
-			text: "Your grouped highlighters",
+			text: "Your highlighters",
 			cls: "your-highlighters",
 		});
-		// Create a map to hold group containers
-		const groupContainers: { [key: string]: HTMLElement } = {};
+		// Create a map to hold tag containers
+		const tagContainers: { [key: string]: HTMLElement } = {};
 
 		// Modify the highlighter display logic
 		this.plugin.settings.staticHighlighter.queries;
 
-		// sort by queryConfig.group; groupEnabled wird noch nicht bestückt!
+		// sort by queryConfig.tag; tagEnabled wird noch nicht bestückt!
 
 		this.plugin.settings.staticHighlighter.queryOrder.forEach((highlighter) => {
 			const queryConfig = config.queries[highlighter];
 
 			if (queryConfig) {
-				const { staticColor, query, regex, group } = queryConfig;
-				// Create or get the group container
-				// Create or get the group container
-				if (!groupContainers[group]) {
-					const groupContainer = highlightersContainer.createEl("div", {
-						cls: "group-container",
+				const { staticColor, query, regex, tag } = queryConfig;
+				// Create or get the tag container
+				if (!tagContainers[tag]) {
+					const tagContainer = highlightersContainer.createEl("div", {
+						cls: "tag-container",
 					});
-					const groupHeader = groupContainer.createEl("div", {
-						cls: "group-header",
+					const tagHeader = tagContainer.createEl("div", {
+						cls: "tag-header",
 					});
 
 					// Create a clickable icon for expand/collapse
-					const toggleIcon = groupHeader.createEl("div", {
+					const toggleIcon = tagHeader.createEl("div", {
 						cls: "toggle-icon",
 					});
-					toggleIcon.addClass("group-icon");
+					toggleIcon.addClass("tag-icon");
 					toggleIcon.style.cursor = "pointer"; // Change cursor to pointer for better UX
 
-					let groupName = groupHeader.createSpan("group-header");
-					groupName.setText(group);
-					groupName.addClass("group-name");
-					groupName.style.cursor = "pointer";
+					let tagName = tagHeader.createSpan("tag-header");
+					tagName.setText(tag);
+					tagName.addClass("tag-name");
+					tagName.style.cursor = "pointer";
 
-					let highlightersList = groupContainer.createEl("div", {
+					let highlightersList = tagContainer.createEl("div", {
 						cls: "highlighters-list",
 					});
 
-					// Store the highlightersList in the groupContainers map
-					groupContainers[group] = highlightersList;
+					// Store the highlightersList in the tagContainers map
+					tagContainers[tag] = highlightersList;
 					// Handle click to toggle the icon and container
 
-					// console.log(`expandedGroups: `, expandedGroups);
-					if (expandedGroups.includes(group)) {
+					// console.log(`expandedTags: `, expandedTags);
+					if (expandedTags.includes(tag)) {
 						setIcon(toggleIcon, "chevron-down"); // Add a down arrow icon (expand state)
 						highlightersList.style.display = "block";
 					} else {
@@ -588,58 +661,57 @@ export class SettingTab extends PluginSettingTab {
 						highlightersList.style.display = "none";
 					}
 
-					const toggleVisibility = () => {
+					const tagToggle = () => {
 						console.log(
-							`initial state of ${group} is ${expandedGroups.includes(group)}`
+							`initial state of ${tag} is ${expandedTags.includes(tag)}`
 						);
 						// toggle to hidden
-						if (expandedGroups.includes(group)) {
+						if (expandedTags.includes(tag)) {
 							setIcon(toggleIcon, "chevron-right"); // Add a down arrow icon (expand state)
 							highlightersList.style.display = "none";
-							expandedGroups = expandedGroups.filter((entry) => entry != group);
-							console.log(`now it's ${expandedGroups.includes(group)}`);
+							expandedTags = expandedTags.filter((entry) => entry != tag);
+							console.log(`now it's ${expandedTags.includes(tag)}`);
 							this.plugin.saveSettings();
 						} else {
 							// toggle to visible
 							setIcon(toggleIcon, "chevron-down");
 							highlightersList.style.display = "block";
-							expandedGroups.push(group);
-							console.log(`now it's ${expandedGroups.includes(group)}`);
+							expandedTags.push(tag);
+							console.log(`now it's ${expandedTags.includes(tag)}`);
 						}
-						this.plugin.settings.staticHighlighter.expandedGroups =
-							expandedGroups;
+						this.plugin.settings.staticHighlighter.expandedTags = expandedTags;
 						this.plugin.saveSettings();
 
-						console.log(`expandedGroups: `, expandedGroups);
+						console.log(`expandedTags: `, expandedTags);
 					};
 
-					groupName.onclick = () => {
-						toggleVisibility();
+					tagName.onclick = () => {
+						tagToggle();
 					};
 					toggleIcon.onclick = () => {
-						toggleVisibility();
+						tagToggle();
 					};
-					groupHeader.style.cursor = "default"; // Force default cursor for the entire container
-					// Create the toggle for enabling/disabling the group
-					new Setting(groupHeader)
-						.setClass("group-header-buttons")
+					tagHeader.style.cursor = "default"; // Force default cursor for the entire container
+					// Create the toggle for enabling/disabling the tag
+					new Setting(tagHeader)
+						.setClass("tag-header-buttons")
 						.addToggle((toggle) => {
-							toggle.setValue(config.queries[highlighter].groupEnabled ?? true);
+							toggle.setValue(config.queries[highlighter].tagEnabled ?? true);
 							toggle.onChange((value) => {
-								// Update the groupEnabled status for the specific group
+								// Update the tagEnabled status for the specific tag
 								this.plugin.settings.staticHighlighter.queryOrder.forEach(
 									(highlighter) => {
 										if (
 											this.plugin.settings.staticHighlighter.queries[
 												highlighter
-											].group === queryConfig.group &&
+											].tag === queryConfig.tag &&
 											this.plugin.settings.staticHighlighter.queries[
 												highlighter
-											].groupEnabled != value
+											].tagEnabled != value
 										)
 											this.plugin.settings.staticHighlighter.queries[
 												highlighter
-											].groupEnabled = value;
+											].tagEnabled = value;
 									},
 									(async () => {
 										// Call the save function to persist the changes
@@ -650,58 +722,55 @@ export class SettingTab extends PluginSettingTab {
 								);
 								toggle.toggleEl.setAttribute(
 									"aria-label",
-									value ? `Disable ${group}` : `Enable ${group}`
+									value ? `Disable ${tag}` : `Enable ${tag}`
 								);
 							});
 						})
 						.addButton((button) => {
-							button.buttonEl.setAttribute(
-								"aria-label",
-								`Edit this group's name`
-							);
+							button.buttonEl.setAttribute("aria-label", `Rename this tag`);
 							button
 								.setClass("action-button")
 								.setClass("action-button-edit")
 								.setClass("mod-cta")
 								.setIcon("pencil")
 								.onClick(async () => {
-									const renameGroup = new Modals.RenameGroupModal(
+									const renameTag = new Modals.RenameTagModal(
 										this.app,
-										group,
-										groupDropdownComponent,
-										expandedGroups,
+										tag,
+										tagDropdownComponent,
+										expandedTags,
 										this.plugin.settings.staticHighlighter,
 										modalSaveAndReload
 									);
-									renameGroup.open();
+									renameTag.open();
 								});
 						})
 						.addButton((button) => {
-							button.buttonEl.setAttribute("aria-label", `Delete ${group}`);
+							button.buttonEl.setAttribute("aria-label", `Delete ${tag}`);
 							button
 								.setClass("action-button")
 								.setClass("action-button-delete")
 								.setIcon("trash")
 								.setClass("mod-warning")
 								.onClick(async () => {
-									const deleteGroup = new Modals.DeleteGroupModal(
+									const deleteTag = new Modals.DeleteTagModal(
 										this.app,
-										group,
+										tag,
 										this.plugin.settings.staticHighlighter,
 										modalSaveAndReload
 									);
-									deleteGroup.open();
+									deleteTag.open();
 								});
 						});
 
-					// Append the group header and highlighters list to the group container
-					groupContainer.appendChild(groupHeader);
-					groupContainer.appendChild(highlightersList);
-					highlightersContainer.appendChild(groupContainer); // Append the group container to the main container
+					// Append the tag header and highlighters list to the tag container
+					tagContainer.appendChild(tagHeader);
+					tagContainer.appendChild(highlightersList);
+					highlightersContainer.appendChild(tagContainer); // Append the tag container to the main container
 				}
 
 				// Create highlighter item
-				const settingItem = groupContainers[group].createEl("div");
+				const settingItem = tagContainers[tag].createEl("div");
 				settingItem.id = "dh-" + highlighter;
 				settingItem.addClass("highlighter-item-draggable");
 				const dragIcon = settingItem.createEl("span");
@@ -711,18 +780,18 @@ export class SettingTab extends PluginSettingTab {
 					"highlighter-setting-icon-drag"
 				);
 				colorIcon.addClass("highlighter-setting-icon");
-				colorIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=${staticColor} stroke=${staticColor} stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M20.707 5.826l-3.535-3.533a.999.999 0 0 0-1.408-.006L7.096 10.82a1.01 1.01 0 0 0-.273.488l-1.024 4.437L4 18h2.828l1.142-1.129l3.588-.828c.18-.042.345-.133.477-.262l8.667-8.535a1 1 0 0 0 .005-1.42zm-9.369 7.833l-2.121-2.12l7.243-7.131l2.12 2.12l-7.242 7.131zM4 20h16v2H4z"/></svg>`;
+				// colorIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=${staticColor} stroke=${staticColor} stroke-width="0" stroke-linecap="round" stroke-linejoin="round"><path d="M20.707 5.826l-3.535-3.533a.999.999 0 0 0-1.408-.006L7.096 10.82a1.01 1.01 0 0 0-.273.488l-1.024 4.437L4 18h2.828l1.142-1.129l3.588-.828c.18-.042.345-.133.477-.262l8.667-8.535a1 1 0 0 0 .005-1.42zm-9.369 7.833l-2.121-2.12l7.243-7.131l2.12 2.12l-7.242 7.131zM4 20h16v2H4z"/></svg>`;
+				colorIcon.innerHTML = `<span style="font-size: medium; ${config.queries[highlighter].descSnippet}">abc</span>`;
 				// setIcon(dragIcon, "three-horizontal-bars");
 				dragIcon.ariaLabel = "Drag to rearrange";
 				const desc: string[] = [];
 				desc.push((regex ? "search expression: " : "search term: ") + query);
-				desc.push("group: " + config.queries[highlighter].group);
+				desc.push("tag: " + config.queries[highlighter].tag);
 
 				new Setting(settingItem)
 					.setClass("highlighter-details")
 					.setName(highlighter)
 					.setDesc(desc.join(" | "))
-
 					// ####### beginning TOGGLE ENABLED/DISABLED ########################
 
 					.addToggle((toggle) => {
@@ -784,9 +853,9 @@ export class SettingTab extends PluginSettingTab {
 									options.staticDecoration
 								);
 								staticDecorationValue = options.staticDecoration; // Set staticDecorationValue to the current value
-								groupName = options.group;
-								groupDropdownComponent.setValue(options.group);
-								groupStatus = options.groupEnabled;
+								tagName = options.tag;
+								tagDropdownComponent.setValue(options.tag);
+								tagStatus = options.tagEnabled;
 								pickrInstance.setColor(options.staticColor);
 								queryTypeInput.setValue(options.regex);
 
@@ -838,7 +907,7 @@ export class SettingTab extends PluginSettingTab {
 					});
 
 				// Append the settingItem to the highlightersList
-				groupContainers[group].appendChild(settingItem);
+				tagContainers[tag].appendChild(settingItem);
 			} else {
 				console.warn(
 					`Highlighter "${highlighter}" not found in config.queries.`
@@ -921,12 +990,15 @@ export class SettingTab extends PluginSettingTab {
 			.setClass("decoration-dropdown")
 			.addDropdown((dropdown) => {
 				dropdown
+					.addOption("background", "Background")
 					.addOption("underline", "Underline")
 					.addOption("underline dotted", "Dotted")
 					.addOption("underline dashed", "Dashed")
 					.addOption("underline wavy", "Wavy")
-					.addOption("background", "Background")
-					.addOption("bold", "Bold, colored text")
+					.addOption("color", "Colored text")
+					.addOption("bold", "Bold colored text")
+					.addOption("border solid", "Border, solid")
+					.addOption("border dashed", "Border, dashed")
 					.addOption("line-through", "Strikethrough")
 					.setValue(
 						this.plugin.settings.selectionHighlighter.selectionDecoration
@@ -949,31 +1021,11 @@ export class SettingTab extends PluginSettingTab {
 				let decoration =
 					this.plugin.settings.selectionHighlighter.selectionDecoration;
 
-				let cssSnippet;
-
-				if (color == "default") {
-					if (decoration == "background") {
-						cssSnippet = `background-color: var(--text-accent)`;
-					} else if (decoration == "bold") {
-						cssSnippet = `font-weight: bold; color: var(--text-accent)`;
-					} else if (decoration == "underline wavy") {
-						cssSnippet = `background-image: linear-gradient(to right, var(--text-accent) 0%, var(--text-accent) 25%, transparent 25%, transparent 50%); background-size: 4px 1px; background-repeat: repeat-x; background-position: bottom; text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: var(--text-accent);`;
-					} else {
-						cssSnippet = `text-decoration: ${decoration}; text-decoration-color: var(--text-accent)`;
-					}
-				} else {
-					if (decoration == "background") {
-						cssSnippet = `background-color: ${color}`;
-					} else if (decoration == "bold") {
-						cssSnippet = `font-weight: bold; color: ${color}`;
-					} else if (decoration == "underline wavy") {
-						cssSnippet = `background-image: linear-gradient(to right, ${color} 0%, ${color} 25%, transparent 25%, transparent 50%); background-size: 4px 1px; background-repeat: repeat-x; background-position: bottom; text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: var(--text-accent);`;
-					} else {
-						cssSnippet = `text-decoration: ${decoration}; text-decoration-color: ${color}`;
-					}
-				}
 				// Save the CSS snippet to the settings
-				this.plugin.settings.selectionHighlighter.css = cssSnippet;
+				this.plugin.settings.selectionHighlighter.css = snippetMaker(
+					decoration,
+					color
+				);
 				await this.plugin.saveSettings();
 				this.plugin.updateSelectionHighlighter();
 			});

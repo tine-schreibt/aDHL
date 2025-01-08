@@ -20,127 +20,122 @@ import { HighlighterOptions, markTypes } from "./settings";
 import { StyleSpec } from "style-mod";
 import { StaticHighlightOptions } from "src/highlighters/static";
 
-export class newGroupModal extends Modal {
+export class newTagModal extends Modal {
 	dropdown: DropdownComponent;
 	nameHolder: string;
-	expandedGroups: string[];
+	expandedTags: string[];
 
 	constructor(
 		app: App,
 		dropdown: DropdownComponent,
 		nameHolder: string,
-		expandedGroups: string[]
+		expandedTags: string[]
 	) {
 		super(app);
 		this.dropdown = dropdown;
 		this.nameHolder = nameHolder;
-		this.expandedGroups = expandedGroups;
+		this.expandedTags = expandedTags;
 	}
 	onOpen() {
 		const { contentEl } = this;
-		contentEl.createEl("h2", { text: "Create New Group" });
+		contentEl.createEl("h2", { text: "Create New tag" });
 		const helperText = contentEl.createEl("p", {
-			text: "Enter a name for your new group",
-			cls: "group-modal-helper",
+			text: "Enter a name for your new tag",
+			cls: "tag-modal-helper",
 		});
-		let newGroupNameInput = contentEl.createEl("input", {
+		let newTagNameInput = contentEl.createEl("input", {
 			type: "text",
-			cls: "group-modal-text",
+			cls: "tag-modal-text",
 		});
-		newGroupNameInput.placeholder = "Group name";
+		newTagNameInput.placeholder = "Tag name";
 
 		const saveButton = contentEl.createEl("button");
 		saveButton.addClass("action-button");
 		saveButton.addClass("action-button-save");
 		saveButton.addClass("mod-cta");
-		saveButton.setAttribute("aria-label", "Save new group.");
+		saveButton.setAttribute("aria-label", "Save new tag.");
 		const saveEl = saveButton.createSpan({ cls: "icon" }); // Create a span for the icon
 		setIcon(saveEl, "save");
 		saveButton.onclick = async () => {
-			const newGroupName = newGroupNameInput.value.trim();
-			// if a group name is entered, hand over name and set status to enabled
-			if (newGroupName) {
-				this.nameHolder = newGroupName;
-				this.dropdown.addOption(newGroupName, newGroupName);
-				this.dropdown.setValue(newGroupName);
-				this.expandedGroups.push(newGroupName);
+			const newTagName = newTagNameInput.value.trim();
+			// if a tag name is entered, hand over name and set status to enabled
+			if (newTagName) {
+				this.nameHolder = newTagName;
+				this.dropdown.addOption(newTagName, newTagName);
+				this.dropdown.setValue(newTagName);
+				this.expandedTags.push(newTagName);
 			} else {
-				new Notice(`Please enter a group name.`);
+				new Notice(`Please enter a tag name (case sensitive).`);
 			}
 			this.close();
 		};
 	}
 }
 
-export class RenameGroupModal extends Modal {
-	private oldGroupName: string;
+export class RenameTagModal extends Modal {
+	private oldTagName: string;
 	private dropdown: DropdownComponent;
-	private expandedGroups: string[];
+	private expandedTags: string[];
 	private staticHighlighter: StaticHighlightOptions;
 	private modalSaveAndReload: () => Promise<void>;
 	constructor(
 		app: App,
-		oldGroupName: string,
+		oldTagName: string,
 		dropdown: DropdownComponent,
-		expandedGroups: string[],
+		expandedTags: string[],
 		staticHighlighter: StaticHighlightOptions,
 		modalSaveAndReload: () => Promise<void>
 	) {
 		super(app);
-		this.oldGroupName = oldGroupName;
+		this.oldTagName = oldTagName;
 		this.dropdown = dropdown;
-		this.expandedGroups = expandedGroups;
+		this.expandedTags = expandedTags;
 		this.staticHighlighter = staticHighlighter;
 		this.modalSaveAndReload = modalSaveAndReload;
 	}
 	onOpen() {
 		const { contentEl } = this;
-		contentEl.createEl("h2", { text: "Edit Group Name" });
+		contentEl.createEl("h2", { text: "Edit Tag Name" });
 		const helperText = contentEl.createEl("p", {
-			text: "Enter an existing group name to move highlighters there (case sensitive).",
-			cls: "group-modal-helper",
+			text: "Enter a new tag name (case sensitive).",
+			cls: "tag-modal-helper",
 		});
-		let newGroupNameInput = contentEl.createEl("input", {
+		let newTagNameInput = contentEl.createEl("input", {
 			type: "text",
-			cls: "group-modal-text",
+			cls: "tag-modal-text",
 		});
-		newGroupNameInput.placeholder = "Group name";
+		newTagNameInput.placeholder = "Tag name";
 
 		const saveButton = contentEl.createEl("button");
 		saveButton.addClass("action-button");
 		saveButton.addClass("action-button-save");
 		saveButton.addClass("mod-cta");
-		saveButton.setAttribute("aria-label", "Save new group name.");
+		saveButton.setAttribute("aria-label", "Save new tag name.");
 		const saveEl = saveButton.createSpan({ cls: "icon" }); // Create a span for the icon
 		setIcon(saveEl, "save");
 		saveButton.onclick = async () => {
-			let newGroupName = newGroupNameInput.value.trim();
-			// if a group name is entered, hand over name and set status to enabled
-			if (newGroupName) {
+			let newTagName = newTagNameInput.value.trim();
+			// if a Tag name is entered, hand over name and set status to enabled
+			if (newTagName) {
 				Object.keys(this.staticHighlighter.queries).forEach((highlighter) => {
 					let existenceChecker = 0;
 					let pushChecker = 0;
-					if (
-						this.staticHighlighter.queries[highlighter].group === newGroupName
-					) {
+					if (this.staticHighlighter.queries[highlighter].tag === newTagName) {
 						existenceChecker += 1;
 					} else if (
-						this.staticHighlighter.queries[highlighter].group ===
-						this.oldGroupName
+						this.staticHighlighter.queries[highlighter].tag === this.oldTagName
 					) {
-						this.staticHighlighter.queries[highlighter].group = newGroupName;
-						this.dropdown.addOption(newGroupName, newGroupName);
+						this.staticHighlighter.queries[highlighter].tag = newTagName;
+						this.dropdown.addOption(newTagName, newTagName);
 						if (pushChecker === 0) {
-							this.expandedGroups.push(newGroupName);
+							this.expandedTags.push(newTagName);
 							pushChecker += 1;
 						}
 					}
 				}),
-					new Notice(
-						`Group "${this.oldGroupName}" renamed to "${newGroupName}"!`
-					);
+					new Notice(`Tag "${this.oldTagName}" renamed to "${newTagName}"!`);
 			} else {
-				new Notice(`Please enter a group name.`);
+				new Notice(`Please enter a tag name.`);
 			}
 			await this.modalSaveAndReload();
 			this.close();
@@ -148,54 +143,53 @@ export class RenameGroupModal extends Modal {
 	}
 }
 
-export class DeleteGroupModal extends Modal {
-	private oldGroupName: string;
+export class DeleteTagModal extends Modal {
+	private oldTagName: string;
 	private staticHighlighter: StaticHighlightOptions;
 	private modalSaveAndReload: () => Promise<void>;
 	constructor(
 		app: App,
-		oldGroupName: string,
+		oldTagName: string,
 		staticHighlighter: StaticHighlightOptions,
 		modalSaveAndReload: () => Promise<void>
 	) {
 		super(app);
-		this.oldGroupName = oldGroupName;
+		this.oldTagName = oldTagName;
 		this.staticHighlighter = staticHighlighter;
 		this.modalSaveAndReload = modalSaveAndReload;
 	}
 	onOpen() {
 		const { contentEl } = this;
-		contentEl.createEl("h2", { text: `Delete ${this.oldGroupName}` });
+		contentEl.createEl("h2", { text: `Delete ${this.oldTagName}` });
 		const helperText = contentEl.createEl("p", {
-			text: "This will delete the group and all highlighters in it.",
-			cls: "group-modal-helper",
+			text: "This will delete the Tag and all highlighters in it.",
+			cls: "Tag-modal-helper",
 		});
-		let groupDeleteDecision = contentEl.createEl("input", {
+		let tagDeleteDecision = contentEl.createEl("input", {
 			type: "text",
-			cls: "group-modal-text",
+			cls: "Tag-modal-text",
 		});
-		groupDeleteDecision.placeholder = `Input "Delete ${this.oldGroupName}!"`;
+		tagDeleteDecision.placeholder = `Input "Delete ${this.oldTagName}!"`;
 
 		const deleteButton = contentEl.createEl("button");
 		deleteButton.addClass("action-button");
 		deleteButton.addClass("action-button-delete-modal");
 		deleteButton.addClass("mod-warning");
-		deleteButton.setAttribute("aria-label", `Delete ${this.oldGroupName}.`);
+		deleteButton.setAttribute("aria-label", `Delete ${this.oldTagName}.`);
 		const deleteEl = deleteButton.createSpan({ cls: "icon" }); // Create a span for the icon
 		setIcon(deleteEl, "trash");
 		deleteButton.onclick = async () => {
-			let decision = groupDeleteDecision.value.trim();
-			// if a group name is entered, hand over name and set status to enabled
-			if (decision == `Delete ${this.oldGroupName}!`) {
+			let decision = tagDeleteDecision.value.trim();
+			// if a tag name is entered, hand over name and set status to enabled
+			if (decision == `Delete ${this.oldTagName}!`) {
 				Object.keys(this.staticHighlighter.queries).forEach((highlighter) => {
 					if (
-						this.staticHighlighter.queries[highlighter].group ===
-						this.oldGroupName
+						this.staticHighlighter.queries[highlighter].tag === this.oldTagName
 					) {
 						delete this.staticHighlighter.queries[highlighter];
 					}
 				});
-				new Notice(`Group "${this.oldGroupName}" was deleted."!`);
+				new Notice(`Tag "${this.oldTagName}" was deleted."!`);
 				await this.modalSaveAndReload();
 				this.close();
 			}
@@ -218,21 +212,21 @@ export class DeleteHighlighterModal extends Modal {
 	private highlighterName: string;
 	private staticHighlighter: StaticHighlightOptions;
 	private queryOrder: string[];
-	//private removeEmptyGroup: () => Promise<void>;
+	//private removeEmptyTag: () => Promise<void>;
 	private modalSaveAndReload: () => Promise<void>;
 	constructor(
 		app: App,
 		highlighterName: string,
 		staticHighlighter: StaticHighlightOptions,
 		queryOrder: string[],
-		//removeEmptyGroup: () => Promise<void>,
+		//removeEmptyTag: () => Promise<void>,
 		modalSaveAndReload: () => Promise<void>
 	) {
 		super(app);
 		this.highlighterName = highlighterName;
 		this.staticHighlighter = staticHighlighter;
 		this.queryOrder = queryOrder;
-		//this.removeEmptyGroup = removeEmptyGroup;
+		//this.removeEmptyTag = removeEmptyTag;
 		this.modalSaveAndReload = modalSaveAndReload;
 	}
 	onOpen() {
@@ -240,7 +234,7 @@ export class DeleteHighlighterModal extends Modal {
 		contentEl.createEl("h2", { text: `Delete ${this.highlighterName}` });
 		const helperText = contentEl.createEl("p", {
 			text: `Are you sure you want to delete the highlighter ${this.highlighterName}?`,
-			cls: "group-modal-helper",
+			cls: "Tag-modal-helper",
 		});
 
 		const deleteButton = contentEl.createEl("button");
@@ -255,7 +249,7 @@ export class DeleteHighlighterModal extends Modal {
 			this.queryOrder = this.queryOrder.filter(
 				(h) => h != this.highlighterName
 			);
-			await /*this.removeEmptyGroup(),*/ await this.modalSaveAndReload();
+			await /*this.removeEmptyTag(),*/ await this.modalSaveAndReload();
 			this.close();
 		};
 		new Notice(`Highlighter "${this.highlighterName}" was deleted."!`);

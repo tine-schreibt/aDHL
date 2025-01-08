@@ -29,11 +29,11 @@ interface SearchQuery {
 	staticColor: string;
 	staticDecoration: string;
 	staticCss: StyleSpec;
+	descSnippet: string;
 	regex: boolean;
 	mark?: markTypes[];
-	css?: string;
-	group: string;
-	groupEnabled: boolean;
+	tag: string;
+	tagEnabled: boolean;
 	enabled?: boolean;
 }
 export interface SearchQueries {
@@ -64,13 +64,9 @@ export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
 	staticHighlighter: {
 		queries: {},
 		queryOrder: [],
-		expandedGroups: [],
+		expandedTags: [],
 	},
 };
-
-
-
-
 
 /*
 export function setAttributes(element: any, attributes: any) {
