@@ -66,6 +66,7 @@ export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
 		queryOrder: [],
 		tagOrder: [],
 		expandedTags: [],
+		onOffSwitch: true,
 	},
 };
 

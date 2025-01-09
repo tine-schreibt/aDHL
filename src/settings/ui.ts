@@ -143,44 +143,61 @@ export class SettingTab extends PluginSettingTab {
 			let queryOrder = this.plugin.settings.staticHighlighter.queryOrder;
 			const queries = this.plugin.settings.staticHighlighter.queries;
 			await config.queryOrder.sort();
-			console.log("queryOrder: ", queryOrder);
 			await queryOrder.forEach((highlighter) => {
 				if (!tagList.includes(queries[highlighter].tag)) {
 					tagList.push(queries[highlighter].tag);
 				}
 			});
-			console.log("tagList: ", tagList);
 			await tagList.sort();
-			console.log("Sorted tagList: ", tagList);
 
 			await tagList.forEach((tag) => {
 				let done: string[] = [];
 				queryOrder.forEach((highlighter) => {
 					if (!done.includes(highlighter)) {
-						console.log("Tag: ", tag, " Highl: ", highlighter);
 						if (queries[highlighter].tag === tag)
 							interimQueryOrder.push(highlighter);
 						done.push(highlighter);
-						console.log("interimQueryOrder: ", interimQueryOrder);
 					}
 				});
 			});
 			this.plugin.settings.staticHighlighter.queryOrder = interimQueryOrder;
-			console.log(
-				"This should be interim: ",
-				this.plugin.settings.staticHighlighter.queryOrder
-			);
 			this.plugin.saveSettings();
 			this.display();
 		};
 
 		//####################### UI ##############################
-		containerEl
-			.createEl("h3", {
-				text: "Persistent Highlights",
-			})
-			.addClass("persistent-highlights");
+		containerEl.addClass("persistent-highlights");
 		containerEl.addClass("dynamic-highlights-settings");
+
+		const headlineToggleContainer = containerEl.createDiv({
+			cls: "headline-toggle-container", // Optional: Add a class for styling
+		});
+
+		// Add the headline text
+		headlineToggleContainer.createEl("h3", {
+			text: "Persistent Highlights",
+			cls: "headline-text", // Optional: Add a class for styling
+		});
+
+		// Add the toggle
+		new Setting(headlineToggleContainer).addToggle((headlineToggle) => {
+			headlineToggle.toggleEl.setAttribute(
+				"aria-label",
+				config.onOffSwitch ? `Stop highlighting` : `Start highlighting`
+			);
+			headlineToggle.setValue(config.onOffSwitch).onChange((value) => {
+				// Update the 'enabled' property of the highlighter
+				config.onOffSwitch = value;
+				this.plugin.saveSettings();
+				this.plugin.updateStaticHighlighter();
+				this.display();
+				// Update ARIA label
+				headlineToggle.toggleEl.setAttribute(
+					"aria-label",
+					value ? `Stop highlighting` : `Start highlighting`
+				);
+			});
+		});
 
 		let staticDecorationValue: string = "background";
 		let staticDecorationDropdown: Setting;
@@ -194,7 +211,7 @@ export class SettingTab extends PluginSettingTab {
 			.setName("Define persistent highlighters")
 			.setClass("highlighter-definition")
 			.setDesc(
-				`In this section you define a unique highlighter name along with a background color and a search term/expression. Enable the regex toggle when entering a regex query. Make sure to click the save button once you're done defining the highlighter.`
+				`In this section you define your highlighters and the tags you want to sort them by. There's also The On/Off Switch.`
 			);
 
 		// Create the input field for the highlighter name
@@ -376,7 +393,6 @@ export class SettingTab extends PluginSettingTab {
 				// Create a Set to track unique tag names
 				const uniqueTags = new Set<string>();
 				Object.keys(config.queries).forEach((highlighter) => {
-					// console.log(`creatingEntryfor`, config.queries[highlighter].tag);
 					const tagging = config.queries[highlighter].tag;
 					const taggingStatus = config.queries[highlighter].tagEnabled;
 					if (tagging && !uniqueTags.has(tagging)) {
@@ -695,10 +711,6 @@ export class SettingTab extends PluginSettingTab {
 
 		// sort by queryConfig.tag; tagEnabled wird noch nicht bestückt!
 		this.plugin.settings.staticHighlighter.queryOrder.forEach((highlighter) => {
-			console.log(
-				"BUILDING: ",
-				this.plugin.settings.staticHighlighter.queryOrder
-			);
 			const queryConfig = config.queries[highlighter];
 			if (queryConfig) {
 				const { query, regex, tag } = queryConfig;
@@ -732,7 +744,6 @@ export class SettingTab extends PluginSettingTab {
 					tagContainers[tag] = highlightersList;
 					// Handle click to toggle the icon and container
 
-					// console.log(`expandedTags: `, expandedTags);
 					if (expandedTags.includes(tag)) {
 						setIcon(toggleIcon, "chevron-down"); // Add a down arrow icon (expand state)
 						highlightersList.style.display = "block";
@@ -741,13 +752,12 @@ export class SettingTab extends PluginSettingTab {
 						highlightersList.style.display = "none";
 					}
 
-					const tagToggle = () => {
+					const tagExpandToggle = () => {
 						// toggle to hidden
 						if (expandedTags.includes(tag)) {
 							setIcon(toggleIcon, "chevron-right"); // Add a down arrow icon (expand state)
 							highlightersList.style.display = "none";
 							expandedTags = expandedTags.filter((entry) => entry != tag);
-							console.log(`now it's ${expandedTags.includes(tag)}`);
 							this.plugin.saveSettings();
 						} else {
 							// toggle to visible
@@ -759,48 +769,58 @@ export class SettingTab extends PluginSettingTab {
 						this.plugin.saveSettings();
 					};
 					tagName.onclick = () => {
-						tagToggle();
+						tagExpandToggle();
 					};
 					toggleIcon.onclick = () => {
-						tagToggle();
+						tagExpandToggle();
 					};
 					tagHeader.style.cursor = "default"; // Force default cursor for the entire container
 					// Create the toggle for enabling/disabling the tag
-					new Setting(tagHeader)
-						.setClass("tag-header-buttons")
-						.addToggle((toggle) => {
-							toggle.setValue(config.queries[highlighter].tagEnabled ?? true);
-							toggle.toggleEl.setAttribute(
-								"aria-label",
-								config.queries[highlighter].tagEnabled
-									? `Disable ${tag}`
-									: `Enable ${tag}`
+					const tagButtons = new Setting(tagHeader).setClass(
+						"tag-header-buttons"
+					);
+					tagButtons.addToggle((tagToggle) => {
+						tagToggle.toggleEl.setAttribute(
+							"aria-label",
+							config.queries[highlighter].tagEnabled
+								? `Disable ${tag}`
+								: `Enable ${tag}`
+						);
+						let tagIsDisabled: boolean =
+							!this.plugin.settings.staticHighlighter.onOffSwitch;
+						tagToggle.setValue(config.queries[highlighter].tagEnabled ?? true);
+						if (tagIsDisabled) {
+							tagToggle.setDisabled(tagIsDisabled);
+							tagToggle.toggleEl.classList.add("disabled-toggle");
+						}
+						tagToggle.onChange((value) => {
+							if (tagIsDisabled) {
+								return;
+							}
+
+							// Update the tagEnabled status for the specific tag
+							this.plugin.settings.staticHighlighter.queryOrder.forEach(
+								(highlighter) => {
+									if (
+										this.plugin.settings.staticHighlighter.queries[highlighter]
+											.tag === queryConfig.tag &&
+										this.plugin.settings.staticHighlighter.queries[highlighter]
+											.tagEnabled != value
+									)
+										this.plugin.settings.staticHighlighter.queries[
+											highlighter
+										].tagEnabled = value;
+								},
+								(async () => {
+									// Call the save function to persist the changes
+									await this.plugin.saveSettings();
+									// Refresh the highlighter decorations
+									this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
+								})()
 							);
-							toggle.onChange((value) => {
-								// Update the tagEnabled status for the specific tag
-								this.plugin.settings.staticHighlighter.queryOrder.forEach(
-									(highlighter) => {
-										if (
-											this.plugin.settings.staticHighlighter.queries[
-												highlighter
-											].tag === queryConfig.tag &&
-											this.plugin.settings.staticHighlighter.queries[
-												highlighter
-											].tagEnabled != value
-										)
-											this.plugin.settings.staticHighlighter.queries[
-												highlighter
-											].tagEnabled = value;
-									},
-									(async () => {
-										// Call the save function to persist the changes
-										await this.plugin.saveSettings();
-										// Refresh the highlighter decorations
-										this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
-									})()
-								);
-							});
-						})
+						});
+					});
+					tagButtons
 						.addButton((button) => {
 							button.buttonEl.setAttribute("aria-label", `Rename this tag`);
 							button
@@ -865,49 +885,59 @@ export class SettingTab extends PluginSettingTab {
 				desc.push((regex ? "search expression: " : "search term: ") + query);
 				desc.push("tag: " + config.queries[highlighter].tag);
 
-				new Setting(settingItem)
+				const highlighterButtons = new Setting(settingItem)
 					.setClass("highlighter-details")
 					.setName(highlighter)
-					.setDesc(desc.join(" | "))
+					.setDesc(desc.join(" | "));
 
-					// ####### beginning TOGGLE ENABLED/DISABLED ########################
+				// ####### beginning TOGGLE ENABLED/DISABLED ########################
 
-					.addToggle((toggle) => {
-						toggle
-							.setValue(config.queries[highlighter].enabled ?? true)
-							.onChange((value) => {
-								// Update the 'enabled' property of the highlighter
-								config.queries[highlighter].enabled = value;
+				highlighterButtons.addToggle((highlighterToggle) => {
+					// Set initial aria-label based on the initial state
+					highlighterToggle.toggleEl.setAttribute(
+						"aria-label",
+						config.queries[highlighter].enabled
+							? `Disable ${highlighter} highlighter`
+							: `Enable ${highlighter} highlighter`
+					);
+					let highlighterIsDisabled: boolean =
+						!this.plugin.settings.staticHighlighter.onOffSwitch;
+					highlighterToggle.setValue(
+						config.queries[highlighter].enabled ?? true
+					);
+					if (highlighterIsDisabled) {
+						highlighterToggle.setDisabled(highlighterIsDisabled);
+						highlighterToggle.toggleEl.classList.add("disabled-toggle");
+					}
+					highlighterToggle.onChange((value) => {
+						if (highlighterIsDisabled) {
+							return;
+						}
+						// Update the 'enabled' property of the highlighter
+						config.queries[highlighter].enabled = value;
 
-								// Update the aria-label based on the toggle state
-								toggle.toggleEl.setAttribute(
-									"aria-label",
-									value
-										? `Disable ${highlighter} highlighter`
-										: `Enable ${highlighter} highlighter`
-								);
-
-								// Use an immediately invoked async function to handle the await
-								(async () => {
-									// Call the save function to persist the changes
-									await this.plugin.saveSettings();
-
-									// Refresh the highlighter decorations
-									this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
-								})();
-							});
-
-						// Set initial aria-label based on the initial state
-						toggle.toggleEl.setAttribute(
+						// Update the aria-label based on the toggle state
+						highlighterToggle.toggleEl.setAttribute(
 							"aria-label",
-							config.queries[highlighter].enabled
+							value
 								? `Disable ${highlighter} highlighter`
 								: `Enable ${highlighter} highlighter`
 						);
-					})
 
-					// ####### endTOGGLE ENABLED/DISABLED########################
+						// Use an immediately invoked async function to handle the await
+						(async () => {
+							// Call the save function to persist the changes
+							await this.plugin.saveSettings();
 
+							// Refresh the highlighter decorations
+							this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
+						})();
+					});
+				});
+
+				// ####### endTOGGLE ENABLED/DISABLED########################
+
+				highlighterButtons
 					.addButton((button) => {
 						button.buttonEl.setAttribute(
 							"aria-label",

@@ -2,6 +2,26 @@
 
 /* #region selection highlighter styles */
 
+.disabled-toggle {
+	opacity: 0.5; /* Greyed out */
+	pointer-events: none; /* Prevent interaction */
+	cursor: not-allowed; /* Show a 'disabled' cursor */
+}
+
+.headline-toggle-container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between; /* Adjust alignment as needed */
+	gap: 10px; /* Add space between the text and toggle */
+	margin-right: 50; /* Remove default margin from <h3> */
+	border-top: "none";
+}
+
+.headline-text {
+	margin-right: 50; /* Remove default margin from <h3> */
+	border-top: "none";
+}
+
 .modal-content-grid {
 	display: grid;
 	grid:

@@ -32,6 +32,7 @@ export type StaticHighlightOptions = {
 	queryOrder: string[];
 	tagOrder: string[];
 	expandedTags: string[];
+	onOffSwitch: boolean;
 };
 
 const tokenClassNodeProp = new NodeProp();
@@ -41,6 +42,7 @@ const defaultOptions: StaticHighlightOptions = {
 	queryOrder: [],
 	tagOrder: [],
 	expandedTags: [],
+	onOffSwitch: true,
 };
 
 export const staticHighlightConfig = Facet.define<
@@ -51,6 +53,8 @@ export const staticHighlightConfig = Facet.define<
 		return combineConfig(options, defaultOptions, {
 			queries: (a, b) => a || b,
 			queryOrder: (a, b) => a || b,
+			tagOrder: (a, b) => a || b,
+			expandedTags: (a, b) => a || b,
 		});
 	},
 });
@@ -141,10 +145,14 @@ const staticHighlighter = ViewPlugin.fromClass(
 				lineClasses: { [key: number]: string[] } = {},
 				queries = Object.values(
 					view.state.facet(staticHighlightConfig).queries
-				);
+				),
+				onOffSwitchState: boolean = view.state.facet(
+					staticHighlightConfig
+				).onOffSwitch;
+
 			for (let part of view.visibleRanges) {
 				for (let query of queries) {
-					if (query.enabled && query.tagEnabled) {
+					if (query.enabled && query.tagEnabled && onOffSwitchState) {
 						let cursor: RegExpCursor | SearchCursor;
 						try {
 							if (query.regex)
