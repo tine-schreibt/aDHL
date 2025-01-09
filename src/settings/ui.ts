@@ -8,6 +8,8 @@ import * as Modals from "./modals";
 import { EditorState, Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import Pickr from "@simonwep/pickr";
+import { createIcons, icons } from "lucide";
+
 import {
 	App,
 	ButtonComponent,
@@ -90,6 +92,7 @@ export class SettingTab extends PluginSettingTab {
 			}
 		);
 
+		//#################### FUNCTIONS ###############################
 		const modalSaveAndReload = async () => {
 			await this.plugin.saveSettings();
 			this.display(); // Refresh the UI after saving
@@ -134,6 +137,44 @@ export class SettingTab extends PluginSettingTab {
 			return cssSnippet;
 		};
 
+		const sortAlphabetically = async () => {
+			let tagList: string[] = [];
+			let interimQueryOrder: string[] = [];
+			let queryOrder = this.plugin.settings.staticHighlighter.queryOrder;
+			const queries = this.plugin.settings.staticHighlighter.queries;
+			await config.queryOrder.sort();
+			console.log("queryOrder: ", queryOrder);
+			await queryOrder.forEach((highlighter) => {
+				if (!tagList.includes(queries[highlighter].tag)) {
+					tagList.push(queries[highlighter].tag);
+				}
+			});
+			console.log("tagList: ", tagList);
+			await tagList.sort();
+			console.log("Sorted tagList: ", tagList);
+
+			await tagList.forEach((tag) => {
+				let done: string[] = [];
+				queryOrder.forEach((highlighter) => {
+					if (!done.includes(highlighter)) {
+						console.log("Tag: ", tag, " Highl: ", highlighter);
+						if (queries[highlighter].tag === tag)
+							interimQueryOrder.push(highlighter);
+						done.push(highlighter);
+						console.log("interimQueryOrder: ", interimQueryOrder);
+					}
+				});
+			});
+			this.plugin.settings.staticHighlighter.queryOrder = interimQueryOrder;
+			console.log(
+				"This should be interim: ",
+				this.plugin.settings.staticHighlighter.queryOrder
+			);
+			this.plugin.saveSettings();
+			this.display();
+		};
+
+		//####################### UI ##############################
 		containerEl
 			.createEl("h3", {
 				text: "Persistent Highlights",
@@ -426,7 +467,6 @@ export class SettingTab extends PluginSettingTab {
 					if (state == "creating") {
 						if (!config.queryOrder.includes(currentClassName)) {
 							config.queryOrder.unshift(currentClassName);
-							config.queryOrder.sort();
 						} else {
 							new Notice("Highlighter name already exists");
 							return;
@@ -619,10 +659,34 @@ export class SettingTab extends PluginSettingTab {
 			cls: "highlighter-container",
 		});
 		// Create an h3 element for the title
-		const titleElement = highlightersContainer.createEl("h3", {
-			text: "Your highlighters",
+		const titleElement = highlightersContainer.createEl("div", {
+			//text: "Your highlighters",
 			cls: "your-highlighters",
 		});
+		titleElement.style.display = "flex";
+		titleElement.style.alignItems = "center";
+		titleElement.style.justifyContent = "space-between";
+
+		const titleText = titleElement.createEl("span", {
+			text: "Your highlighters and tags",
+			cls: "your-highlighters",
+		});
+		titleText.style.fontSize = "1.5em"; // Optional: Adjust font size to mimic `h3`
+		titleText.style.fontWeight = "bold"; // Optional: Adjust font weight
+		const sortButton = titleElement.createEl("button", {
+			cls: "sort-button-container",
+		});
+		//createIcons({ icons });
+		sortButton.addClass("sort-button");
+		sortButton.setAttribute("aria-label", "Sort a to z");
+		sortButton.onclick = () => {
+			sortAlphabetically();
+		};
+		const iconContainer = sortButton.createEl("span");
+		iconContainer.setAttribute("data-lucide", "arrow-down-a-z"); // Specify the icon you want
+		createIcons({ icons });
+		sortButton.appendChild(iconContainer);
+
 		// Create a map to hold tag containers
 		const tagContainers: { [key: string]: HTMLElement } = {};
 
@@ -630,11 +694,14 @@ export class SettingTab extends PluginSettingTab {
 		this.plugin.settings.staticHighlighter.queries;
 
 		// sort by queryConfig.tag; tagEnabled wird noch nicht bestückt!
-		this.plugin.settings.staticHighlighter.queryOrder.sort();
 		this.plugin.settings.staticHighlighter.queryOrder.forEach((highlighter) => {
+			console.log(
+				"BUILDING: ",
+				this.plugin.settings.staticHighlighter.queryOrder
+			);
 			const queryConfig = config.queries[highlighter];
 			if (queryConfig) {
-				const { staticColor, query, regex, tag } = queryConfig;
+				const { query, regex, tag } = queryConfig;
 
 				// Create or get the tag container
 				if (!tagContainers[tag]) {
@@ -675,9 +742,6 @@ export class SettingTab extends PluginSettingTab {
 					}
 
 					const tagToggle = () => {
-						console.log(
-							`initial state of ${tag} is ${expandedTags.includes(tag)}`
-						);
 						// toggle to hidden
 						if (expandedTags.includes(tag)) {
 							setIcon(toggleIcon, "chevron-right"); // Add a down arrow icon (expand state)
@@ -690,15 +754,10 @@ export class SettingTab extends PluginSettingTab {
 							setIcon(toggleIcon, "chevron-down");
 							highlightersList.style.display = "block";
 							expandedTags.unshift(tag);
-							expandedTags.sort();
-							console.log(`now it's ${expandedTags.includes(tag)}`);
 						}
 						this.plugin.settings.staticHighlighter.expandedTags = expandedTags;
 						this.plugin.saveSettings();
-
-						console.log(`expandedTags: `, expandedTags);
 					};
-
 					tagName.onclick = () => {
 						tagToggle();
 					};
@@ -711,6 +770,12 @@ export class SettingTab extends PluginSettingTab {
 						.setClass("tag-header-buttons")
 						.addToggle((toggle) => {
 							toggle.setValue(config.queries[highlighter].tagEnabled ?? true);
+							toggle.toggleEl.setAttribute(
+								"aria-label",
+								config.queries[highlighter].tagEnabled
+									? `Disable ${tag}`
+									: `Enable ${tag}`
+							);
 							toggle.onChange((value) => {
 								// Update the tagEnabled status for the specific tag
 								this.plugin.settings.staticHighlighter.queryOrder.forEach(
@@ -733,10 +798,6 @@ export class SettingTab extends PluginSettingTab {
 										// Refresh the highlighter decorations
 										this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
 									})()
-								);
-								toggle.toggleEl.setAttribute(
-									"aria-label",
-									value ? `Disable ${tag}` : `Enable ${tag}`
 								);
 							});
 						})
@@ -855,7 +916,7 @@ export class SettingTab extends PluginSettingTab {
 						button
 							.setClass("action-button")
 							.setClass("action-button-highlighterslist")
-							.setClass("mod-cta")
+							.setClass("mod-cta-inverted")
 							.setIcon("pencil")
 							.onClick(async (evt) => {
 								saveButton.buttonEl.setAttribute("state", "editing");
@@ -909,8 +970,8 @@ export class SettingTab extends PluginSettingTab {
 						button
 							.setClass("action-button")
 							.setClass("action-button-delete")
+							.setClass("mod-warning-inverted")
 							.setIcon("trash")
-							.setClass("mod-warning")
 							.onClick(async () => {
 								const deleteHighlighter = new Modals.DeleteHighlighterModal(
 									this.app,
@@ -930,7 +991,6 @@ export class SettingTab extends PluginSettingTab {
 					this.plugin.settings.staticHighlighter.queryOrder.filter(
 						(item) => item != highlighter
 					);
-				this.plugin.settings.staticHighlighter.queryOrder.sort();
 				this.plugin.saveSettings();
 			}
 		});

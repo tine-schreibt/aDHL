@@ -20,6 +20,13 @@ import { HighlighterOptions, markTypes } from "./settings";
 import { StyleSpec } from "style-mod";
 import { StaticHighlightOptions } from "src/highlighters/static";
 
+/*
+- newTagModal
+- renameTagModal
+- deleteTagModal
+- deleteHighlighterModal
+*/
+
 export class newTagModal extends Modal {
 	dropdown: DropdownComponent;
 	nameHolder: string;
@@ -95,7 +102,7 @@ export class RenameTagModal extends Modal {
 	}
 	onOpen() {
 		const { contentEl } = this;
-		contentEl.createEl("h2", { text: "Edit Tag Name" });
+		contentEl.createEl("h2", { text: `Rename ${this.oldTagName}` });
 		const helperText = contentEl.createEl("p", {
 			text: "Enter a new tag name (case sensitive).",
 			cls: "tag-modal-helper",
@@ -163,20 +170,25 @@ export class DeleteTagModal extends Modal {
 	}
 	onOpen() {
 		const { contentEl } = this;
-		contentEl.createEl("h2", { text: `Delete ${this.oldTagName}` });
-		const helperText = contentEl.createEl("p", {
-			text: "This will delete the Tag and all highlighters in it.",
-			cls: "Tag-modal-helper",
+		contentEl.createEl("h2", {
+			text: `Delete ${this.oldTagName}`,
+			cls: "modal-content-grid",
 		});
+		const helperText = contentEl.createEl("p", {
+			cls: "modal-helper-text",
+		});
+		helperText.innerHTML = `This will ALSO DELETE ALL HIGHLIGHTERS THAT CARRY THIS TAG.<br><br>Input "Delete ${this.oldTagName}!" to proceed.`;
+
 		let tagDeleteDecision = contentEl.createEl("input", {
 			type: "text",
-			cls: "Tag-modal-text",
+			cls: "modal-inputEl",
 		});
-		tagDeleteDecision.placeholder = `Input "Delete ${this.oldTagName}!"`;
+
+		tagDeleteDecision.placeholder = `Delete ${this.oldTagName}!`;
 
 		const deleteButton = contentEl.createEl("button");
 		deleteButton.addClass("action-button");
-		deleteButton.addClass("action-button-delete-modal");
+		deleteButton.addClass("action-button-delete");
 		deleteButton.addClass("mod-warning");
 		deleteButton.setAttribute("aria-label", `Delete ${this.oldTagName}.`);
 		const deleteEl = deleteButton.createSpan({ cls: "icon" }); // Create a span for the icon
@@ -186,7 +198,7 @@ export class DeleteTagModal extends Modal {
 			// if a tag name is entered, hand over name and set status to enabled
 			if (decision == `Delete ${this.oldTagName}!`) {
 				this.expandedTags = this.expandedTags.filter(
-					([item]) => item != this.oldTagName
+					(item) => item != this.oldTagName
 				);
 				Object.keys(this.staticHighlighter.queries).forEach((highlighter) => {
 					if (
@@ -195,9 +207,8 @@ export class DeleteTagModal extends Modal {
 						delete this.staticHighlighter.queries[highlighter];
 						this.staticHighlighter.queryOrder =
 							this.staticHighlighter.queryOrder.filter(
-								([item]) => item != highlighter
+								(item) => item != highlighter
 							);
-						this.staticHighlighter.queryOrder.sort();
 					}
 				});
 				console.log(
@@ -250,7 +261,9 @@ export class DeleteHighlighterModal extends Modal {
 		const { contentEl } = this;
 		contentEl.createEl("h2", { text: `Delete ${this.highlighterName}` });
 		const helperText = contentEl.createEl("p", {
-			text: `Are you sure you want to delete the highlighter ${this.highlighterName}?`,
+			text: `Delete ${this.highlighterName}?\nIt highlights ${
+				this.staticHighlighter.queries[this.highlighterName].query
+			}.`,
 			cls: "Tag-modal-helper",
 		});
 

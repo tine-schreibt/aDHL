@@ -2,6 +2,59 @@
 
 /* #region selection highlighter styles */
 
+.modal-content-grid {
+	display: grid;
+	grid:
+		[row1-start] [modal-helper-text] 1fr [row1-end]
+		[row2-start][inputEl] auto [spacer0] 5px [button1] auto [spacer1] 5px [button2] auto [spacer2] 10px [button3] auto [spacer3] 10px [selected-reset-button] auto [row2-end]
+		/ auto 50px auto;
+	gap: 10px;
+	width: 100%;
+	align-items: center;
+}
+
+.modal-content-grid .helper-text {
+	grid-column: modal-helper-text;
+	margin-right: 10px;
+}
+.modal-content-grid .modal-inputEl {
+	grid-column: inputEl;
+	align-self: center;
+	margin-left: 10px;
+}
+
+.modal-content-grid .modal-button1 {
+	grid-column: button1;
+	align-self: center;
+	margin: 10px;
+}
+
+.modal-content-grid .modal-button2 {
+	grid-column: button2;
+	align-self: center;
+	margin: 10px;
+}
+
+.modal-content-grid .modal-button3 {
+	grid-column: button2;
+	align-self: center;
+	margin: 10px;
+}
+
+.mod-cta-inverted {
+	background-color: var(--text-on-accent);
+	--text-color: var(--interactive-accent);
+}
+
+.mod-warning-inverted {
+	background-color: var(--text-on-accent);
+	--text-color: var(--background-modifier-error);
+}
+
+.highlighterToggleOpacity {
+	opacity: 0.5;
+}
+
 .selectedHighlightsStylingsContainerHeader {
 	padding-top: 10px;
 }
@@ -175,10 +228,6 @@
 	margin-left: auto;
 }
 
-.action-button-delete-modal {
-	margin-right: 5px;
-}
-
 /* #endregion search term & save */
 
 /* #region settings tab -- mark types */
@@ -251,11 +300,15 @@
 	margin-right: 10px;
 }
 
-/* styles.css */
+.title-container {
+	margin-bottom: 1em; /* Adjust spacing below the title */
+}
+
 .your-highlighters {
 	/*border-bottom: 1px solid #ccc;*/
 	padding-bottom: 10px;
 	margin-bottom: 0px;
+	margin-right: 10px;
 }
 
 .tag-container {
@@ -296,10 +349,6 @@
 	margin-left: auto; /* Push the toggle to the right */
 	border-top: 1px;
 	border-bottom: 1px;
-}
-
-.highlighter-details button {
-	opacity: 0.6;
 }
 
 /*###################################################
