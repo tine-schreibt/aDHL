@@ -158,7 +158,7 @@ export class DeleteTagModal extends Modal {
 		const helperText = contentEl.createEl("p", {
 			cls: "modal-helper-text",
 		});
-		helperText.innerHTML = `This will ALSO DELETE ALL HIGHLIGHTERS THAT CARRY THIS TAG.<br><br>Input "Delete ${this.oldTagName}!" to proceed.`;
+		helperText.innerHTML = `<span style="color: red">WARNING:</span> This will also permanently delete all highlighters carrying this tag.<br><br>Input "Delete ${this.oldTagName}!" to proceed.`;
 
 		let tagDeleteDecision = contentEl.createEl("input", {
 			type: "text",

@@ -1032,7 +1032,7 @@ export class SettingTab extends PluginSettingTab {
 		const chooseCommands = new Setting(containerEl);
 		chooseCommands.setName("Hotkeys and Command Palette");
 		chooseCommands.setDesc(
-			"All your tags will automatically be available in the Command Palette/Hotkeys panel to toggle on/off. You can choose one tag whose highlighters you want to toggle individually using the Command Palette or a hotkey. The default is #unsorted, the input is case sensitive."
+			"All your tags will automatically be available in the Command Palette/Hotkeys panel to toggle on/off. You can choose one tag whose highlighters you want to toggle individually using the Command Palette or a Hotkey. The default is #unsorted, the input is case sensitive."
 		);
 		const spreadTagInput = new TextComponent(chooseCommands.controlEl);
 		spreadTagInput.setPlaceholder("#unsorted");
@@ -1048,7 +1048,7 @@ export class SettingTab extends PluginSettingTab {
 			// Command for onOffSwitch
 			this.plugin.addCommand({
 				id: `toggle-adhl`,
-				name: `Start/stop all highlighting`,
+				name: `The Switch - it starts/stops all highlighting`,
 				callback: () => {
 					// toggle
 					let toggleState: string = "";
@@ -1056,13 +1056,14 @@ export class SettingTab extends PluginSettingTab {
 						config.onOffSwitch = false;
 						toggleState = "off";
 						new Notice(`Highlighting is now OFF.`);
-					} else {
+					} else if (!config.onOffSwitch) {
 						config.onOffSwitch = true;
 						toggleState = "on";
 						new Notice(`Highlighting is now ON.`);
 					}
 					this.plugin.saveSettings();
-					this.plugin.updateSelectionHighlighter();
+					this.plugin.updateStaticHighlighter();
+					this.display();
 				},
 			});
 
@@ -1085,7 +1086,7 @@ export class SettingTab extends PluginSettingTab {
 								if (config.queries[highlighter].highlighterEnabled) {
 									config.queries[highlighter].highlighterEnabled = false;
 									toggleState = "OFF";
-								} else {
+								} else if (!config.queries[highlighter].highlighterEnabled) {
 									config.queries[highlighter].highlighterEnabled = true;
 									toggleState = "ON";
 								}
@@ -1098,7 +1099,8 @@ export class SettingTab extends PluginSettingTab {
 											`Toggled "${highlighter}" ${toggleState}; its tag "${config.queries[highlighter].tag}" is OFF.`
 									  );
 								this.plugin.saveSettings();
-								this.plugin.updateSelectionHighlighter();
+								this.plugin.updateStaticHighlighter();
+								this.display();
 							},
 						});
 					}
@@ -1110,32 +1112,32 @@ export class SettingTab extends PluginSettingTab {
 			sortedQueryOrder.forEach((highlighter) => {
 				if (config.queries[highlighter]) {
 					let tag = config.queries[highlighter].tag;
-					if (!tagList.includes(tag)) {
-						tagList.push(tag);
-						this.plugin.addCommand({
-							id: `toggle-${tag}`,
-							name: `Toggle tag "${tag}"`,
-							callback: () => {
-								let toggleState: string = "";
-								// toggle
-								if (config.queries[highlighter].tagEnabled) {
-									config.queries[highlighter].tagEnabled = false;
-									toggleState = "off";
-									new Notice(
-										`Toggled "${tag}" OFF. All the highlighters that carry it are OFF, too."}`
-									);
-								} else {
-									config.queries[highlighter].tagEnabled = true;
-									toggleState = "on";
-									new Notice(`Toggled "${tag}" ON.`);
-								}
-								// notify of states
+					this.plugin.addCommand({
+						id: `toggle-${tag}`,
+						name: `Toggle tag "${tag}"`,
+						callback: () => {
+							let currentState = config.queries[highlighter].tagEnabled;
 
-								this.plugin.saveSettings();
-								this.plugin.updateSelectionHighlighter();
-							},
-						});
-					}
+							// Toggle the state for all highlighters with the same tag
+							Object.keys(config.queries).forEach((key) => {
+								if (config.queries[key].tag === tag) {
+									config.queries[key].tagEnabled = !currentState;
+								}
+							});
+
+							if (config.queries[highlighter].tagEnabled) {
+								new Notice(`Toggled "${tag}" ON.`);
+							} else if (config.queries[highlighter].tagEnabled) {
+								new Notice(
+									`Toggled "${tag}" OFF. All highlighters carrying this tag are now OFF, too.`
+								);
+							}
+
+							this.plugin.saveSettings();
+							this.plugin.updateStaticHighlighter();
+							this.display();
+						},
+					});
 				}
 			});
 		};
