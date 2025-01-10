@@ -2,6 +2,15 @@
 
 /* #region selection highlighter styles */
 
+.enabled-highlighter-toggle {
+	opacity: 0.7; /* Greyed out */
+}
+.disabled-highlighter-toggle {
+	opacity: 0.3; /* Greyed out */
+	pointer-events: none; /* Prevent interaction */
+	cursor: not-allowed; /* Show a 'disabled' cursor */
+}
+
 .disabled-toggle {
 	opacity: 0.5; /* Greyed out */
 	pointer-events: none; /* Prevent interaction */
