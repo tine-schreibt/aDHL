@@ -610,7 +610,7 @@ export class SettingTab extends PluginSettingTab {
 						regex: queryTypeValue, // the regex
 						query: queryValue, // the search term/expression
 						mark: enabledMarks, // the marks
-						enabled: true, // the enabled state of the highlighter
+						highlighterEnabled: true, // the enabled state of the highlighter
 						tag: tagNameValue, // the tag name
 						tagEnabled: tagStatusValue, // if the tag is enabled
 					};
@@ -676,7 +676,6 @@ export class SettingTab extends PluginSettingTab {
 		// #############################################################################################
 		// ################################ HIGHTLIGHERS DISPLAY #######################################
 		// #############################################################################################
-
 		const highlightersContainer = containerEl.createEl("div", {
 			cls: "highlighter-container",
 		});
@@ -885,21 +884,18 @@ export class SettingTab extends PluginSettingTab {
 					"highlighter-setting-icon",
 					"highlighter-setting-icon-drag"
 				);
-				const desc: string[] = [];
-				desc.push((regex ? "search expression: " : "search term: ") + query);
-				desc.push("tag: " + config.queries[highlighter].tag);
 
 				const highlighterButtons = new Setting(settingItem)
 					.setClass("highlighter-details")
 					.setName(highlighter)
-					.setDesc(desc.join(" | "));
+					.setDesc(`query: ` + query);
 
 				// The toggle to enable/disable the highlighter
 				highlighterButtons.addToggle((highlighterToggle) => {
 					// Set initial aria-label based on the initial state
 					highlighterToggle.toggleEl.setAttribute(
 						"aria-label",
-						config.queries[highlighter].enabled
+						config.queries[highlighter].highlighterEnabled
 							? `Disable ${highlighter} highlighter`
 							: `Enable ${highlighter} highlighter`
 					);
@@ -907,21 +903,35 @@ export class SettingTab extends PluginSettingTab {
 					let highlighterIsDisabled: boolean =
 						!this.plugin.settings.staticHighlighter.onOffSwitch;
 					highlighterToggle.setValue(
-						config.queries[highlighter].enabled ?? true
+						config.queries[highlighter].highlighterEnabled ?? true
 					);
 					if (
+						// if the highlighter is disabled for some reason
 						highlighterIsDisabled ||
 						!config.queries[highlighter].tagEnabled
 					) {
 						highlighterToggle.setDisabled(highlighterIsDisabled);
-						highlighterToggle.toggleEl.classList.add("disabled-toggle");
+						highlighterToggle.toggleEl.classList.remove(
+							"enabled-highlighter-toggle"
+						);
+						highlighterToggle.toggleEl.classList.add(
+							"disabled-highlighter-toggle"
+						);
+					} else {
+						// if it is enabled
+						highlighterToggle.toggleEl.classList.remove(
+							"enabled-highlighter-toggle"
+						);
+						highlighterToggle.toggleEl.classList.add(
+							"enabled-highlighter-toggle"
+						);
 					}
 					highlighterToggle.onChange((value) => {
 						if (highlighterIsDisabled) {
 							return;
 						}
 						// Update the 'enabled' property of the highlighter
-						config.queries[highlighter].enabled = value;
+						config.queries[highlighter].highlighterEnabled = value;
 						// Update the aria-label based on the toggle state
 						// because for it works differently than the tagToggle;
 						// maybe because of the ${}?
@@ -1018,6 +1028,118 @@ export class SettingTab extends PluginSettingTab {
 				this.plugin.saveSettings();
 			}
 		});
+
+		const chooseCommands = new Setting(containerEl);
+		chooseCommands.setName("Hotkeys and Command Palette");
+		chooseCommands.setDesc(
+			"All your tags will automatically be available in the Command Palette/Hotkeys panel to toggle on/off. You can choose one tag whose highlighters you want to toggle individually using the Command Palette or a hotkey. The default is #unsorted, the input is case sensitive."
+		);
+		const spreadTagInput = new TextComponent(chooseCommands.controlEl);
+		spreadTagInput.setPlaceholder("#unsorted");
+		spreadTagInput.inputEl.ariaLabel = "Tag name";
+		spreadTagInput.inputEl.addClass("highlighter-name");
+		this.plugin.settings.staticHighlighter.spreadTag =
+			spreadTagInput.inputEl.value.replace(/ /g, "-").trim();
+		this.plugin.saveSettings();
+		let spreadTag = this.plugin.settings.staticHighlighter.spreadTag;
+
+		// Command Palette and hotkeys
+		const registerCommands = () => {
+			// Command for onOffSwitch
+			this.plugin.addCommand({
+				id: `toggle-adhl`,
+				name: `Start/stop all highlighting`,
+				callback: () => {
+					// toggle
+					let toggleState: string = "";
+					if (config.onOffSwitch) {
+						config.onOffSwitch = false;
+						toggleState = "off";
+						new Notice(`Highlighting is now OFF.`);
+					} else {
+						config.onOffSwitch = true;
+						toggleState = "on";
+						new Notice(`Highlighting is now ON.`);
+					}
+					this.plugin.saveSettings();
+					this.plugin.updateSelectionHighlighter();
+				},
+			});
+
+			// Commands for highlighters
+			let sortedQueryOrder: string[] =
+				this.plugin.settings.staticHighlighter.queryOrder;
+			sortedQueryOrder.sort();
+			if (spreadTag === "") {
+				spreadTag = "#unsorted";
+			}
+			sortedQueryOrder.forEach((highlighter) => {
+				if (config.queries[highlighter]) {
+					if (config.queries[highlighter].tag === spreadTag) {
+						this.plugin.addCommand({
+							id: `toggle-${highlighter}`,
+							name: `Toggle highlighter "${highlighter}"`,
+							callback: () => {
+								// toggle
+								let toggleState: string = "";
+								if (config.queries[highlighter].highlighterEnabled) {
+									config.queries[highlighter].highlighterEnabled = false;
+									toggleState = "OFF";
+								} else {
+									config.queries[highlighter].highlighterEnabled = true;
+									toggleState = "ON";
+								}
+								// notify of states
+								config.queries[highlighter].tagEnabled
+									? new Notice(
+											`Toggled "${highlighter}" ${toggleState}; its tag "${config.queries[highlighter].tag}" is ON.`
+									  )
+									: new Notice(
+											`Toggled "${highlighter}" ${toggleState}; its tag "${config.queries[highlighter].tag}" is OFF.`
+									  );
+								this.plugin.saveSettings();
+								this.plugin.updateSelectionHighlighter();
+							},
+						});
+					}
+				}
+			});
+
+			// Commands for tags
+			let tagList: string[] = [];
+			sortedQueryOrder.forEach((highlighter) => {
+				if (config.queries[highlighter]) {
+					let tag = config.queries[highlighter].tag;
+					if (!tagList.includes(tag)) {
+						tagList.push(tag);
+						this.plugin.addCommand({
+							id: `toggle-${tag}`,
+							name: `Toggle tag "${tag}"`,
+							callback: () => {
+								let toggleState: string = "";
+								// toggle
+								if (config.queries[highlighter].tagEnabled) {
+									config.queries[highlighter].tagEnabled = false;
+									toggleState = "off";
+									new Notice(
+										`Toggled "${tag}" OFF. All the highlighters that carry it are OFF, too."}`
+									);
+								} else {
+									config.queries[highlighter].tagEnabled = true;
+									toggleState = "on";
+									new Notice(`Toggled "${tag}" ON.`);
+								}
+								// notify of states
+
+								this.plugin.saveSettings();
+								this.plugin.updateSelectionHighlighter();
+							},
+						});
+					}
+				}
+			});
+		};
+		registerCommands();
 
 		//##############################################################
 		//################   SELECTION HIGHLIGHTERS   ##################

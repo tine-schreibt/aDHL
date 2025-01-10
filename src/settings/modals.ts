@@ -1,23 +1,4 @@
-import {
-	App,
-	ButtonComponent,
-	Notice,
-	PluginSettingTab,
-	Scope,
-	setIcon,
-	Setting,
-	TextAreaComponent,
-	DropdownComponent,
-	TextComponent,
-	ToggleComponent,
-	Modal,
-} from "obsidian";
-import { basicSetup } from "src/editor/extensions";
-import AnotherDynamicHighlightsPlugin from "../../main";
-import { ExportModal } from "./export";
-import { ImportModal } from "./import";
-import { HighlighterOptions, markTypes } from "./settings";
-import { StyleSpec } from "style-mod";
+import { App, Notice, setIcon, DropdownComponent, Modal } from "obsidian";
 import { StaticHighlightOptions } from "src/highlighters/static";
 
 /*

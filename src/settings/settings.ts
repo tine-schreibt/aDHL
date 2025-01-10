@@ -32,9 +32,9 @@ interface SearchQuery {
 	colorIconSnippet: string;
 	regex: boolean;
 	mark?: markTypes[];
+	highlighterEnabled: boolean;
 	tag: string;
 	tagEnabled: boolean;
-	enabled?: boolean;
 }
 export interface SearchQueries {
 	[key: string]: SearchQuery;
@@ -66,6 +66,7 @@ export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
 		queryOrder: [],
 		tagOrder: [],
 		expandedTags: [],
+		spreadTag: "#unsorted",
 		onOffSwitch: true,
 	},
 };

@@ -32,6 +32,7 @@ export type StaticHighlightOptions = {
 	queryOrder: string[];
 	tagOrder: string[];
 	expandedTags: string[];
+	spreadTag: string;
 	onOffSwitch: boolean;
 };
 
@@ -42,6 +43,7 @@ const defaultOptions: StaticHighlightOptions = {
 	queryOrder: [],
 	tagOrder: [],
 	expandedTags: [],
+	spreadTag: "#unsorted",
 	onOffSwitch: true,
 };
 
@@ -54,6 +56,7 @@ export const staticHighlightConfig = Facet.define<
 			queries: (a, b) => a || b,
 			queryOrder: (a, b) => a || b,
 			tagOrder: (a, b) => a || b,
+			spreadTag: (a, b) => a || b,
 			expandedTags: (a, b) => a || b,
 		});
 	},
@@ -152,7 +155,11 @@ const staticHighlighter = ViewPlugin.fromClass(
 
 			for (let part of view.visibleRanges) {
 				for (let query of queries) {
-					if (query.enabled && query.tagEnabled && onOffSwitchState) {
+					if (
+						query.highlighterEnabled &&
+						query.tagEnabled &&
+						onOffSwitchState
+					) {
 						let cursor: RegExpCursor | SearchCursor;
 						try {
 							if (query.regex)
