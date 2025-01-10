@@ -211,12 +211,6 @@ export class DeleteTagModal extends Modal {
 							);
 					}
 				});
-				console.log(
-					`expandedTags: `,
-					this.expandedTags,
-					` queryOrder:`,
-					this.staticHighlighter.queryOrder
-				);
 				new Notice(`Tag "${this.oldTagName}" was deleted."!`);
 				await this.modalSaveAndReload();
 				this.close();

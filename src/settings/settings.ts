@@ -29,7 +29,7 @@ interface SearchQuery {
 	staticColor: string;
 	staticDecoration: string;
 	staticCss: StyleSpec;
-	descSnippet: string;
+	colorIconSnippet: string;
 	regex: boolean;
 	mark?: markTypes[];
 	tag: string;

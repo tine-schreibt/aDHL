@@ -1,11 +1,4 @@
-/* aria-label - WORKS*/
-/* config.queries[className] = { enabled: true };*/
-/* toggle v1 added - WORKS */
-/* attempting save logic v1 */
-/* added save/update logic*/
-/*duplicate check, name change*/
 import * as Modals from "./modals";
-import { EditorState, Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import Pickr from "@simonwep/pickr";
 import { createIcons, icons } from "lucide";
@@ -18,19 +11,15 @@ import {
 	Scope,
 	setIcon,
 	Setting,
-	TextAreaComponent,
 	DropdownComponent,
 	TextComponent,
 	ToggleComponent,
-	Modal,
 } from "obsidian";
-import { basicSetup } from "src/editor/extensions";
 import AnotherDynamicHighlightsPlugin from "../../main";
 import { ExportModal } from "./export";
 import { ImportModal } from "./import";
-import { HighlighterOptions, markTypes } from "./settings";
+import { markTypes } from "./settings";
 import { StyleSpec } from "style-mod";
-import { StaticHighlightOptions } from "src/highlighters/static";
 
 export class SettingTab extends PluginSettingTab {
 	plugin: AnotherDynamicHighlightsPlugin;
@@ -91,12 +80,18 @@ export class SettingTab extends PluginSettingTab {
 				});
 			}
 		);
+		//##############################################################
+		//#########################   FUNCTIONS   ######################
+		//##############################################################
+		// would have put them at the bottom, but config.queryOrder is out of scope there
 
-		//#################### FUNCTIONS ###############################
+		// Enable modals save and redraw the display
 		const modalSaveAndReload = async () => {
 			await this.plugin.saveSettings();
 			this.display(); // Refresh the UI after saving
 		};
+
+		// Make color and dropdown choices into standard css snippets
 		const snippetMaker = (deco: string, color: string) => {
 			let cssSnippet;
 			if (color == "default" || color == undefined) {
@@ -137,20 +132,26 @@ export class SettingTab extends PluginSettingTab {
 			return cssSnippet;
 		};
 
+		// sort highlighters and tags alphabetically
 		const sortAlphabetically = async () => {
 			let tagList: string[] = [];
 			let interimQueryOrder: string[] = [];
 			let queryOrder = this.plugin.settings.staticHighlighter.queryOrder;
 			const queries = this.plugin.settings.staticHighlighter.queries;
+			// sort queryOrder
 			await config.queryOrder.sort();
+			// then iterate through it and collect tags
 			await queryOrder.forEach((highlighter) => {
 				if (!tagList.includes(queries[highlighter].tag)) {
 					tagList.push(queries[highlighter].tag);
 				}
 			});
+			// sort the tag list
 			await tagList.sort();
-
+			// then iterate through the sorted tags...
 			await tagList.forEach((tag) => {
+				// and look for their alphabetically sorted highlighters
+				// logging away the ones that are done
 				let done: string[] = [];
 				queryOrder.forEach((highlighter) => {
 					if (!done.includes(highlighter)) {
@@ -159,39 +160,39 @@ export class SettingTab extends PluginSettingTab {
 						done.push(highlighter);
 					}
 				});
-			});
+			}); // Tadaaaaa!
 			this.plugin.settings.staticHighlighter.queryOrder = interimQueryOrder;
 			this.plugin.saveSettings();
 			this.display();
 		};
 
-		//####################### UI ##############################
+		//##############################################################
+		//#########################   UI   #############################
+		//##############################################################
+
 		containerEl.addClass("persistent-highlights");
 		containerEl.addClass("dynamic-highlights-settings");
 
 		const headlineToggleContainer = containerEl.createDiv({
-			cls: "headline-toggle-container", // Optional: Add a class for styling
+			cls: "headline-toggle-container",
 		});
 
-		// Add the headline text
 		headlineToggleContainer.createEl("h3", {
 			text: "Persistent Highlights",
-			cls: "headline-text", // Optional: Add a class for styling
+			cls: "headline-text",
 		});
 
-		// Add the toggle
+		// On/Off-Switch that starts/stops all highlighting
 		new Setting(headlineToggleContainer).addToggle((headlineToggle) => {
 			headlineToggle.toggleEl.setAttribute(
 				"aria-label",
 				config.onOffSwitch ? `Stop highlighting` : `Start highlighting`
 			);
 			headlineToggle.setValue(config.onOffSwitch).onChange((value) => {
-				// Update the 'enabled' property of the highlighter
 				config.onOffSwitch = value;
 				this.plugin.saveSettings();
 				this.plugin.updateStaticHighlighter();
 				this.display();
-				// Update ARIA label
 				headlineToggle.toggleEl.setAttribute(
 					"aria-label",
 					value ? `Stop highlighting` : `Start highlighting`
@@ -199,35 +200,36 @@ export class SettingTab extends PluginSettingTab {
 			});
 		});
 
+		// Setting up variables vor the Persistent Highlighters Scope
+		// this is necessary to get the values out of the functional elements
 		let staticDecorationValue: string = "background";
 		let staticDecorationDropdown: Setting;
 		let staticDecorationDropdownComponent: DropdownComponent;
 		let tagDropdownComponent: DropdownComponent;
 		let tagName: string;
 		let tagStatus: boolean;
-		// Define Query UI
+
+		//##############################################################
+		//##############   Persistent highlighters def   ##############
+		//##############################################################
 		const defineQueryUI = new Setting(containerEl);
 		defineQueryUI
 			.setName("Define persistent highlighters")
-			.setClass("highlighter-definition")
-			.setDesc(
-				`In this section you define your highlighters and the tags you want to sort them by. There's also The On/Off Switch.`
-			);
+			.setClass("highlighter-definition");
 
-		// Create the input field for the highlighter name
+		// Input field for the highlighter name
 		const classInput = new TextComponent(defineQueryUI.controlEl);
 		classInput.setPlaceholder("Highlighter name");
 		classInput.inputEl.ariaLabel = "Highlighter name";
 		classInput.inputEl.addClass("highlighter-name");
 
-		// Create the color picker
+		// Color picker
 		const colorWrapper = defineQueryUI.controlEl.createDiv("color-wrapper");
-
-		let pickrInstance: Pickr;
+		let staticPickrInstance: Pickr;
 		const colorPicker = new ButtonComponent(colorWrapper);
-		// Set the defaults for the picker
+		// Set defaults
 		colorPicker.setClass("highlightr-color-picker").then(() => {
-			this.pickrInstance = pickrInstance = new Pickr({
+			this.pickrInstance = staticPickrInstance = new Pickr({
 				el: colorPicker.buttonEl,
 				container: colorWrapper,
 				theme: "nano",
@@ -251,15 +253,15 @@ export class SettingTab extends PluginSettingTab {
 					},
 				},
 			});
-			// Make the button and aria label
+			// Make the button
 			const button = colorWrapper.querySelector(".pcr-button");
 			if (!button) {
 				throw new Error("Button is null (see ui.ts)");
 			}
-			button.ariaLabel = "Background color picker";
+			button.ariaLabel = "Decoration color picker";
 
 			// Picker functionality
-			pickrInstance
+			staticPickrInstance
 				.on("clear", (instance: Pickr) => {
 					instance.hide();
 					queryInput.inputEl.setAttribute(
@@ -286,16 +288,16 @@ export class SettingTab extends PluginSettingTab {
 				});
 		});
 
-		// Create the query input field
+		// Query input field (query = highlighter)
 		const queryWrapper = defineQueryUI.controlEl.createDiv("query-wrapper");
 		const queryInput = new TextComponent(queryWrapper);
 		queryInput.setPlaceholder("Search term");
 		queryInput.inputEl.addClass("highlighter-settings-query");
 
-		// Create the regex toggle
+		// RegEx toggle
 		const queryTypeInput = new ToggleComponent(queryWrapper);
 		queryTypeInput.toggleEl.addClass("highlighter-settings-regex");
-		queryTypeInput.toggleEl.ariaLabel = "Enable Regex";
+		queryTypeInput.toggleEl.ariaLabel ? "Enable Regex" : "Disable Regex";
 		queryTypeInput.onChange((value) => {
 			if (value) {
 				queryInput.setPlaceholder("Search expression");
@@ -304,15 +306,18 @@ export class SettingTab extends PluginSettingTab {
 			}
 		});
 
+		// Array that holds all expanded Tags to persist the states
 		let expandedTags: string[];
-
+		// Initialise array without wiping saved data
 		if (this.plugin.settings.staticHighlighter.expandedTags) {
 			expandedTags = this.plugin.settings.staticHighlighter.expandedTags;
 		} else {
 			expandedTags = [];
 		}
 
-		// Create the marker types
+		// Create the marker types; this is complicated because there used to be 3 more
+		// and I couldn't figure out how to simplify things without breaking stuff so I
+		// kept it complicated.
 		type MarkTypes = Record<
 			markTypes,
 			{ description: string; defaultState: boolean }
@@ -322,12 +327,14 @@ export class SettingTab extends PluginSettingTab {
 		>;
 
 		const buildMarkerTypesHardcoded = (parentEl: HTMLElement): MarkItems => {
-			// Create a single grid container
+			// This container holds the grid; would have done all with grids, but
+			// styles.css wasn't written by me, so I don't know what keeps destroying
+			// grids elsewhere in the UI
 			const dropdownContainer = parentEl.createDiv(
 				"dropdown-and-marks-container"
 			);
 
-			// Create the static decoration dropdown
+			// Static decoration dropdown
 			staticDecorationDropdown = new Setting(dropdownContainer);
 			staticDecorationDropdown
 
@@ -352,7 +359,10 @@ export class SettingTab extends PluginSettingTab {
 						.setValue("background")
 						.onChange((value) => {
 							staticDecorationValue = value;
-							let color = pickrInstance.getSelectedColor()?.toHEXA().toString();
+							let color = staticPickrInstance
+								.getSelectedColor()
+								?.toHEXA()
+								.toString();
 							queryInput.inputEl.setAttribute(
 								"style",
 								snippetMaker(staticDecorationValue, color)
@@ -362,49 +372,59 @@ export class SettingTab extends PluginSettingTab {
 
 			const types: MarkItems = {};
 
-			// Add the "match" toggle
+			// "match" toggle, to decorate matched characters
 			dropdownContainer.createSpan("matches-text").setText("matches");
 			const matchToggle = new ToggleComponent(dropdownContainer).setValue(true); // Default state: true
 			matchToggle.toggleEl.addClass("matches-toggle");
+			matchToggle.toggleEl.setAttribute(
+				"aria-label",
+				"Highlight matched strings."
+			);
 			types["match"] = {
 				element: matchToggle.toggleEl,
 				component: matchToggle,
 			};
 
-			// Add the "line" toggle
+			// "line" toggle, to decorate the entire parent line
 			dropdownContainer.createSpan("line-text").setText("parent line");
 			const lineToggle = new ToggleComponent(dropdownContainer).setValue(false); // Default state: false
 			lineToggle.toggleEl.addClass("line-toggle");
+			lineToggle.toggleEl.setAttribute(
+				"aria-label",
+				"Highlight parent lines of matched strings"
+			);
 			types["line"] = {
 				element: lineToggle.toggleEl,
 				component: lineToggle,
 			};
 
-			// TAG DROPDOWN
+			// Tag dropdown
 			const tagDropdown = new Setting(dropdownContainer);
 			tagDropdown.setClass("tag-dropdown").addDropdown((dropdown) => {
 				tagDropdownComponent = dropdown;
-				dropdown.addOption("#unsorted", "#unsorted"); // Default option
-				// Set aria-label for accessibility
+				dropdown.addOption("#unsorted", "#unsorted");
 				dropdown.selectEl.setAttribute(
 					"aria-label",
 					"Select a tag for your highlighter"
 				);
-				// Create a Set to track unique tag names
+				// Make a set to add each tag only once
 				const uniqueTags = new Set<string>();
 				Object.keys(config.queries).forEach((highlighter) => {
 					const tagging = config.queries[highlighter].tag;
+					// get tagStatus as well...
 					const taggingStatus = config.queries[highlighter].tagEnabled;
 					if (tagging && !uniqueTags.has(tagging)) {
 						uniqueTags.add(tagging);
+						// Here's the .addOption part
 						tagDropdownComponent.addOption(tagging, tagging);
 					}
 					tagDropdownComponent.onChange((value) => {
 						tagName = value;
+						// ... to keep it consistent between old and new highlighters
 						tagStatus = taggingStatus;
 					});
 				});
-				// Add the "Create new tag" option
+				// Access to the Create new tag modal and handing over of arguments
 				tagDropdownComponent.addOption("create-new", "Create new tag");
 				tagDropdownComponent.onChange(async (value) => {
 					if (value === "create-new") {
@@ -423,17 +443,9 @@ export class SettingTab extends PluginSettingTab {
 
 		const marks = buildMarkerTypesHardcoded(defineQueryUI.controlEl);
 
-		/*	// Create the custom CSS field
-		const customCSSWrapper =
-			defineQueryUI.controlEl.createDiv("custom-css-wrapper");
-		customCSSWrapper.createSpan("setting-item-name").setText("Custom CSS");
-		const customCSSEl = new TextAreaComponent(customCSSWrapper);
-		this.editor = editorFromTextArea(customCSSEl.inputEl, basicSetup);
-		customCSSEl.inputEl.addClass("custom-css");*/
-
-		let currentClassName: string | null = null;
-
-		// Create the save button
+		// The save Button
+		// helper variable stores highlighter to enable changing its other settings
+		let currentHighlighterName: string | null = null;
 		const saveButton = new ButtonComponent(queryWrapper);
 		saveButton.buttonEl.setAttribute("state", "creating");
 		saveButton.buttonEl.setAttribute("aria-label", "Save Highlighter");
@@ -444,45 +456,45 @@ export class SettingTab extends PluginSettingTab {
 			.setIcon("save")
 			.setTooltip("Save")
 			.onClick(async (buttonEl: MouseEvent) => {
-				// Determine the current state (creating/editing)
+				// Get state (creating/editing) to circumvent duplication block when editing
 				const state = saveButton.buttonEl.getAttribute("state");
-				const previousClassName = classInput.inputEl.dataset.original; // Store the original name when editing
-				currentClassName = classInput.inputEl.value.replace(/ /g, "-");
+				const previousHighlighterName = classInput.inputEl.dataset.original;
+				currentHighlighterName = classInput.inputEl.value.replace(/ /g, "-");
 
 				// Delete old highlighter when editing
 				if (
 					state === "editing" &&
-					previousClassName &&
-					previousClassName !== currentClassName
+					previousHighlighterName &&
+					previousHighlighterName !== currentHighlighterName
 				) {
-					// Remove the entry for the original class name
-					delete config.queries[previousClassName];
-					// Update the order list if necessary
-					const index = config.queryOrder.indexOf(previousClassName);
+					// Remove the entry for the original highlighter name
+					delete config.queries[previousHighlighterName];
+					// Update queryOrder
+					const index = config.queryOrder.indexOf(previousHighlighterName);
 					if (index !== -1) {
-						config.queryOrder[index] = currentClassName;
+						config.queryOrder[index] = currentHighlighterName;
 					}
 				}
 
-				// Get the values from the form
-				const staticHexValue = pickrInstance
+				// Get all the values and do the variable name dance
+				// so that stuff acutally gets saved
+				const staticHexValue = staticPickrInstance
 					.getSelectedColor()
 					?.toHEXA()
 					.toString();
 				const queryValue = queryInput.inputEl.value;
 				const queryTypeValue = queryTypeInput.getValue();
-				//const customCss = this.editor.state.doc.toString();
-				const tagNameValue = tagDropdownComponent.getValue(); // Get the current value from the dropdown
-				let tagStatusValue = tagStatus; // Use the current tagStatus
+				const tagNameValue = tagDropdownComponent.getValue();
+				let tagStatusValue = tagStatus;
 				if (tagStatusValue == undefined) {
 					tagStatusValue = true;
 				}
 
 				// If creating, check if the class name already exists
-				if (currentClassName) {
+				if (currentHighlighterName) {
 					if (state == "creating") {
-						if (!config.queryOrder.includes(currentClassName)) {
-							config.queryOrder.unshift(currentClassName);
+						if (!config.queryOrder.includes(currentHighlighterName)) {
+							config.queryOrder.unshift(currentHighlighterName);
 						} else {
 							new Notice("Highlighter name already exists");
 							return;
@@ -498,7 +510,8 @@ export class SettingTab extends PluginSettingTab {
 							["line", "match"].includes(type)
 						);
 
-					// Logic for the static CSS snippet
+					// Logic for the static css snippet, which can't be a standard css snippet
+					// because it's implemented as StyleSpec in static.css
 					let staticCssSnippet: StyleSpec = {};
 					if (staticHexValue === "default") {
 						if (staticDecorationValue === "background") {
@@ -582,41 +595,45 @@ export class SettingTab extends PluginSettingTab {
 						}
 					}
 
-					// Gather all values
-					let makeDescSnippet: string = snippetMaker(
+					// Make a standard snippet for the cool icon next to the highlighters
+					let makecolorIconSnippet: string = snippetMaker(
 						staticDecorationValue,
 						staticHexValue
 					);
-					config.queries[currentClassName] = {
-						class: currentClassName,
-						staticColor: staticHexValue || "#42188038",
-						staticDecoration: staticDecorationValue,
-						staticCss: staticCssSnippet,
-						descSnippet: makeDescSnippet,
-						regex: queryTypeValue,
-						query: queryValue,
-						mark: enabledMarks,
-						enabled: true,
-						tag: tagNameValue, // Save the tag name
-						tagEnabled: tagStatusValue, // Save the tag status
+					// Gather all the stuff we need to make our highlighter
+					config.queries[currentHighlighterName] = {
+						class: currentHighlighterName, // the name
+						staticColor: staticHexValue || "#42188038", // the color
+						staticDecoration: staticDecorationValue, // the deco
+						staticCss: staticCssSnippet, // the deco css snippet
+						colorIconSnippet: makecolorIconSnippet, // the icon snippet
+						regex: queryTypeValue, // the regex
+						query: queryValue, // the search term/expression
+						mark: enabledMarks, // the marks
+						enabled: true, // the enabled state of the highlighter
+						tag: tagNameValue, // the tag name
+						tagEnabled: tagStatusValue, // if the tag is enabled
 					};
-					// Save and update
+					// Save and redraw the display
 					await this.plugin.saveSettings();
 					this.plugin.updateStaticHighlighter();
-					//this.plugin.updateCustomCSS();
 					this.plugin.updateStyles();
 					this.display();
+					// and put the saveButton in creating mode
 					saveButton.buttonEl.setAttribute("state", "creating");
-				} else if (!currentClassName && staticHexValue) {
+					// or complain if something isn't right
+				} else if (!currentHighlighterName && staticHexValue) {
 					new Notice("Highlighter name missing");
-				} else if (!/^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test(currentClassName)) {
+				} else if (
+					!/^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test(currentHighlighterName)
+				) {
 					new Notice("Highlighter name missing");
 				} else {
 					new Notice("Highlighter values missing");
 				}
 			});
 
-		// Create the discard button
+		// The discard button
 		const discardButton = new ButtonComponent(queryWrapper);
 		discardButton
 			.setClass("action-button")
@@ -628,94 +645,76 @@ export class SettingTab extends PluginSettingTab {
 
 				if (state === "editing") {
 					// Reset to original values
-					if (currentClassName != null) {
-						const options = config.queries[currentClassName];
-						classInput.inputEl.value = currentClassName;
-						pickrInstance.setColor(options.staticColor);
+					if (currentHighlighterName != null) {
+						const options = config.queries[currentHighlighterName];
+						classInput.inputEl.value = currentHighlighterName;
+						staticPickrInstance.setColor(options.staticColor);
 						queryInput.inputEl.value = options.query;
 						tagDropdownComponent.setValue(options.tag);
 						queryTypeInput.setValue(options.regex);
-						/*this.editor.setState(
-							EditorState.create({
-								//doc: options.css || "",
-								extensions: basicSetup,
-							})
-						);*/
 						new Notice("Changes discarded");
 					} else {
 						// Clear all fields in "creating" mode
 						classInput.inputEl.value = "";
 						queryInput.inputEl.value = "";
-						pickrInstance.setColor("#42188038"); // This order is so that classInput.inputEl.setAttribute can clear the input field's style
+						// Keep things in this order is so that classInput field ends up clear
+						staticPickrInstance.setColor("#42188038");
 						classInput.inputEl.setAttribute(
 							"style",
 							`background-color: none; color: var(--text-normal);`
 						);
-						pickrInstance.hide();
+						staticPickrInstance.hide();
 						queryTypeInput.setValue(false);
-						/*this.editor.setState(
-							EditorState.create({
-								doc: "",
-								extensions: basicSetup,
-							})
-						);*/
 						new Notice("Form cleared");
 					}
 
-					// Reset state (optional)
+					// Reset saveButton state to creating
 					saveButton.buttonEl.setAttribute("state", "creating");
 				}
 			});
 
-		// #########################################################################################################
-		// ########################################### HIGHTLIGHER CONTAINER #######################################
-		// #########################################################################################################
+		// #############################################################################################
+		// ################################ HIGHTLIGHERS DISPLAY #######################################
+		// #############################################################################################
 
 		const highlightersContainer = containerEl.createEl("div", {
 			cls: "highlighter-container",
 		});
-		// Create an h3 element for the title
 		const titleElement = highlightersContainer.createEl("div", {
-			//text: "Your highlighters",
-			cls: "your-highlighters",
+			cls: "your-highlighters", // sets the font
 		});
+		// Tried to make it a grid; failed.
 		titleElement.style.display = "flex";
 		titleElement.style.alignItems = "center";
 		titleElement.style.justifyContent = "space-between";
 
 		const titleText = titleElement.createEl("span", {
 			text: "Your highlighters and tags",
-			cls: "your-highlighters",
 		});
-		titleText.style.fontSize = "1.5em"; // Optional: Adjust font size to mimic `h3`
-		titleText.style.fontWeight = "bold"; // Optional: Adjust font weight
+
+		// this button sorts stuff
 		const sortButton = titleElement.createEl("button", {
 			cls: "sort-button-container",
 		});
-		//createIcons({ icons });
 		sortButton.addClass("sort-button");
 		sortButton.setAttribute("aria-label", "Sort a to z");
 		sortButton.onclick = () => {
 			sortAlphabetically();
 		};
+		// separate the icon out so it doesn't eat everything else about the button
 		const iconContainer = sortButton.createEl("span");
-		iconContainer.setAttribute("data-lucide", "arrow-down-a-z"); // Specify the icon you want
+		iconContainer.setAttribute("data-lucide", "arrow-down-a-z");
 		createIcons({ icons });
 		sortButton.appendChild(iconContainer);
 
-		// Create a map to hold tag containers
+		// ##################### Here come the tags with their buttons ################################################
 		const tagContainers: { [key: string]: HTMLElement } = {};
-
-		// Modify the highlighter display logic
-		this.plugin.settings.staticHighlighter.queries;
-
-		// sort by queryConfig.tag; tagEnabled wird noch nicht bestückt!
+		// This makes the highlighter display
 		this.plugin.settings.staticHighlighter.queryOrder.forEach((highlighter) => {
 			const queryConfig = config.queries[highlighter];
 			if (queryConfig) {
 				const { query, regex, tag } = queryConfig;
 
-				// Create or get the tag container
 				if (!tagContainers[tag]) {
 					const tagContainer = highlightersContainer.createEl("div", {
 						cls: "tag-container",
@@ -724,28 +723,29 @@ export class SettingTab extends PluginSettingTab {
 						cls: "tag-header",
 					});
 
-					// Create a clickable icon for expand/collapse
+					// expand/collapse functionality and UX
+					// make the clickable icon
 					const toggleIcon = tagHeader.createEl("div", {
 						cls: "toggle-icon",
 					});
 					toggleIcon.addClass("tag-icon");
-					toggleIcon.style.cursor = "pointer"; // Change cursor to pointer for better UX
-
+					toggleIcon.style.cursor = "pointer";
+					// Make the tag name clickable as well
 					let tagName = tagHeader.createSpan("tag-header");
 					tagName.setText(tag);
 					tagName.addClass("tag-name");
 					tagName.style.cursor = "pointer";
 
+					// make a container for the highlighters
 					let highlightersList = tagContainer.createEl("div", {
 						cls: "highlighters-list",
 					});
-
-					// Store the highlightersList in the tagContainers map
+					// Do this, which I don't quite get, but it works, so...
 					tagContainers[tag] = highlightersList;
-					// Handle click to toggle the icon and container
 
+					// set the appropriate expand/collapse icon
 					if (expandedTags.includes(tag)) {
-						setIcon(toggleIcon, "chevron-down"); // Add a down arrow icon (expand state)
+						setIcon(toggleIcon, "chevron-down");
 						highlightersList.style.display = "block";
 					} else {
 						setIcon(toggleIcon, "chevron-right");
@@ -753,18 +753,19 @@ export class SettingTab extends PluginSettingTab {
 					}
 
 					const tagExpandToggle = () => {
-						// toggle to hidden
+						// toggle to collapsed
 						if (expandedTags.includes(tag)) {
 							setIcon(toggleIcon, "chevron-right"); // Add a down arrow icon (expand state)
 							highlightersList.style.display = "none";
 							expandedTags = expandedTags.filter((entry) => entry != tag);
 							this.plugin.saveSettings();
 						} else {
-							// toggle to visible
+							// toggle to expanded
 							setIcon(toggleIcon, "chevron-down");
 							highlightersList.style.display = "block";
 							expandedTags.unshift(tag);
 						}
+						// and save so state persists when saving or closing the plugin
 						this.plugin.settings.staticHighlighter.expandedTags = expandedTags;
 						this.plugin.saveSettings();
 					};
@@ -786,6 +787,7 @@ export class SettingTab extends PluginSettingTab {
 								? `Disable ${tag}`
 								: `Enable ${tag}`
 						);
+						// logic to grey out the toggle when appropriate
 						let tagIsDisabled: boolean =
 							!this.plugin.settings.staticHighlighter.onOffSwitch;
 						tagToggle.setValue(config.queries[highlighter].tagEnabled ?? true);
@@ -797,7 +799,6 @@ export class SettingTab extends PluginSettingTab {
 							if (tagIsDisabled) {
 								return;
 							}
-
 							// Update the tagEnabled status for the specific tag
 							this.plugin.settings.staticHighlighter.queryOrder.forEach(
 								(highlighter) => {
@@ -814,8 +815,9 @@ export class SettingTab extends PluginSettingTab {
 								(async () => {
 									// Call the save function to persist the changes
 									await this.plugin.saveSettings();
-									// Refresh the highlighter decorations
-									this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
+									// Refresh the highlighter decorations and display
+									this.plugin.updateStaticHighlighter();
+									this.display();
 								})()
 							);
 						});
@@ -848,6 +850,7 @@ export class SettingTab extends PluginSettingTab {
 								.setIcon("trash")
 								.setClass("mod-warning")
 								.onClick(async () => {
+									// delete modal and arguments
 									const deleteTag = new Modals.DeleteTagModal(
 										this.app,
 										tag,
@@ -858,16 +861,17 @@ export class SettingTab extends PluginSettingTab {
 									deleteTag.open();
 								});
 						});
-
-					// Append the tag header and highlighters list to the tag container
+					// container stuff
 					tagContainer.appendChild(tagHeader);
 					tagContainer.appendChild(highlightersList);
-					highlightersContainer.appendChild(tagContainer); // Append the tag container to the main container
+					highlightersContainer.appendChild(tagContainer);
 				}
 
-				// Create highlighter item
+				// ################# Here come the highlighters with their buttons #######################################
 				const settingItem = tagContainers[tag].createEl("div");
 				settingItem.id = "dh-" + highlighter;
+				// Most of this isn't even being displayed, but if any part is removed
+				// the whole layout of this part crashes and burns
 				settingItem.addClass("highlighter-item-draggable");
 				const dragIcon = settingItem.createEl("span");
 				const colorIcon = settingItem.createEl("span");
@@ -876,7 +880,7 @@ export class SettingTab extends PluginSettingTab {
 					"highlighter-setting-icon-drag"
 				);
 				colorIcon.addClass("highlighter-setting-icon");
-				colorIcon.innerHTML = `<span style="font-size: medium; ${config.queries[highlighter].descSnippet}">abc</span>`;
+				colorIcon.innerHTML = `<span style="font-size: medium; ${config.queries[highlighter].colorIconSnippet}">abc</span>`;
 				dragIcon.addClass(
 					"highlighter-setting-icon",
 					"highlighter-setting-icon-drag"
@@ -890,8 +894,7 @@ export class SettingTab extends PluginSettingTab {
 					.setName(highlighter)
 					.setDesc(desc.join(" | "));
 
-				// ####### beginning TOGGLE ENABLED/DISABLED ########################
-
+				// The toggle to enable/disable the highlighter
 				highlighterButtons.addToggle((highlighterToggle) => {
 					// Set initial aria-label based on the initial state
 					highlighterToggle.toggleEl.setAttribute(
@@ -900,12 +903,16 @@ export class SettingTab extends PluginSettingTab {
 							? `Disable ${highlighter} highlighter`
 							: `Enable ${highlighter} highlighter`
 					);
+					// logic to grey out the toggle when appropriate
 					let highlighterIsDisabled: boolean =
 						!this.plugin.settings.staticHighlighter.onOffSwitch;
 					highlighterToggle.setValue(
 						config.queries[highlighter].enabled ?? true
 					);
-					if (highlighterIsDisabled) {
+					if (
+						highlighterIsDisabled ||
+						!config.queries[highlighter].tagEnabled
+					) {
 						highlighterToggle.setDisabled(highlighterIsDisabled);
 						highlighterToggle.toggleEl.classList.add("disabled-toggle");
 					}
@@ -915,8 +922,9 @@ export class SettingTab extends PluginSettingTab {
 						}
 						// Update the 'enabled' property of the highlighter
 						config.queries[highlighter].enabled = value;
-
 						// Update the aria-label based on the toggle state
+						// because for it works differently than the tagToggle;
+						// maybe because of the ${}?
 						highlighterToggle.toggleEl.setAttribute(
 							"aria-label",
 							value
@@ -924,18 +932,13 @@ export class SettingTab extends PluginSettingTab {
 								: `Enable ${highlighter} highlighter`
 						);
 
-						// Use an immediately invoked async function to handle the await
 						(async () => {
-							// Call the save function to persist the changes
 							await this.plugin.saveSettings();
-
 							// Refresh the highlighter decorations
-							this.plugin.updateStaticHighlighter(); // Ensure this method exists in your plugin
+							this.plugin.updateStaticHighlighter();
 						})();
 					});
 				});
-
-				// ####### endTOGGLE ENABLED/DISABLED########################
 
 				highlighterButtons
 					.addButton((button) => {
@@ -949,33 +952,27 @@ export class SettingTab extends PluginSettingTab {
 							.setClass("mod-cta-inverted")
 							.setIcon("pencil")
 							.onClick(async (evt) => {
+								// disable douplication prevention
 								saveButton.buttonEl.setAttribute("state", "editing");
-
+								// Populate the input elements with the highlighter's settings
 								const options = config.queries[highlighter];
 								classInput.inputEl.value = highlighter;
-								classInput.inputEl.dataset.original = highlighter; // Store original name
+								classInput.inputEl.dataset.original = highlighter;
 
-								pickrInstance.setColor(options.staticColor);
+								staticPickrInstance.setColor(options.staticColor);
 								queryInput.inputEl.value = options.query;
 								staticDecorationDropdownComponent.setValue(
 									options.staticDecoration
 								);
-								staticDecorationValue = options.staticDecoration; // Set staticDecorationValue to the current value
+								staticDecorationValue = options.staticDecoration;
 								tagName = options.tag;
 								tagDropdownComponent.setValue(options.tag);
 								tagStatus = options.tagEnabled;
-								pickrInstance.setColor(options.staticColor);
+								staticPickrInstance.setColor(options.staticColor);
 								queryTypeInput.setValue(options.regex);
 
-								const extensions = basicSetup;
-								/*this.editor.setState(
-									EditorState.create({
-										//doc: options.css ? options.css : "",
-										extensions: extensions,
-									})
-								);*/
 								if (options?.mark) {
-									const marksSet = new Set<markTypes>(options.mark); // Convert to a Set for efficient lookups
+									const marksSet = new Set<markTypes>(options.mark);
 									Object.entries(marks).forEach(([key, value]) => {
 										const isMarkType = ["line", "match"].includes(
 											key as markTypes
@@ -1013,9 +1010,6 @@ export class SettingTab extends PluginSettingTab {
 								deleteHighlighter.open();
 							});
 					});
-
-				// Append the settingItem to the highlightersList
-				tagContainers[tag].appendChild(settingItem);
 			} else {
 				this.plugin.settings.staticHighlighter.queryOrder =
 					this.plugin.settings.staticHighlighter.queryOrder.filter(
@@ -1025,6 +1019,9 @@ export class SettingTab extends PluginSettingTab {
 			}
 		});
 
+		//##############################################################
+		//################   SELECTION HIGHLIGHTERS   ##################
+		//##############################################################
 		containerEl.createEl("h3", {
 			text: "Selection Highlights",
 			cls: "selectedHighlightsStylingsContainerHeader",
@@ -1037,7 +1034,8 @@ export class SettingTab extends PluginSettingTab {
 		const descriptionText = rowWrapper.createDiv("choose-color-text");
 		descriptionText.setText("Choose a color.");
 
-		let selectionColorPickerInstance: Pickr; // Define outside
+		// define pickr for the selection highlights scope
+		let selectionColorPickerInstance: Pickr;
 
 		const selectionColorPicker = new ButtonComponent(rowWrapper);
 		let selectionColorPickerDefault: string;
@@ -1120,7 +1118,9 @@ export class SettingTab extends PluginSettingTab {
 					});
 			});
 
-		const cssSaveButton = new ButtonComponent(rowWrapper)
+		const cssSaveButton = new ButtonComponent(rowWrapper);
+		cssSaveButton.buttonEl.setAttribute("aria-label", "Save Highlighter");
+		cssSaveButton
 			.setClass("action-button")
 			.setClass("mod-cta")
 			.setClass("selected-save-button")
@@ -1131,17 +1131,21 @@ export class SettingTab extends PluginSettingTab {
 				let decoration =
 					this.plugin.settings.selectionHighlighter.selectionDecoration;
 
-				// Save the CSS snippet to the settings
+				// Make a snippet out of the chosen values
 				this.plugin.settings.selectionHighlighter.css = snippetMaker(
 					decoration,
 					color
 				);
+				// save and update
 				await this.plugin.saveSettings();
 				this.plugin.updateSelectionHighlighter();
 			});
-		cssSaveButton.buttonEl.setAttribute("aria-label", "Save Highlighter");
 
 		const selectedDiscardButton = new ButtonComponent(rowWrapper);
+		selectedDiscardButton.buttonEl.setAttribute(
+			"aria-label",
+			"Discard new values"
+		);
 		selectedDiscardButton
 			.setClass("selected-reset-button")
 			.setClass("action-button")
@@ -1159,7 +1163,7 @@ export class SettingTab extends PluginSettingTab {
 				this.plugin.updateSelectionHighlighter();
 				new Notice("Defaults reset");
 			});
-
+		// It's the only way the layout works
 		const dropdownSpacer = new Setting(rowWrapper)
 			.setName("")
 			.setClass("selected-spacer");
@@ -1230,21 +1234,4 @@ export class SettingTab extends PluginSettingTab {
 	}
 }
 
-/*function editorFromTextArea(
-	textarea: HTMLTextAreaElement,
-	extensions: Extension
-) {
-	const view = new EditorView({
-		state: EditorState.create({ doc: textarea.value, extensions }),
-	});
-	const parentNodeNonNull = textarea.parentNode;
-	if (parentNodeNonNull) {
-		parentNodeNonNull.insertBefore(view.dom, textarea);
-	}
-	textarea.style.display = "none";
-	if (textarea.form)
-		textarea.form.addEventListener("submit", () => {
-			textarea.value = view.state.doc.toString();
-		});
-	return view;
-}*/
+// FIN

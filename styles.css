@@ -326,6 +326,9 @@
 
 .your-highlighters {
 	/*border-bottom: 1px solid #ccc;*/
+	font-size: 1.2em;
+	font-weight: 550;
+	font-kerning: 0.05em;
 	padding-bottom: 10px;
 	margin-bottom: 0px;
 	margin-right: 10px;
