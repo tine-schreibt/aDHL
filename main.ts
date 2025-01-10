@@ -1,6 +1,6 @@
 import { Extension, StateEffect } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-import { debounce, MarkdownView, Plugin } from "obsidian";
+import { debounce, MarkdownView, Plugin, Notice } from "obsidian";
 import {
 	highlightSelectionMatches,
 	reconfigureSelectionHighlighter,
@@ -22,12 +22,6 @@ declare module "obsidian" {
 		cm?: EditorView;
 	}
 }
-
-/*
-interface CustomCSS {
-	css: string;
-	enabled: boolean;
-}*/
 
 export default class AnotherDynamicHighlightsPlugin extends Plugin {
 	settings: AnotherDynamicHighlightsSettings;
@@ -53,6 +47,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 			this.updateStyles();
 			this.registerEditorExtension(this.extensions);
 			this.initCSS();
+			this.registerCommands();
 		} catch (error) {
 			console.error("Error loading settings:", error);
 		}
@@ -75,17 +70,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 		styleEl.setAttribute("type", "text/css");
 		document.head.appendChild(styleEl);
 		this.register(() => styleEl.detach());
-		// this.updateCustomCSS();
 	}
-
-	/*updateCustomCSS() {
-		this.styleEl.textContent = Object.values(
-			this.settings.staticHighlighter.queries
-		)
-			.map((q) => q && q.css)
-			.join("\n");
-		this.app.workspace.trigger("css-change");
-	}*/
 
 	updateStyles() {
 		this.extensions.remove(this.styles);
@@ -117,6 +102,102 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 				leaf.view.editor.cm instanceof EditorView
 			) {
 				callback(leaf.view.editor.cm);
+			}
+		});
+	}
+
+	// Command Palette and hotkeys
+	registerCommands() {
+		const config = this.settings.staticHighlighter;
+		// Command for onOffSwitch
+		this.addCommand({
+			id: `toggle-adhl`,
+			name: `The Switch - it starts/stops all highlighting`,
+			callback: () => {
+				// toggle
+				let toggleState: string = "";
+				if (config.onOffSwitch) {
+					config.onOffSwitch = false;
+					toggleState = "off";
+					new Notice(`Highlighting is now OFF.`);
+				} else if (!config.onOffSwitch) {
+					config.onOffSwitch = true;
+					toggleState = "on";
+					new Notice(`Highlighting is now ON.`);
+				}
+				this.saveSettings();
+				this.updateStaticHighlighter();
+			},
+		});
+
+		// Commands for highlighters
+		let sortedQueryOrder: string[] = this.settings.staticHighlighter.queryOrder;
+		sortedQueryOrder.sort();
+		if (config.spreadTag === "") {
+			config.spreadTag = "#unsorted";
+		}
+		sortedQueryOrder.forEach((highlighter) => {
+			if (config.queries[highlighter]) {
+				if (config.queries[highlighter].tag === config.spreadTag) {
+					this.addCommand({
+						id: `toggle-${highlighter}`,
+						name: `Toggle highlighter "${highlighter}"`,
+						callback: () => {
+							// toggle
+							let toggleState: string = "";
+							if (config.queries[highlighter].highlighterEnabled) {
+								config.queries[highlighter].highlighterEnabled = false;
+								toggleState = "OFF";
+							} else if (!config.queries[highlighter].highlighterEnabled) {
+								config.queries[highlighter].highlighterEnabled = true;
+								toggleState = "ON";
+							}
+							// notify of states
+							config.queries[highlighter].tagEnabled
+								? new Notice(
+										`Toggled "${highlighter}" ${toggleState}; its tag "${config.queries[highlighter].tag}" is ON.`
+								  )
+								: new Notice(
+										`Toggled "${highlighter}" ${toggleState}; its tag "${config.queries[highlighter].tag}" is OFF.`
+								  );
+							this.saveSettings();
+							this.updateStaticHighlighter();
+						},
+					});
+				}
+			}
+		});
+
+		// Commands for tags
+		let tagList: string[] = [];
+		sortedQueryOrder.forEach((highlighter) => {
+			if (config.queries[highlighter]) {
+				let tag = config.queries[highlighter].tag;
+				this.addCommand({
+					id: `toggle-${tag}`,
+					name: `Toggle tag "${tag}"`,
+					callback: () => {
+						let currentState = config.queries[highlighter].tagEnabled;
+
+						// Toggle the state for all highlighters with the same tag
+						Object.keys(config.queries).forEach((key) => {
+							if (config.queries[key].tag === tag) {
+								config.queries[key].tagEnabled = !currentState;
+							}
+						});
+
+						if (config.queries[highlighter].tagEnabled) {
+							new Notice(`Toggled "${tag}" ON.`);
+						} else if (config.queries[highlighter].tagEnabled) {
+							new Notice(
+								`Toggled "${tag}" OFF. All highlighters carrying this tag are now OFF, too.`
+							);
+						}
+
+						this.saveSettings();
+						this.updateStaticHighlighter();
+					},
+				});
 			}
 		});
 	}
