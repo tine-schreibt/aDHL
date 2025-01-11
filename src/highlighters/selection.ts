@@ -19,18 +19,15 @@ import { debounce, Debouncer } from "obsidian";
 import { ignoredWords } from "src/settings/ignoredWords";
 
 export type SelectionHighlightOptions = {
-  /// Determines whether, when nothing is selected, the word around
-  /// the cursor is matched instead. Defaults to false.
   highlightWordAroundCursor: boolean;
   highlightSelectedText: boolean;
-  /// The minimum length of the selection before it is highlighted.
-  /// Defaults to 1 (always highlight non-cursor selections).
   minSelectionLength: number;
-  /// The amount of matches (in the viewport) at which to disable
-  /// highlighting. Defaults to 100.
   maxMatches: number;
   ignoredWords: string;
   highlightDelay: number;
+  selectionColor: string;
+  selectionDecoration: string;
+  css?: string
 };
 
 const defaultHighlightOptions: SelectionHighlightOptions = {
@@ -40,6 +37,9 @@ const defaultHighlightOptions: SelectionHighlightOptions = {
   maxMatches: 100,
   ignoredWords: ignoredWords,
   highlightDelay: 0,
+  selectionColor: "default",
+  selectionDecoration: "default",
+  css: "text-decoration: dashed var(--text-accent)",
 };
 
 export const highlightConfig = Facet.define<
@@ -49,10 +49,14 @@ export const highlightConfig = Facet.define<
   combine(options: readonly SelectionHighlightOptions[]) {
     return combineConfig(options, defaultHighlightOptions, {
       highlightWordAroundCursor: (a, b) => a || b,
+      highlightSelectedText: (a, b) => a || b,
       minSelectionLength: Math.min,
       maxMatches: Math.min,
       highlightDelay: Math.min,
       ignoredWords: (a, b) => a || b,
+      selectionColor: (a, b) => b || a,
+      selectionDecoration: (a, b) => b || a,
+      css: (a, b) => b || a, // Use the custom css if available, otherwise fallback to default
     });
   },
 });
@@ -114,9 +118,10 @@ const matchHighlighter = ViewPlugin.fromClass(
     }
 
     getDeco(view: EditorView): DecorationSet {
-      let conf = view.state.facet(highlightConfig);
+      let conf = view.state.facet(highlightConfig);      
       if (this.highlightDelay != conf.highlightDelay)
         this.updateDebouncer(view);
+      let selectionDecoration = conf.css;
       let { state } = view,
         sel = state.selection;
       if (sel.ranges.length > 1) return Decoration.none;
@@ -168,15 +173,15 @@ const matchHighlighter = ViewPlugin.fromClass(
           ) {
             let string = state.sliceDoc(from, to).trim();
             if (check && from <= range.from && to >= range.to) {
+              console.log("CSS Styles: (if)", conf.css);
               const mainMatchDeco = Decoration.mark({
-                class: `cm-current-${matchType}`,
-                attributes: { "data-contents": string },
+                attributes: { "data-contents": string, style: selectionDecoration },
               });
               deco.push(mainMatchDeco.range(from, to));
             } else if (from >= range.to || to <= range.from) {
-              const matchDeco = Decoration.mark({
-                class: `cm-matched-${matchType}`,
-                attributes: { "data-contents": string },
+              console.log("CSS Styles:(else if)", conf.css);
+              const matchDeco = Decoration.mark({              
+                attributes: { "data-contents": string, style: selectionDecoration },
               });
               deco.push(matchDeco.range(from, to));
             }
