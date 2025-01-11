@@ -1,4 +1,5 @@
 This plugin is based on '<a href = "https://github.com/nothingislost/obsidian-dynamic-highlights" >Dynamic Highlights</a>' by nothingislost. I fixed a bug in the regEx, but otherwise I left the basic mechanics untouched. I just added a lot more customisability and some usability features, which I hope you find worthwhile.
+The pretty highlight styles I got from <a href="https://github.com/chetachiezikeuzor/highlightr-Plugin/">Highlightr</a> by Chechichetachiezikeuzor, so if you're using that, aDHL will fit right in, style wise.
 
 Here's a picture of the settings panel, including some use cases and highlighter examples. Scroll down to find all elements explained, left to right, top to bottom.
 
@@ -6,7 +7,7 @@ Here's a picture of the settings panel, including some use cases and highlighter
 
 **Persistent highlights**
 
-- **Import:** Imports settings; you can't import highlighters from the original Plugin, sorry. But you'll have to touch them all in order to get the benefits of the revamped version, so...
+- **Import:** Imports settings; you can't import highlighters from the original Plugin, sorry. But you'll have to touch them all in order to get the benefits of the revamped version, anyway, so...
 - **Export:** Exports settings
 - **toggle:** This is The Switch that starts/stops all highlights being rendered; find it in the Command Palette. If you can tell me why it keeps this border at the top, please do.
 
