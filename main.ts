@@ -138,7 +138,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 				if (config.spreadTag.includes(config.queries[highlighter].tag)) {
 					this.addCommand({
 						id: `toggle-${highlighter}`,
-						name: `Toggle highlighter "${highlighter}"`,
+						name: `Toggle highlighter "${highlighter} (tag: ${config.queries[highlighter].tag})"`,
 						callback: () => {
 							// toggle
 							let toggleState: string = "";
