@@ -2,7 +2,7 @@ This plugin is based on '<a href = "https://github.com/nothingislost/obsidian-dy
 
 Here's a picture of the settings panel, including some use cases and highlighter examples. Scroll down to find all elements explained, left to right, top to bottom.
 
-![[Another-dynamic-highlights-plugin.png]]
+<img src="https://www-tine-schreibt.de/_files/Another-dynamic-highlights-plugin_screenshot.png">
 
 **Persistent highlights**
 
