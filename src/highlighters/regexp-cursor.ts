@@ -5,7 +5,10 @@ import { Text, TextIterator } from "@codemirror/state";
 import execWithIndices from "regexp-match-indices";
 
 const match = /.*/.exec("");
-	if (!match) throw new Error("Unexpected null value for regex match (see regexp-cursor.ts)");
+if (!match)
+	throw new Error(
+		"Unexpected null value for regex match (see regexp-cursor.ts)"
+	);
 const empty = { from: -1, to: -1, match };
 
 const baseFlags = "gm" + (/x/.unicode == null ? "" : "u");
@@ -49,10 +52,20 @@ export class RegExpCursor
 				from,
 				to
 			) as unknown as RegExpCursor;
-		this.re = new RegExp(
-			query,
-			baseFlags + (options?.ignoreCase ? "i" : "")
-		);
+		let pattern = query;
+		let flags = baseFlags;
+
+		// Ensure query does not include / delimiters
+		if (pattern.startsWith("/") && pattern.endsWith("/i")) {
+			flags += "i";
+			pattern = pattern.slice(1, -2);
+		} else if (pattern.startsWith("/") && pattern.endsWith("/g")) {
+			flags += "g";
+			pattern = pattern.slice(1, -2);
+		}
+		this.re = new RegExp(pattern, flags);
+		console.log("Base flags:", baseFlags);
+		console.log("Final flags:", flags);
 		this.iter = text.iter();
 		let startLine = text.lineAt(from);
 		this.curLineStart = startLine.from;
@@ -67,10 +80,7 @@ export class RegExpCursor
 		} else {
 			this.curLine = this.iter.value;
 			if (this.curLineStart + this.curLine.length > this.to)
-				this.curLine = this.curLine.slice(
-					0,
-					this.to - this.curLineStart
-				);
+				this.curLine = this.curLine.slice(0, this.to - this.curLineStart);
 			this.iter.next();
 		}
 	}
@@ -86,8 +96,7 @@ export class RegExpCursor
 		for (let off = this.matchPos - this.curLineStart; ; ) {
 			this.re.lastIndex = off;
 			let match =
-				this.matchPos <= this.to &&
-				execWithIndices(this.re, this.curLine);
+				this.matchPos <= this.to && execWithIndices(this.re, this.curLine);
 			if (match) {
 				let from = this.curLineStart + match.index,
 					to = from + match[0].length;
@@ -168,15 +177,8 @@ class MultilineRegExpCursor
 		private to: number
 	) {
 		this.matchPos = from;
-		this.re = new RegExp(
-			query,
-			baseFlags + (options?.ignoreCase ? "i" : "")
-		);
-		this.flat = FlattenedDoc.get(
-			text,
-			from,
-			this.chunkEnd(from + Chunk.Base)
-		);
+		this.re = new RegExp(query, baseFlags + (options?.ignoreCase ? "i" : ""));
+		this.flat = FlattenedDoc.get(text, from, this.chunkEnd(from + Chunk.Base));
 	}
 
 	private chunkEnd(pos: number) {

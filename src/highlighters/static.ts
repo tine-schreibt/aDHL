@@ -32,7 +32,7 @@ export type StaticHighlightOptions = {
 	queryOrder: string[];
 	tagOrder: string[];
 	expandedTags: string[];
-	spreadTag: string;
+	spreadTag: string[];
 	onOffSwitch: boolean;
 };
 
@@ -43,7 +43,7 @@ const defaultOptions: StaticHighlightOptions = {
 	queryOrder: [],
 	tagOrder: [],
 	expandedTags: [],
-	spreadTag: "#unsorted",
+	spreadTag: ["#unsorted"],
 	onOffSwitch: true,
 };
 

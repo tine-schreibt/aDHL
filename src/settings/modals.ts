@@ -1,4 +1,11 @@
-import { App, Notice, setIcon, DropdownComponent, Modal } from "obsidian";
+import {
+	App,
+	Notice,
+	setIcon,
+	DropdownComponent,
+	Modal,
+	TextComponent,
+} from "obsidian";
 import { StaticHighlightOptions } from "src/highlighters/static";
 
 /*
@@ -31,11 +38,10 @@ export class newTagModal extends Modal {
 			text: "Enter a name for your new tag",
 			cls: "tag-modal-helper",
 		});
-		let newTagNameInput = contentEl.createEl("input", {
-			type: "text",
-			cls: "tag-modal-text",
-		});
-		newTagNameInput.placeholder = "Tag name";
+		const newTagNameInput = new TextComponent(contentEl);
+		newTagNameInput.setPlaceholder("Tag name");
+		newTagNameInput.inputEl.ariaLabel = "Tag name";
+		newTagNameInput.inputEl.addClass("tag-modal-text");
 
 		const saveButton = contentEl.createEl("button");
 		saveButton.addClass("action-button");
@@ -45,7 +51,7 @@ export class newTagModal extends Modal {
 		const saveEl = saveButton.createSpan({ cls: "icon" }); // Create a span for the icon
 		setIcon(saveEl, "save");
 		saveButton.onclick = async () => {
-			const newTagName = newTagNameInput.value.trim();
+			const newTagName = newTagNameInput.inputEl.value.trim();
 			// if a tag name is entered, hand over name and set status to enabled
 			if (newTagName) {
 				this.nameHolder = newTagName;
@@ -88,11 +94,10 @@ export class RenameTagModal extends Modal {
 			text: "Enter a new tag name (case sensitive).",
 			cls: "tag-modal-helper",
 		});
-		let newTagNameInput = contentEl.createEl("input", {
-			type: "text",
-			cls: "tag-modal-text",
-		});
-		newTagNameInput.placeholder = "Tag name";
+		const newTagNameInput = new TextComponent(contentEl);
+		newTagNameInput.setPlaceholder("Tag name");
+		newTagNameInput.inputEl.ariaLabel = "Tag name";
+		newTagNameInput.inputEl.addClass("tag-modal-text");
 
 		const saveButton = contentEl.createEl("button");
 		saveButton.addClass("action-button");
@@ -102,7 +107,7 @@ export class RenameTagModal extends Modal {
 		const saveEl = saveButton.createSpan({ cls: "icon" }); // Create a span for the icon
 		setIcon(saveEl, "save");
 		saveButton.onclick = async () => {
-			let newTagName = newTagNameInput.value.trim();
+			const newTagName = newTagNameInput.inputEl.value.trim();
 			// if a Tag name is entered, hand over name and set status to enabled
 			if (newTagName) {
 				Object.keys(this.staticHighlighter.queries).forEach((highlighter) => {

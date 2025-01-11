@@ -112,7 +112,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 		// Command for onOffSwitch
 		this.addCommand({
 			id: `toggle-adhl`,
-			name: `The Switch - it starts/stops all highlighting`,
+			name: `The Switch - Start/stop all highlighting`,
 			callback: () => {
 				// toggle
 				let toggleState: string = "";
@@ -133,12 +133,9 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 		// Commands for highlighters
 		let sortedQueryOrder: string[] = this.settings.staticHighlighter.queryOrder;
 		sortedQueryOrder.sort();
-		if (config.spreadTag === "") {
-			config.spreadTag = "#unsorted";
-		}
 		sortedQueryOrder.forEach((highlighter) => {
 			if (config.queries[highlighter]) {
-				if (config.queries[highlighter].tag === config.spreadTag) {
+				if (config.spreadTag.includes(config.queries[highlighter].tag)) {
 					this.addCommand({
 						id: `toggle-${highlighter}`,
 						name: `Toggle highlighter "${highlighter}"`,

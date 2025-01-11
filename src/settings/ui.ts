@@ -97,6 +97,14 @@ export class SettingTab extends PluginSettingTab {
 			if (color == "default" || color == undefined) {
 				if (deco == "background") {
 					cssSnippet = `background-color: var(--text-accent)`;
+				} else if (deco == "background rounded") {
+					cssSnippet = `background:var(--text-accent); margin: 0 -0.05em; padding: 0.125em 0.15em; border-radius: 0.2em; -webkit-box-decoration-break: clone; box-decoration-break: clone; `;
+				} else if (deco == "background realistic") {
+					cssSnippet = `background:var(--text-accent); margin: 0 -0.05em; padding: 0.1em 0.4em; border-radius: 0.8em 0.3em; -webkit-box-decoration-break: clone; box-decoration-break: clone; text-shadow: 0 0 0.75em var(--background-primary-alt)`;
+				} else if (deco == "underline lowlight") {
+					cssSnippet = `background:var(--text-accent); padding: .125em .125em; --lowlight-background: var(--background-primary); border-radius: 0; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 40%,var(--lowlight-background) 40%)`;
+				} else if (deco == "underline floating") {
+					cssSnippet = `background:var(--text-accent);  --floating-background: var(--background-primary); border-radius: 0; padding-bottom: 5px; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 28%,var(--floating-background) 28%)`;
 				} else if (deco == "color") {
 					cssSnippet = `font-weight: 400; color: var(--text-accent)`;
 				} else if (deco == "bold") {
@@ -109,6 +117,8 @@ export class SettingTab extends PluginSettingTab {
 				} else if (deco === "border dashed") {
 					cssSnippet =
 						"border: 1px dashed var(--text-accent); border-radius: 5px; padding: 1px; padding-bottom: 2px";
+				} else if (deco === "line-through") {
+					cssSnippet = `text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--text-accent)`;
 				} else {
 					cssSnippet = `text-decoration: ${deco}; text-decoration-color: var(--text-accent)`;
 				}
@@ -117,6 +127,14 @@ export class SettingTab extends PluginSettingTab {
 					cssSnippet = `background-color: ${color}`;
 				} else if (deco == "color") {
 					cssSnippet = `font-weight: 400; color: ${color}`;
+				} else if (deco == "background rounded") {
+					cssSnippet = `background: ${color}; margin: 0 -0.05em; padding: 0.125em 0.15em; border-radius: 0.2em; -webkit-box-decoration-break: clone; box-decoration-break: clone; `;
+				} else if (deco == "background realistic") {
+					cssSnippet = `background: ${color}; margin: 0 -0.05em; padding: 0.1em 0.4em; border-radius: 0.8em 0.3em; -webkit-box-decoration-break: clone; box-decoration-break: clone; text-shadow: 0 0 0.75em var(--background-primary-alt)`;
+				} else if (deco == "underline lowlight") {
+					cssSnippet = `background: ${color}; padding: .125em .125em; --lowlight-background: var(--background-primary); border-radius: 0; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 40%,var(--lowlight-background) 40%)`;
+				} else if (deco == "underline floating") {
+					cssSnippet = `background: ${color};  --floating-background: var(--background-primary); border-radius: 0; padding-bottom: 5px; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 28%,var(--floating-background) 28%)`;
 				} else if (deco == "bold") {
 					cssSnippet = `font-weight: 600; color: ${color}`;
 				} else if (deco == "underline wavy") {
@@ -125,6 +143,8 @@ export class SettingTab extends PluginSettingTab {
 					cssSnippet = `border: 1px solid ${color}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
 				} else if (deco === "border dashed") {
 					cssSnippet = `border: 1px dashed ${color}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
+				} else if (deco === "line-through") {
+					cssSnippet = `text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: ${color}`;
 				} else {
 					cssSnippet = `text-decoration: ${deco}; text-decoration-color: ${color}`;
 				}
@@ -181,7 +201,9 @@ export class SettingTab extends PluginSettingTab {
 			text: "Persistent Highlights",
 			cls: "headline-text",
 		});
-
+		const regex = /test/i;
+		console.log("Does 'TEST' match?:", regex.test("TEST"));
+		console.log("source:", regex.source);
 		// On/Off-Switch that starts/stops all highlighting
 		new Setting(headlineToggleContainer).addToggle((headlineToggle) => {
 			headlineToggle.toggleEl.setAttribute(
@@ -346,15 +368,19 @@ export class SettingTab extends PluginSettingTab {
 						"Select a decoration style for your highlighter"
 					);
 					dropdown
-						.addOption("background", "Background")
-						.addOption("underline", "Underline")
-						.addOption("underline dotted", "Dotted")
-						.addOption("underline dashed", "Dashed")
-						.addOption("underline wavy", "Wavy")
-						.addOption("color", "Colored text")
-						.addOption("bold", "Bold colored text")
-						.addOption("border solid", "Border, solid")
-						.addOption("border dashed", "Border, dashed")
+						.addOption("background", "Background square")
+						.addOption("background rounded", "--- rounded")
+						.addOption("background realistic", "--- realistic")
+						.addOption("underline", "Underline solid")
+						.addOption("underline lowlight", "--- lowlight")
+						.addOption("underline floating", "--- floating")
+						.addOption("underline dotted", "--- dotted")
+						.addOption("underline dashed", "--- dashed")
+						.addOption("underline wavy", "--- wavy")
+						.addOption("border solid", "Border solid")
+						.addOption("border dashed", "--- dashed")
+						.addOption("color", "Colored text normal")
+						.addOption("bold", "--- bold")
 						.addOption("line-through", "Strikethrough")
 						.setValue("background")
 						.onChange((value) => {
@@ -459,7 +485,7 @@ export class SettingTab extends PluginSettingTab {
 				// Get state (creating/editing) to circumvent duplication block when editing
 				const state = saveButton.buttonEl.getAttribute("state");
 				const previousHighlighterName = classInput.inputEl.dataset.original;
-				currentHighlighterName = classInput.inputEl.value.replace(/ /g, "-");
+				currentHighlighterName = classInput.inputEl.value.trim();
 
 				// Delete old highlighter when editing
 				if (
@@ -518,6 +544,43 @@ export class SettingTab extends PluginSettingTab {
 							staticCssSnippet = {
 								backgroundColor: "var(--text-accent)",
 							};
+						} else if (staticDecorationValue === "background rounded") {
+							staticCssSnippet = {
+								background: "var(--text-accent)",
+								margin: "0 -0.05em",
+								padding: "0.125em 0.15em",
+								borderRadius: "0.2em",
+								WebkitBoxDecorationBreak: "clone",
+								boxDecorationBreak: "clone",
+							};
+						} else if (staticDecorationValue === "background realistic") {
+							staticCssSnippet = {
+								background: "var(--text-accent)",
+								margin: "0 -0.05em",
+								padding: "0.1em 0.4em",
+								borderRadius: "0.8em 0.3em",
+								WebkitBoxDecorationBreak: "clone",
+								boxDecorationBreak: "clone",
+								textShadow: "0 0 0.75em var(--background-primary-alt)",
+							};
+						} else if (staticDecorationValue === "underline lowlight") {
+							staticCssSnippet = {
+								background: "var(--text-accent)",
+								padding: ".125em .125em",
+								lowlightBackground: "var(--background-primary)",
+								borderRadius: "0",
+								backgroundImage:
+									"linear-gradient(360deg,rgba(255, 255, 255, 0) 40%,var(--lowlight-background) 40%)",
+							};
+						} else if (staticDecorationValue === "underline floating") {
+							staticCssSnippet = {
+								background: "var(--text-accent)",
+								floatingBackground: "var(--background-primary)",
+								borderRadius: "0",
+								paddingBottom: "5px",
+								backgroundImage:
+									"linear-gradient(360deg,rgba(255, 255, 255, 0) 28%,var(--floating-background) 28%)",
+							};
 						} else if (staticDecorationValue === "color") {
 							staticCssSnippet = {
 								fontWeight: "400",
@@ -547,6 +610,12 @@ export class SettingTab extends PluginSettingTab {
 								padding: "1px",
 								paddingBottom: "2px",
 							};
+						} else if (staticDecorationValue === "line-through") {
+							staticCssSnippet = {
+								textDecoration: "line-through",
+								textDecorationThickness: "2px",
+								textDecorationColor: "var(--text-accent)",
+							};
 						} else {
 							staticCssSnippet = {
 								textDecoration: staticDecorationValue,
@@ -557,6 +626,43 @@ export class SettingTab extends PluginSettingTab {
 						if (staticDecorationValue === "background") {
 							staticCssSnippet = {
 								backgroundColor: staticHexValue,
+							};
+						} else if (staticDecorationValue === "background rounded") {
+							staticCssSnippet = {
+								background: staticHexValue,
+								margin: "0 -0.05em",
+								padding: "0.125em 0.15em",
+								borderRadius: "0.2em",
+								WebkitBoxDecorationBreak: "clone",
+								boxDecorationBreak: "clone",
+							};
+						} else if (staticDecorationValue === "background realistic") {
+							staticCssSnippet = {
+								background: staticHexValue,
+								margin: "0 -0.05em",
+								padding: "0.1em 0.4em",
+								borderRadius: "0.8em 0.3em",
+								WebkitBoxDecorationBreak: "clone",
+								boxDecorationBreak: "clone",
+								textShadow: "0 0 0.75em var(--background-primary-alt)",
+							};
+						} else if (staticDecorationValue === "underline lowlight") {
+							staticCssSnippet = {
+								background: staticHexValue,
+								padding: ".125em .125em",
+								lowlightBackground: "var(--background-primary)",
+								borderRadius: "0",
+								backgroundImage:
+									"linear-gradient(360deg,rgba(255, 255, 255, 0) 40%,var(--lowlight-background) 40%)",
+							};
+						} else if (staticDecorationValue === "underline floating") {
+							staticCssSnippet = {
+								background: staticHexValue,
+								floatingBackground: "var(--background-primary)",
+								borderRadius: "0",
+								paddingBottom: "5px",
+								backgroundImage:
+									"linear-gradient(360deg,rgba(255, 255, 255, 0) 28%,var(--floating-background) 28%)",
 							};
 						} else if (staticDecorationValue === "color") {
 							staticCssSnippet = {
@@ -587,6 +693,12 @@ export class SettingTab extends PluginSettingTab {
 								padding: "1px",
 								paddingBottom: "2px",
 							};
+						} else if (staticDecorationValue === "line-through") {
+							staticCssSnippet = {
+								textDecoration: "line-through",
+								textDecorationThickness: "2px",
+								textDecorationColor: `${staticHexValue}`,
+							};
 						} else {
 							staticCssSnippet = {
 								textDecoration: staticDecorationValue,
@@ -600,6 +712,7 @@ export class SettingTab extends PluginSettingTab {
 						staticDecorationValue,
 						staticHexValue
 					);
+					console.log("Query: when saving", queryValue);
 					// Gather all the stuff we need to make our highlighter
 					config.queries[currentHighlighterName] = {
 						class: currentHighlighterName, // the name
@@ -608,6 +721,7 @@ export class SettingTab extends PluginSettingTab {
 						staticCss: staticCssSnippet, // the deco css snippet
 						colorIconSnippet: makecolorIconSnippet, // the icon snippet
 						regex: queryTypeValue, // the regex
+
 						query: queryValue, // the search term/expression
 						mark: enabledMarks, // the marks
 						highlighterEnabled: true, // the enabled state of the highlighter
@@ -1032,16 +1146,33 @@ export class SettingTab extends PluginSettingTab {
 		const chooseCommands = new Setting(containerEl);
 		chooseCommands.setName("Hotkeys and Command Palette");
 		chooseCommands.setDesc(
-			"All your tags will automatically be available in the Command Palette/Hotkeys panel to toggle on/off. You can choose one tag whose highlighters you want to toggle individually using the Command Palette or a Hotkey. The default is #unsorted, the input is case sensitive."
+			"All your tags will automatically be available in the Command Palette/Hotkeys panel to toggle on/off. You can choose tags whose highlighters you want to toggle individually using the Command Palette or a Hotkey. The default is #unsorted, the input is case sensitive, separate tags by comma."
 		);
 		const spreadTagInput = new TextComponent(chooseCommands.controlEl);
 		spreadTagInput.setPlaceholder("#unsorted");
 		spreadTagInput.inputEl.ariaLabel = "Tag name";
 		spreadTagInput.inputEl.addClass("highlighter-name");
-		this.plugin.settings.staticHighlighter.spreadTag =
-			spreadTagInput.inputEl.value.replace(/ /g, "-").trim();
-		this.plugin.saveSettings();
-		let spreadTag = this.plugin.settings.staticHighlighter.spreadTag;
+
+		chooseCommands.addButton((button) => {
+			button
+				.setClass("action-button")
+				.setClass("action-button-save")
+				.setClass("mod-cta")
+				.setIcon("save")
+				.onClick(async () => {
+					// Split the input into an array of strings by a separator (e.g., commas)
+					this.plugin.settings.staticHighlighter.spreadTag =
+						spreadTagInput.inputEl.value
+							.split(",") // Split by commas (or your chosen separator)
+							.map((tag) => tag.trim()) // Clean up each tag
+							.filter((tag) => tag.length > 0); // Remove empty strings
+
+					// Save settings
+					await this.plugin.saveSettings();
+					this.plugin.registerCommands();
+					new Notice("Commands created");
+				});
+		});
 
 		//##############################################################
 		//################   SELECTION HIGHLIGHTERS   ##################
@@ -1122,15 +1253,19 @@ export class SettingTab extends PluginSettingTab {
 			.setClass("decoration-dropdown")
 			.addDropdown((dropdown) => {
 				dropdown
-					.addOption("background", "Background")
-					.addOption("underline", "Underline")
-					.addOption("underline dotted", "Dotted")
-					.addOption("underline dashed", "Dashed")
-					.addOption("underline wavy", "Wavy")
-					.addOption("color", "Colored text")
-					.addOption("bold", "Bold colored text")
-					.addOption("border solid", "Border, solid")
-					.addOption("border dashed", "Border, dashed")
+					.addOption("background", "Background square")
+					.addOption("background", "--- rounded")
+					.addOption("background realistic", "--- realistic")
+					.addOption("underline", "Underline solid")
+					.addOption("underline lowlight", "--- lowlight")
+					.addOption("underline floating", "--- floating")
+					.addOption("underline dotted", "--- dotted")
+					.addOption("underline dashed", "--- dashed")
+					.addOption("underline wavy", "--- wavy")
+					.addOption("border solid", "Border solid")
+					.addOption("border dashed", "--- dashed")
+					.addOption("color", "Colored text normal")
+					.addOption("bold", "--- bold")
 					.addOption("line-through", "Strikethrough")
 					.setValue(
 						this.plugin.settings.selectionHighlighter.selectionDecoration

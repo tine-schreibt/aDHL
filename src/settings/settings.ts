@@ -66,7 +66,7 @@ export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
 		queryOrder: [],
 		tagOrder: [],
 		expandedTags: [],
-		spreadTag: "#unsorted",
+		spreadTag: ["#unsorted"],
 		onOffSwitch: true,
 	},
 };

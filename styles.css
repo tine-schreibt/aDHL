@@ -1078,3 +1078,48 @@
 }
 
 /* #endregion pickr vendored styles */
+
+/* Here starts the css from the Highlightr Plugin by Chetachie Keuzor https://github.com/chetachiezikeuzor/Highlightr-Plugin */
+
+/*highlighter style*/
+/*lowlight*/
+.highlightr-lowlight {
+	--lowlight-background: var(--background-primary);
+	border-radius: 0;
+	background-image: linear-gradient(
+		360deg,
+		rgba(255, 255, 255, 0) 40%,
+		var(--lowlight-background) 40%
+	) !important;
+}
+
+/*floating*/
+.highlightr-floating {
+	--floating-background: var(--background-primary);
+	border-radius: 0;
+	padding-bottom: 5px;
+	background-image: linear-gradient(
+		360deg,
+		rgba(255, 255, 255, 0) 28%,
+		var(--floating-background) 28%
+	) !important;
+}
+
+/*rounded*/
+.highlightr-rounded {
+	margin: 0 -0.05em;
+	padding: 0.125em 0.15em;
+	border-radius: 0.2em;
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+}
+
+/*realistic*/
+.highlightr-realistic {
+	margin: 0 -0.05em;
+	padding: 0.1em 0.4em;
+	border-radius: 0.8em 0.3em;
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+	text-shadow: 0 0 0.75em var(--background-primary-alt);
+}
