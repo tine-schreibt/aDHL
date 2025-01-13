@@ -64,8 +64,7 @@ export class RegExpCursor
 			pattern = pattern.slice(1, -2);
 		}
 		this.re = new RegExp(pattern, flags);
-		console.log("Base flags:", baseFlags);
-		console.log("Final flags:", flags);
+
 		this.iter = text.iter();
 		let startLine = text.lineAt(from);
 		this.curLineStart = startLine.from;

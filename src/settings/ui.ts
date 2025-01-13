@@ -81,7 +81,7 @@ export class SettingTab extends PluginSettingTab {
 			}
 		);
 		//##############################################################
-		//#########################   FUNCTIONS   ######################
+		//######################### FUNCTIONS ######################
 		//##############################################################
 		// would have put them at the bottom, but config.queryOrder is out of scope there
 
@@ -104,7 +104,7 @@ export class SettingTab extends PluginSettingTab {
 				} else if (deco == "underline lowlight") {
 					cssSnippet = `background:var(--text-accent); padding: .125em .125em; --lowlight-background: var(--background-primary); border-radius: 0; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 40%,var(--lowlight-background) 40%)`;
 				} else if (deco == "underline floating") {
-					cssSnippet = `background:var(--text-accent);  --floating-background: var(--background-primary); border-radius: 0; padding-bottom: 5px; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 28%,var(--floating-background) 28%)`;
+					cssSnippet = `background:var(--text-accent); --floating-background: var(--background-primary); border-radius: 0; padding-bottom: 5px; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 28%,var(--floating-background) 28%)`;
 				} else if (deco == "color") {
 					cssSnippet = `font-weight: 400; color: var(--text-accent)`;
 				} else if (deco == "bold") {
@@ -128,13 +128,14 @@ export class SettingTab extends PluginSettingTab {
 				} else if (deco == "color") {
 					cssSnippet = `font-weight: 400; color: ${color}`;
 				} else if (deco == "background rounded") {
-					cssSnippet = `background: ${color}; margin: 0 -0.05em; padding: 0.125em 0.15em; border-radius: 0.2em; -webkit-box-decoration-break: clone; box-decoration-break: clone; `;
+					console.log("background rounded!");
+					cssSnippet = `background: ${color}; margin: 0 -0.05em; padding: 0.125em 0.15em; border-radius: 0.2em; -webkit-box-decoration-break: clone; box-decoration-break: clone;`;
 				} else if (deco == "background realistic") {
 					cssSnippet = `background: ${color}; margin: 0 -0.05em; padding: 0.1em 0.4em; border-radius: 0.8em 0.3em; -webkit-box-decoration-break: clone; box-decoration-break: clone; text-shadow: 0 0 0.75em var(--background-primary-alt)`;
 				} else if (deco == "underline lowlight") {
 					cssSnippet = `background: ${color}; padding: .125em .125em; --lowlight-background: var(--background-primary); border-radius: 0; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 40%,var(--lowlight-background) 40%)`;
 				} else if (deco == "underline floating") {
-					cssSnippet = `background: ${color};  --floating-background: var(--background-primary); border-radius: 0; padding-bottom: 5px; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 28%,var(--floating-background) 28%)`;
+					cssSnippet = `background: ${color}; --floating-background: var(--background-primary); border-radius: 0; padding-bottom: 5px; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 28%,var(--floating-background) 28%)`;
 				} else if (deco == "bold") {
 					cssSnippet = `font-weight: 600; color: ${color}`;
 				} else if (deco == "underline wavy") {
@@ -186,8 +187,21 @@ export class SettingTab extends PluginSettingTab {
 			this.display();
 		};
 
+		const targetElement = document.body; // Adjust selector as needed
+		let hsl = getComputedStyle(targetElement)
+			.getPropertyValue("--text-accent")
+			.trim();
+
+		function convertHSLtoHSLA(hsl: string, alpha = 0.25) {
+			// Replace "hsl" with "hsla" and add the alpha value
+			return hsl.replace("hsl", "hsla").replace(")", `, ${alpha})`);
+		}
+		const hslaColor = convertHSLtoHSLA(hsl, 0.25);
+
+		console.log("accentColor: ", hslaColor);
+
 		//##############################################################
-		//#########################   UI   #############################
+		//######################### UI #############################
 		//##############################################################
 
 		containerEl.addClass("persistent-highlights");
@@ -196,20 +210,18 @@ export class SettingTab extends PluginSettingTab {
 		const headlineToggleContainer = containerEl.createDiv({
 			cls: "headline-toggle-container",
 		});
-
 		headlineToggleContainer.createEl("h3", {
 			text: "Persistent Highlights",
 			cls: "headline-text",
 		});
-		const regex = /test/i;
-		console.log("Does 'TEST' match?:", regex.test("TEST"));
-		console.log("source:", regex.source);
+
 		// On/Off-Switch that starts/stops all highlighting
 		new Setting(headlineToggleContainer).addToggle((headlineToggle) => {
 			headlineToggle.toggleEl.setAttribute(
 				"aria-label",
 				config.onOffSwitch ? `Stop highlighting` : `Start highlighting`
 			);
+			headlineToggle.toggleEl.addClass("headline-toggle");
 			headlineToggle.setValue(config.onOffSwitch).onChange((value) => {
 				config.onOffSwitch = value;
 				this.plugin.saveSettings();
@@ -222,8 +234,11 @@ export class SettingTab extends PluginSettingTab {
 			});
 		});
 
+		//##############################################################
+		//############## Persistent highlighters def ##############
+		//##############################################################
+
 		// Setting up variables vor the Persistent Highlighters Scope
-		// this is necessary to get the values out of the functional elements
 		let staticDecorationValue: string = "background";
 		let staticDecorationDropdown: Setting;
 		let staticDecorationDropdownComponent: DropdownComponent;
@@ -231,32 +246,34 @@ export class SettingTab extends PluginSettingTab {
 		let tagName: string;
 		let tagStatus: boolean;
 
-		//##############################################################
-		//##############   Persistent highlighters def   ##############
-		//##############################################################
 		const defineQueryUI = new Setting(containerEl);
 		defineQueryUI
 			.setName("Define persistent highlighters")
-			.setClass("highlighter-definition");
+			.setClass("define-Query-UI");
+
+		const defineQueryUITop = new Setting(defineQueryUI.controlEl);
 
 		// Input field for the highlighter name
-		const classInput = new TextComponent(defineQueryUI.controlEl);
-		classInput.setPlaceholder("Highlighter name");
-		classInput.inputEl.ariaLabel = "Highlighter name";
-		classInput.inputEl.addClass("highlighter-name");
+		const queryNameInput = new TextComponent(defineQueryUITop.controlEl);
+		queryNameInput.inputEl.addClass("query-name-input");
+		queryNameInput.setPlaceholder("Highlighter name");
+		queryNameInput.inputEl.setAttribute("aria-label", "Highlighter name");
 
 		// Color picker
-		const colorWrapper = defineQueryUI.controlEl.createDiv("color-wrapper");
+		const colorButtonWrapper = defineQueryUITop.controlEl.createDiv(
+			"color-button-wrapper"
+		);
 		let staticPickrInstance: Pickr;
-		const colorPicker = new ButtonComponent(colorWrapper);
+		const colorPicker = new ButtonComponent(colorButtonWrapper);
 		// Set defaults
-		colorPicker.setClass("highlightr-color-picker").then(() => {
+		// COLOR POCKER IS COLLAPSED
+		colorPicker.setClass("color-button-wrapper").then(() => {
 			this.pickrInstance = staticPickrInstance = new Pickr({
 				el: colorPicker.buttonEl,
-				container: colorWrapper,
+				container: colorButtonWrapper,
 				theme: "nano",
 				defaultRepresentation: "HEXA",
-				default: "#42188038",
+				default: hslaColor,
 				comparison: false,
 				components: {
 					preview: true,
@@ -276,7 +293,7 @@ export class SettingTab extends PluginSettingTab {
 				},
 			});
 			// Make the button
-			const button = colorWrapper.querySelector(".pcr-button");
+			const button = colorButtonWrapper.querySelector(".pcr-button");
 			if (!button) {
 				throw new Error("Button is null (see ui.ts)");
 			}
@@ -311,24 +328,57 @@ export class SettingTab extends PluginSettingTab {
 		});
 
 		// Query input field (query = highlighter)
-		const queryWrapper = defineQueryUI.controlEl.createDiv("query-wrapper");
-		const queryInput = new TextComponent(queryWrapper);
+		const queryInput = new TextComponent(defineQueryUITop.controlEl);
 		queryInput.setPlaceholder("Search term");
-		queryInput.inputEl.addClass("highlighter-settings-query");
+		queryInput.inputEl.setAttribute("aria-label", "Search term");
+		queryInput.inputEl.addClass("query-input");
 
-		// RegEx toggle
-		const queryTypeInput = new ToggleComponent(queryWrapper);
-		queryTypeInput.toggleEl.addClass("highlighter-settings-regex");
-		queryTypeInput.toggleEl.ariaLabel ? "Enable Regex" : "Disable Regex";
-		queryTypeInput.onChange((value) => {
-			if (value) {
-				queryInput.setPlaceholder("Search expression");
-			} else {
-				queryInput.setPlaceholder("Search term");
-			}
+		// Tag dropdown
+		const tagDropdownWrapper = defineQueryUITop.controlEl.createDiv(
+			"tag-dropdown-wrapper"
+		);
+		const tagDropdown = new Setting(tagDropdownWrapper);
+		tagDropdown.setClass("tag-dropdown").addDropdown((dropdown) => {
+			tagDropdownComponent = dropdown;
+			dropdown.addOption("#unsorted", "#unsorted");
+			dropdown.selectEl.setAttribute(
+				"aria-label",
+				"Select a tag for your highlighter"
+			);
+			// Make a set to add each tag only once
+			const uniqueTags = new Set<string>();
+			Object.keys(config.queries).forEach((highlighter) => {
+				const tagging = config.queries[highlighter].tag;
+				// get tagStatus as well...
+				const taggingStatus = config.queries[highlighter].tagEnabled;
+				if (tagging && !uniqueTags.has(tagging)) {
+					uniqueTags.add(tagging);
+					// Here's the .addOption part
+					tagDropdownComponent.addOption(tagging, tagging);
+				}
+				tagDropdownComponent.onChange((value) => {
+					tagName = value;
+					// ... to keep it consistent between old and new highlighters
+					tagStatus = taggingStatus;
+				});
+			});
+			// Access to the Create new tag modal and handing over of arguments
+			tagDropdownComponent.addOption("create-new", "Create new tag");
+			tagDropdownComponent.onChange(async (value) => {
+				if (value === "create-new") {
+					const createNewTag = new Modals.newTagModal(
+						this.app,
+						tagDropdownComponent,
+						tagName,
+						expandedTags
+					);
+					createNewTag.open();
+				}
+			});
 		});
 
 		// Array that holds all expanded Tags to persist the states
+		// This has to be her because of the scope
 		let expandedTags: string[];
 		// Initialise array without wiping saved data
 		if (this.plugin.settings.staticHighlighter.expandedTags) {
@@ -336,146 +386,105 @@ export class SettingTab extends PluginSettingTab {
 		} else {
 			expandedTags = [];
 		}
+		//############## BOTTOM ROW ####################################
+		const defineQueryUIBottom = new Setting(defineQueryUI.controlEl);
+		defineQueryUIBottom.setClass("define-query-ui-bottom-container");
 
-		// Create the marker types; this is complicated because there used to be 3 more
-		// and I couldn't figure out how to simplify things without breaking stuff so I
-		// kept it complicated.
-		type MarkTypes = Record<
-			markTypes,
-			{ description: string; defaultState: boolean }
-		>;
-		type MarkItems = Partial<
-			Record<markTypes, { element: HTMLElement; component: ToggleComponent }>
-		>;
+		// Input field for the highlighter name
 
-		const buildMarkerTypesHardcoded = (parentEl: HTMLElement): MarkItems => {
-			// This container holds the grid; would have done all with grids, but
-			// styles.css wasn't written by me, so I don't know what keeps destroying
-			// grids elsewhere in the UI
-			const dropdownContainer = parentEl.createDiv(
-				"dropdown-and-marks-container"
-			);
+		// Tag dropdown
+		const staticDecorationDropdownWrapper =
+			defineQueryUIBottom.controlEl.createDiv("deco-dropdown");
 
-			// Static decoration dropdown
-			staticDecorationDropdown = new Setting(dropdownContainer);
-			staticDecorationDropdown
-
-				.setClass("deco-dropdown")
-				.addDropdown((dropdown) => {
-					staticDecorationDropdownComponent = dropdown;
-					dropdown.selectEl.setAttribute(
-						"aria-label",
-						"Select a decoration style for your highlighter"
-					);
-					dropdown
-						.addOption("background", "Background square")
-						.addOption("background rounded", "--- rounded")
-						.addOption("background realistic", "--- realistic")
-						.addOption("underline", "Underline solid")
-						.addOption("underline lowlight", "--- lowlight")
-						.addOption("underline floating", "--- floating")
-						.addOption("underline dotted", "--- dotted")
-						.addOption("underline dashed", "--- dashed")
-						.addOption("underline wavy", "--- wavy")
-						.addOption("border solid", "Border solid")
-						.addOption("border dashed", "--- dashed")
-						.addOption("color", "Colored text normal")
-						.addOption("bold", "--- bold")
-						.addOption("line-through", "Strikethrough")
-						.setValue("background")
-						.onChange((value) => {
-							staticDecorationValue = value;
-							let color = staticPickrInstance
-								.getSelectedColor()
-								?.toHEXA()
-								.toString();
-							queryInput.inputEl.setAttribute(
-								"style",
-								snippetMaker(staticDecorationValue, color)
-							);
-						});
-				});
-
-			const types: MarkItems = {};
-
-			// "match" toggle, to decorate matched characters
-			dropdownContainer.createSpan("matches-text").setText("matches");
-			const matchToggle = new ToggleComponent(dropdownContainer).setValue(true); // Default state: true
-			matchToggle.toggleEl.addClass("matches-toggle");
-			matchToggle.toggleEl.setAttribute(
-				"aria-label",
-				"Highlight matched strings."
-			);
-			types["match"] = {
-				element: matchToggle.toggleEl,
-				component: matchToggle,
-			};
-
-			// "line" toggle, to decorate the entire parent line
-			dropdownContainer.createSpan("line-text").setText("parent line");
-			const lineToggle = new ToggleComponent(dropdownContainer).setValue(false); // Default state: false
-			lineToggle.toggleEl.addClass("line-toggle");
-			lineToggle.toggleEl.setAttribute(
-				"aria-label",
-				"Highlight parent lines of matched strings"
-			);
-			types["line"] = {
-				element: lineToggle.toggleEl,
-				component: lineToggle,
-			};
-
-			// Tag dropdown
-			const tagDropdown = new Setting(dropdownContainer);
-			tagDropdown.setClass("tag-dropdown").addDropdown((dropdown) => {
-				tagDropdownComponent = dropdown;
-				dropdown.addOption("#unsorted", "#unsorted");
+		staticDecorationDropdown = new Setting(staticDecorationDropdownWrapper);
+		staticDecorationDropdown
+			.setClass("deco-dropdown")
+			.addDropdown((dropdown) => {
+				staticDecorationDropdownComponent = dropdown;
 				dropdown.selectEl.setAttribute(
 					"aria-label",
-					"Select a tag for your highlighter"
+					"Select a decoration style for your highlighter"
 				);
-				// Make a set to add each tag only once
-				const uniqueTags = new Set<string>();
-				Object.keys(config.queries).forEach((highlighter) => {
-					const tagging = config.queries[highlighter].tag;
-					// get tagStatus as well...
-					const taggingStatus = config.queries[highlighter].tagEnabled;
-					if (tagging && !uniqueTags.has(tagging)) {
-						uniqueTags.add(tagging);
-						// Here's the .addOption part
-						tagDropdownComponent.addOption(tagging, tagging);
-					}
-					tagDropdownComponent.onChange((value) => {
-						tagName = value;
-						// ... to keep it consistent between old and new highlighters
-						tagStatus = taggingStatus;
-					});
-				});
-				// Access to the Create new tag modal and handing over of arguments
-				tagDropdownComponent.addOption("create-new", "Create new tag");
-				tagDropdownComponent.onChange(async (value) => {
-					if (value === "create-new") {
-						const createNewTag = new Modals.newTagModal(
-							this.app,
-							tagDropdownComponent,
-							tagName,
-							expandedTags
+				dropdown
+					.addOption("background", "Background square")
+					.addOption("background rounded", "--- rounded")
+					.addOption("background realistic", "--- realistic")
+					.addOption("underline", "Underline solid")
+					.addOption("underline lowlight", "--- lowlight")
+					.addOption("underline floating", "--- floating")
+					.addOption("underline dotted", "--- dotted")
+					.addOption("underline dashed", "--- dashed")
+					.addOption("underline wavy", "--- wavy")
+					.addOption("border solid", "Border solid")
+					.addOption("border dashed", "--- dashed")
+					.addOption("color", "Colored text normal")
+					.addOption("bold", "--- bold")
+					.addOption("line-through", "Strikethrough")
+					.setValue("background")
+					.onChange((value) => {
+						staticDecorationValue = value;
+						let color = staticPickrInstance
+							.getSelectedColor()
+							?.toHEXA()
+							.toString();
+						queryInput.inputEl.setAttribute(
+							"style",
+							snippetMaker(staticDecorationValue, color)
 						);
-						createNewTag.open();
-					}
-				});
+					});
 			});
-			return types;
-		};
 
-		const marks = buildMarkerTypesHardcoded(defineQueryUI.controlEl);
+		// RegEx toggle
+		defineQueryUIBottom.controlEl.createSpan("regex-text").setText("regEx");
+		const regexToggle = new ToggleComponent(
+			defineQueryUIBottom.controlEl
+		).setValue(false);
+		regexToggle.toggleEl.addClass("regex-toggle");
+		regexToggle.toggleEl.setAttribute("aria-label", "Use RegEx.");
+		regexToggle.onChange((value) => {
+			if (value) {
+				queryInput.setPlaceholder("Search expression");
+			} else {
+				queryInput.setPlaceholder("Search term");
+			}
+		});
+
+		// "match" toggle, to decorate matched characters
+		defineQueryUIBottom.controlEl.createSpan("matches-text").setText("matches");
+		const matchToggle = new ToggleComponent(
+			defineQueryUIBottom.controlEl
+		).setValue(true);
+		matchToggle.toggleEl.addClass("matches-toggle");
+		matchToggle.toggleEl.setAttribute(
+			"aria-label",
+			"Highlight matched strings."
+		);
+		matchToggle.onChange((value) => {
+			let matchBool: boolean = value;
+		});
+
+		// "line" toggle, to decorate the entire parent line
+		defineQueryUIBottom.controlEl.createSpan("line-text").setText("lines");
+		const lineToggle = new ToggleComponent(
+			defineQueryUIBottom.controlEl
+		).setValue(false);
+		lineToggle.toggleEl.addClass("line-toggle");
+		lineToggle.toggleEl.setAttribute(
+			"aria-label",
+			"Highlight parent lines of matched strings"
+		);
+		lineToggle.onChange((value) => {
+			let lineBool: boolean = value;
+		});
 
 		// The save Button
 		// helper variable stores highlighter to enable changing its other settings
 		let currentHighlighterName: string | null = null;
-		const saveButton = new ButtonComponent(queryWrapper);
+		const saveButton = new ButtonComponent(defineQueryUITop.controlEl);
 		saveButton.buttonEl.setAttribute("state", "creating");
 		saveButton.buttonEl.setAttribute("aria-label", "Save Highlighter");
 		saveButton
+			.setClass("save-button")
 			.setClass("action-button")
 			.setClass("action-button-save")
 			.setClass("mod-cta")
@@ -484,8 +493,8 @@ export class SettingTab extends PluginSettingTab {
 			.onClick(async (buttonEl: MouseEvent) => {
 				// Get state (creating/editing) to circumvent duplication block when editing
 				const state = saveButton.buttonEl.getAttribute("state");
-				const previousHighlighterName = classInput.inputEl.dataset.original;
-				currentHighlighterName = classInput.inputEl.value.trim();
+				const previousHighlighterName = queryNameInput.inputEl.dataset.original;
+				currentHighlighterName = queryNameInput.inputEl.value.trim();
 
 				// Delete old highlighter when editing
 				if (
@@ -504,12 +513,26 @@ export class SettingTab extends PluginSettingTab {
 
 				// Get all the values and do the variable name dance
 				// so that stuff acutally gets saved
+				let enabledMarksMaker = () => {
+					let enabledMarks: markTypes[] = [];
+					if (matchToggle.getValue() && !enabledMarks.includes("match")) {
+						enabledMarks.push("match");
+					} else {
+						enabledMarks = enabledMarks.filter((value) => value != "match");
+					}
+					if (lineToggle.getValue() && !enabledMarks.includes("line")) {
+						enabledMarks.push("line");
+					} else {
+						enabledMarks = enabledMarks.filter((value) => value != "line");
+					}
+					return enabledMarks;
+				};
 				const staticHexValue = staticPickrInstance
 					.getSelectedColor()
 					?.toHEXA()
 					.toString();
 				const queryValue = queryInput.inputEl.value;
-				const queryTypeValue = queryTypeInput.getValue();
+				const queryTypeValue = regexToggle.getValue();
 				const tagNameValue = tagDropdownComponent.getValue();
 				let tagStatusValue = tagStatus;
 				if (tagStatusValue == undefined) {
@@ -526,16 +549,6 @@ export class SettingTab extends PluginSettingTab {
 							return;
 						}
 					}
-
-					// markTypes blablababla
-					const enabledMarks = Object.entries(marks)
-						.map(
-							([type, item]) => (item.component.getValue() && type) as string
-						)
-						.filter((type): type is markTypes =>
-							["line", "match"].includes(type)
-						);
-
 					// Logic for the static css snippet, which can't be a standard css snippet
 					// because it's implemented as StyleSpec in static.css
 					let staticCssSnippet: StyleSpec = {};
@@ -712,18 +725,17 @@ export class SettingTab extends PluginSettingTab {
 						staticDecorationValue,
 						staticHexValue
 					);
-					console.log("Query: when saving", queryValue);
 					// Gather all the stuff we need to make our highlighter
 					config.queries[currentHighlighterName] = {
 						class: currentHighlighterName, // the name
-						staticColor: staticHexValue || "#42188038", // the color
+						staticColor: staticHexValue || hslaColor, // the color
 						staticDecoration: staticDecorationValue, // the deco
 						staticCss: staticCssSnippet, // the deco css snippet
 						colorIconSnippet: makecolorIconSnippet, // the icon snippet
 						regex: queryTypeValue, // the regex
 
 						query: queryValue, // the search term/expression
-						mark: enabledMarks, // the marks
+						mark: enabledMarksMaker(), // the marks
 						highlighterEnabled: true, // the enabled state of the highlighter
 						tag: tagNameValue, // the tag name
 						tagEnabled: tagStatusValue, // if the tag is enabled
@@ -748,9 +760,11 @@ export class SettingTab extends PluginSettingTab {
 			});
 
 		// The discard button
-		const discardButton = new ButtonComponent(queryWrapper);
+		const discardButton = new ButtonComponent(defineQueryUITop.controlEl);
 		discardButton
+			.setClass("discard-button")
 			.setClass("action-button")
+			.setClass("action-button-discard")
 			.setClass("mod-cta")
 			.setIcon("x-circle")
 			.setTooltip("Discard Changes")
@@ -761,24 +775,24 @@ export class SettingTab extends PluginSettingTab {
 					// Reset to original values
 					if (currentHighlighterName != null) {
 						const options = config.queries[currentHighlighterName];
-						classInput.inputEl.value = currentHighlighterName;
+						queryNameInput.inputEl.value = currentHighlighterName;
 						staticPickrInstance.setColor(options.staticColor);
 						queryInput.inputEl.value = options.query;
 						tagDropdownComponent.setValue(options.tag);
-						queryTypeInput.setValue(options.regex);
+						regexToggle.setValue(options.regex);
 						new Notice("Changes discarded");
 					} else {
 						// Clear all fields in "creating" mode
-						classInput.inputEl.value = "";
+						queryNameInput.inputEl.value = "";
 						queryInput.inputEl.value = "";
-						// Keep things in this order is so that classInput field ends up clear
-						staticPickrInstance.setColor("#42188038");
-						classInput.inputEl.setAttribute(
+						// Keep things in this order is so that queryNameInput field ends up clear
+						staticPickrInstance.setColor(hslaColor);
+						queryNameInput.inputEl.setAttribute(
 							"style",
 							`background-color: none; color: var(--text-normal);`
 						);
 						staticPickrInstance.hide();
-						queryTypeInput.setValue(false);
+						regexToggle.setValue(false);
 						new Notice("Form cleared");
 					}
 
@@ -1080,8 +1094,8 @@ export class SettingTab extends PluginSettingTab {
 								saveButton.buttonEl.setAttribute("state", "editing");
 								// Populate the input elements with the highlighter's settings
 								const options = config.queries[highlighter];
-								classInput.inputEl.value = highlighter;
-								classInput.inputEl.dataset.original = highlighter;
+								queryNameInput.inputEl.value = highlighter;
+								queryNameInput.inputEl.dataset.original = highlighter;
 
 								staticPickrInstance.setColor(options.staticColor);
 								queryInput.inputEl.value = options.query;
@@ -1093,24 +1107,19 @@ export class SettingTab extends PluginSettingTab {
 								tagDropdownComponent.setValue(options.tag);
 								tagStatus = options.tagEnabled;
 								staticPickrInstance.setColor(options.staticColor);
-								queryTypeInput.setValue(options.regex);
-
+								regexToggle.setValue(options.regex);
+								// matcheToggle / lineToggle
 								if (options?.mark) {
-									const marksSet = new Set<markTypes>(options.mark);
-									Object.entries(marks).forEach(([key, value]) => {
-										const isMarkType = ["line", "match"].includes(
-											key as markTypes
-										);
-										value.component.setValue(
-											isMarkType && marksSet.has(key as markTypes)
-										);
-									});
-								} else {
-									Object.entries(marks).map(([key, value]) =>
-										key === "match"
-											? value.component.setValue(true)
-											: value.component.setValue(false)
-									);
+									if (options?.mark.includes("match")) {
+										matchToggle.setValue(true);
+									} else {
+										matchToggle.setValue(false);
+									}
+									if (options?.mark.includes("line")) {
+										lineToggle.setValue(true);
+									} else {
+										lineToggle.setValue(false);
+									}
 								}
 								containerEl.scrollTop = 0;
 							});
@@ -1151,7 +1160,7 @@ export class SettingTab extends PluginSettingTab {
 		const spreadTagInput = new TextComponent(chooseCommands.controlEl);
 		spreadTagInput.setPlaceholder("#unsorted");
 		spreadTagInput.inputEl.ariaLabel = "Tag name";
-		spreadTagInput.inputEl.addClass("highlighter-name");
+		spreadTagInput.inputEl.addClass("class-input");
 
 		chooseCommands.addButton((button) => {
 			button
@@ -1175,7 +1184,7 @@ export class SettingTab extends PluginSettingTab {
 		});
 
 		//##############################################################
-		//################   SELECTION HIGHLIGHTERS   ##################
+		//################ SELECTION HIGHLIGHTERS ##################
 		//##############################################################
 		containerEl.createEl("h3", {
 			text: "Selection Highlights",
@@ -1197,7 +1206,7 @@ export class SettingTab extends PluginSettingTab {
 		if (
 			this.plugin.settings.selectionHighlighter.selectionColor === "default"
 		) {
-			selectionColorPickerDefault = "#42188038";
+			selectionColorPickerDefault = hslaColor;
 		} else {
 			selectionColorPickerDefault =
 				this.plugin.settings.selectionHighlighter.selectionColor;
@@ -1254,7 +1263,7 @@ export class SettingTab extends PluginSettingTab {
 			.addDropdown((dropdown) => {
 				dropdown
 					.addOption("background", "Background square")
-					.addOption("background", "--- rounded")
+					.addOption("background rounded", "--- rounded")
 					.addOption("background realistic", "--- realistic")
 					.addOption("underline", "Underline solid")
 					.addOption("underline lowlight", "--- lowlight")
@@ -1296,7 +1305,12 @@ export class SettingTab extends PluginSettingTab {
 					color
 				);
 				// save and update
+				new Notice("Selection highlighter style saved.");
 				await this.plugin.saveSettings();
+				console.log(
+					"selection highighter: ",
+					this.plugin.settings.selectionHighlighter.css
+				);
 				this.plugin.updateSelectionHighlighter();
 			});
 
@@ -1306,7 +1320,7 @@ export class SettingTab extends PluginSettingTab {
 			"Discard new values"
 		);
 		selectedDiscardButton
-			.setClass("selected-reset-button")
+			.setClass("selected-discard-button")
 			.setClass("action-button")
 			.setClass("mod-cta")
 			.setIcon("x-circle")

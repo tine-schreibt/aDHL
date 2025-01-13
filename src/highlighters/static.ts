@@ -62,8 +62,6 @@ export const staticHighlightConfig = Facet.define<
 	},
 });
 
-// const staticHighlighterCompartment = new Compartment();
-
 export function staticHighlighterExtension(
 	plugin: AnotherDynamicHighlightsPlugin
 ): Extension {

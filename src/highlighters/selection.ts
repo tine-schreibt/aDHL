@@ -173,13 +173,11 @@ const matchHighlighter = ViewPlugin.fromClass(
           ) {
             let string = state.sliceDoc(from, to).trim();
             if (check && from <= range.from && to >= range.to) {
-              console.log("CSS Styles: (if)", conf.css);
               const mainMatchDeco = Decoration.mark({
                 attributes: { "data-contents": string, style: selectionDecoration },
               });
               deco.push(mainMatchDeco.range(from, to));
             } else if (from >= range.to || to <= range.from) {
-              console.log("CSS Styles:(else if)", conf.css);
               const matchDeco = Decoration.mark({              
                 attributes: { "data-contents": string, style: selectionDecoration },
               });

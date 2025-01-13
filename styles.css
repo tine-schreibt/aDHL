@@ -1,21 +1,4 @@
-/* This is the version that fixed the overlapping toggle issue*/
-
-/* #region selection highlighter styles */
-
-.enabled-highlighter-toggle {
-	opacity: 0.7; /* Greyed out */
-}
-.disabled-highlighter-toggle {
-	opacity: 0.3; /* Greyed out */
-	pointer-events: none; /* Prevent interaction */
-	cursor: not-allowed; /* Show a 'disabled' cursor */
-}
-
-.disabled-toggle {
-	opacity: 0.5; /* Greyed out */
-	pointer-events: none; /* Prevent interaction */
-	cursor: not-allowed; /* Show a 'disabled' cursor */
-}
+/* ##################### HEADLINE #####################*/
 
 .headline-toggle-container {
 	display: flex;
@@ -31,142 +14,9 @@
 	border-top: "none";
 }
 
-.modal-content-grid {
-	display: grid;
-	grid:
-		[row1-start] [modal-helper-text] 1fr [row1-end]
-		[row2-start][inputEl] auto [spacer0] 5px [button1] auto [spacer1] 5px [button2] auto [spacer2] 10px [button3] auto [spacer3] 10px [selected-reset-button] auto [row2-end]
-		/ auto 50px auto;
-	gap: 10px;
-	width: 100%;
-	align-items: center;
-}
-
-.modal-content-grid .helper-text {
-	grid-column: modal-helper-text;
-	margin-right: 10px;
-}
-.modal-content-grid .modal-inputEl {
-	grid-column: inputEl;
-	align-self: center;
-	margin-left: 10px;
-}
-
-.modal-content-grid .modal-button1 {
-	grid-column: button1;
-	align-self: center;
-	margin: 10px;
-}
-
-.modal-content-grid .modal-button2 {
-	grid-column: button2;
-	align-self: center;
-	margin: 10px;
-}
-
-.modal-content-grid .modal-button3 {
-	grid-column: button2;
-	align-self: center;
-	margin: 10px;
-}
-
-.mod-cta-inverted {
-	background-color: var(--text-on-accent);
-	--text-color: var(--interactive-accent);
-}
-
-.mod-warning-inverted {
-	background-color: var(--text-on-accent);
-	--text-color: var(--background-modifier-error);
-}
-
-.highlighterToggleOpacity {
-	opacity: 0.5;
-}
-
-.selectedHighlightsStylingsContainerHeader {
-	padding-top: 10px;
-}
-
-.selectedHighlightsStylingsContainer {
-	display: grid;
-	grid-template-columns: [example] auto [color-picker] auto [spacer1] 5px [drop-down] auto [spacer2] 10px [save] auto [selected-reset-button] auto [spacer3] 10px [end];
-	grid-template-rows: [row] auto;
-	gap: 10px;
-	width: 100%;
-	align-items: center;
-}
-
-.selectedHighlightsStylingsContainer .example {
-	grid-column: example; /* Place in 'choose_color' column */
-	text-align: left;
-	width: 100%;
-}
-
-.selectedHighlightsStylingsContainer .selected-color-picker {
-	grid-column: color-picker; /* Place in 'color-picker' column */
-}
-
-.selectedHighlightsStylingsContainer .choose-decoration-text {
-	grid-column: choose_deco; /* Place in 'choose_deco' column */
-	text-align: left; /* Align text to the right */
-}
-
-.selectedHighlightsStylingsContainer .decoration-dropdown {
-	grid-column: drop-down; /* Place in 'drop-down' column */
-	border: none;
-}
-
-.selectedHighlightsStylingsContainer .selected-save-button {
-	grid-column: save; /* Place in 'save' column */
-}
-
-.selectedHighlightsStylingsContainer .selected-reset-button {
-	grid-column: selected-reset-button; /* Place in 'reset' column */
-}
-
-.selectedHighlightsStylingsContainer .selected-spacer {
-	grid-column: spacer3; /* Place in 'save' column */
-	border: none;
-}
-
-/* 
-.selectedHighlightsStylingsContainer > * {
-  border: 1px dashed red; 
-}*/
-
-/* Reset Default Styles 
-.selectedHighlightsStylingsContainer button,
-.selectedHighlightsStylingsContainer select {
-  display: block;
-  width: 100%; 
-}*/
-
-/* #endregion selection highlighter styles */
-
-/* #region settings tab */
-
-.dynamic-highlights-settings {
-	position: relative;
-}
-
-.dynamic-highlights-settings button.action-button {
-	display: grid;
-	place-content: center;
-	padding: 8px 18px;
-	/* set this to the obsidian default to address theme devs messing with it 👀 */
-	margin-right: 12px;
-}
-
 .dynamic-highlights-settings h3.persistent-highlights {
-	/*margin: 0;*/
-	/*border-bottom: 1px solid #ccc; /* Add a complete border */
-	/*border-radius: 5px; /* Optional: Add some rounding to the corners */
-	padding: 5px; /* Optional: Add some padding for better spacing */
+	padding: 5px;
 }
-
-/* #region import/export */
-
 .dynamic-highlights-settings .import-export-wrapper {
 	right: 0;
 	position: absolute;
@@ -176,165 +26,132 @@
 .dynamic-highlights-settings .import-export-wrapper a {
 	padding: 0 0.2em;
 }
+.headline-toggle-container .setting-item {
+	border-top: none;
+}
 
-/* #endregion import/export */
+/* ##################### PERSISTENT HIGHLIGHTS #####################*/
+/* ##################### DEFINE PERSISTENT HIGHLIGTS #####################*/
 
-.dynamic-highlights-settings .highlighter-definition {
+.dynamic-highlights-settings .highlighter-setting-icon {
+	display: flex;
+	height: 20px;
+	width: 20px;
+}
+
+.dynamic-highlights-settings .define-Query-UI {
 	display: block;
 }
 
-.dynamic-highlights-settings .highlighter-definition .setting-item-control {
+.dynamic-highlights-settings .define-Query-UI .setting-item-control {
 	align-content: center;
-	align-items: flex-end;
-	/* TODO: switch to using grid with columns and rows */
+	align-items: center;
 	flex-wrap: wrap;
-	grid-gap: 6px;
+	grid-gap: 10px;
 	justify-content: flex-start;
-	margin-top: 12px;
+	margin-top: 5px;
+	border-top: none;
 }
 
-/* #region color selection */
-
-/* .dynamic-highlights-settings .highlighter-name {
-    width: 20ch;
-  } */
-
-.dynamic-highlights-settings .color-wrapper {
+/* FLEXBOX TOP ROW */
+.define-query-ui-top-container {
 	display: flex;
-	align-items: flex-end;
-	align-self: center;
-}
-
-.dynamic-highlights-settings .pickr {
-	display: flex;
-}
-
-.modal.mod-settings .dynamic-highlights-settings .pcr-button,
-.modal.mod-settings .dynamic-highlights-settings .color-wrapper {
-	margin: 0;
-	padding: 0;
-	/* fixing a weird primary style that caused the picker to be oblong */
-	--scale-2-3: 0;
-	--scale-2-8: 0;
-	--scale-2-4: 0;
-}
-
-.modal.mod-settings
-	.dynamic-highlights-settings
-	.setting-item
-	.pickr
-	button.pcr-button {
-	border-radius: 50px;
-	overflow: hidden;
-	border: 2px solid var(--background-modifier-border);
-	height: 30px;
-	width: 30px;
-}
-
-/* #endregion color selection */
-
-/* #region search term & save */
-
-.dynamic-highlights-settings .query-wrapper {
-	display: flex;
-	align-items: flex-end;
-	flex-grow: 1;
 	gap: 10px;
+	align-items: center;
+	justify-content: flex-start; /* Align items to the left */
+	border-bottom: none;
 }
 
-.dynamic-highlights-settings .query-wrapper input {
-	flex-grow: 1;
-	width: auto;
+/* Reorder elements in the flexbox */
+.query-name-input {
+	order: -3; /* Place Query Name input third */
 }
 
-.dynamic-highlights-settings .highlighter-settings-regex {
-	align-self: center;
-	margin: 0;
+.color-button-wrapper {
+	order: -2; /* Place Color Picker fourth */
+	margin-bottom: -3px;
 }
 
+.query-input {
+	order: -1; /* Place Query Input fifth */
+}
+
+.tag-dropdown {
+	order: 0; /* Place Tag Dropdown last */
+	padding-top: 5px;
+	margin-bottom: -6px;
+	margin-right: 12px;
+}
+.save-button {
+	order: 2; /* Move Save button to the first position */
+}
+
+.discard-button {
+	order: 3; /* Move Discard button to the second position */
+}
 .dynamic-highlights-settings .action-button.action-button-save {
 	align-self: center;
 	margin-left: auto;
 }
+.dynamic-highlights-settings .action-button.action-button-discard {
+	align-self: center;
+	margin-left: auto;
+}
+/* Contains the dropdown, regEx and marks */
 
-/* #endregion search term & save */
-
-/* #region settings tab -- mark types */
-
-/* Contains the dropdown and the marks */
-
-.dropdown-and-marks-container {
-	display: grid;
-	grid-template-columns:
-		[deco-dropdown] auto
-		[spacer1] 5px
-		[matches-text] auto
-		[matches-toggle] auto
-		[spacer2] 10px
-		[line-text] auto
-		[line-toggle] auto
-		[Tag-dropdown] auto
-		[end];
-	grid-template-rows: [row] auto;
-	gap: 10px;
-	width: 100%;
+.define-query-ui-bottom-container {
+	display: flex;
 	align-items: center;
-	justify-content: start;
-	border-bottom: 1px solid #ccc; /* Add a complete border */
-	/*border-radius: 5px; /* Optional: Add some rounding to the corners */
-	/*padding: 10px; /* Optional: Add some padding for better spacing */
+	gap: 10px;
+	justify-content: start; /* Align items to the left */
+	border-top: none;
+	margin-top: -45px;
+	margin-left: 0px;
+}
+/* Reorder elements in the flexbox */
+.deco-dropdown {
+	order: 0;
+	margin-top: 3px;
+	margin-right: 5px;
 }
 
-.dropdown-and-marks-container .deco-dropdown {
-	grid-column: deco-dropdown;
-	margin: 0;
-	padding: 0;
-	align-self: center;
-	position: relative;
-	top: -8px;
-	border: none;
+.regEx-text {
+	order: 1;
+	text-align: start;
+	margin-right: -3px;
 }
 
-.dropdown-and-marks-container .matches-text {
-	grid-column: matches-text;
-	text-align: end;
+.regEx-toggle {
+	order: 2;
+	margin-right: 5px;
 }
 
-.dropdown-and-marks-container .matches-toggle {
-	grid-column: matches-toggle;
+.matches-text {
+	order: 3;
+	text-align: start;
+	margin-left: 10px;
 }
 
-.dropdown-and-marks-container .line-text {
-	grid-column: line-text;
-	text-align: end;
+.matches-toggle {
+	order: 4;
 }
 
-.dropdown-and-marks-container .line-toggle {
-	grid-column: line-toggle;
+.line-text {
+	order: 5;
+	margin-left: 10px;
 }
 
-.dropdown-and-marks-container .tag-dropdown {
-	grid-column: tag-dropdown;
-	margin: 0;
-	padding: 0;
-	align-self: center;
-	position: relative;
-	top: -8px;
-	border: none;
+.line-toggle {
+	order: 6;
 }
 
-.tag-modal-text {
-	width: 400px;
-	margin-top: -10px;
-	margin-right: 10px;
-}
-
-.title-container {
-	margin-bottom: 1em; /* Adjust spacing below the title */
-}
+/* ##################### YOUR HIGHLIGHTERS AND TAGS #####################*/
+/* This is for the display of the highlighters themselves */
 
 .your-highlighters {
-	/*border-bottom: 1px solid #ccc;*/
+	margin-top: -20px;
+	border-top: 1px solid #ccc;
+	padding-top: 10px;
 	font-size: 1.2em;
 	font-weight: 550;
 	font-kerning: 0.05em;
@@ -363,12 +180,13 @@
 }
 
 .tag-header .toggle-icon {
-	margin-right: 5px; /* Push the toggle to the left */
+	margin-right: 5px;
 	cursor: pointer;
 	border-top: none;
 }
+
 .tag-header .tag-name {
-	flex-grow: 1; /* Allow the Tag name to take available space */
+	flex-grow: 1;
 	border-top: 1px;
 	font-weight: 600;
 	font-size: medium;
@@ -377,70 +195,164 @@
 }
 
 .tag-header .Tag-toggle {
-	/*.tag-header-buttons */
-	margin-left: auto; /* Push the toggle to the right */
+	margin-left: auto;
 	border-top: 1px;
 	border-bottom: 1px;
 }
-
-/*###################################################
- ###############################
- ############################### 
-  .dynamic-highlights-settings .dropdown-mark-wrapper {
-    display: grid;
-    
-    width: 100%;
-    align-items: center;
-    grid-template-columns: [dropdown-desc] auto [dropdown] auto [matchtoggle] auto [linetoggle] auto [end];
-  }
-  
-  .is-mobile .dynamic-highlights-settings .dropdown-mark-wrapper  .mark-wrapper {
-    white-space: nowrap;
-    grid-template-columns: repeat(3, auto);
-  }
-  
-  /* #endregion settings tab -- mark types */
 
 .dynamic-highlights-settings .Tag-wrapper {
 	display: grid;
 	align-items: center;
 	grid-template-columns: repeat(2, auto);
 }
+.dynamic-highlights-settings .highlighter-container {
+	/* allow for copy and paste */
+	user-select: text;
+	border-bottom: 1px solid var(--background-modifier-border);
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
 
-/* #region custom css editor */
+.dynamic-highlights-settings .highlighter-container .highlighter-details {
+	display: flex;
+	padding: 18px 0 18px 0;
+	border-top: none;
+}
+.dynamic-highlights-settings
+	.highlighter-container
+	.highlighter-details
+	.setting-item-control {
+	flex-wrap: nowrap;
+	flex-grow: 0;
+	border-top: none;
+}
 
-/* .dynamic-highlights-settings .custom-css {
-    width: 100%;
-    height: 10em;
-  } */
+/* ##################### BUTTON AND TOGGLE STYLES #####################*/
 
-.dynamic-highlights-settings .custom-css-wrapper {
-	flex-grow: 100;
+.enabled-highlighter-toggle {
+	opacity: 0.7; /* Greyed out */
+}
+.disabled-highlighter-toggle {
+	opacity: 0.3; /* Greyed out */
+	pointer-events: none; /* Prevent interaction */
+	cursor: not-allowed; /* Show a 'disabled' cursor */
+}
+
+.disabled-toggle {
+	opacity: 0.5; /* Greyed out */
+	pointer-events: none; /* Prevent interaction */
+	cursor: not-allowed; /* Show a 'disabled' cursor */
+}
+
+.mod-cta-inverted {
+	background-color: var(--text-on-accent);
+	--text-color: var(--interactive-accent);
+}
+
+.mod-warning-inverted {
+	background-color: var(--text-on-accent);
+	--text-color: var(--background-modifier-error);
+}
+
+.highlighterToggleOpacity {
+	opacity: 0.5;
+}
+
+/* ##################### SELECTED HIGHLIGHTS #####################*/
+.selectedHighlightsStylingsContainerHeader {
+	padding-top: 10px;
+}
+
+.selectedHighlightsStylingsContainer {
+	display: grid;
+	grid-template-columns:
+		[example] auto
+		[color-picker] auto
+		[spacer1] 5px
+		[drop-down] auto
+		[spacer2] 10px
+		[save] auto
+		[selected-discard-button] auto
+		[spacer3] 10px [end];
+	grid-template-rows: [row] auto;
+	gap: 10px;
+	width: 100%;
+	align-items: center;
+}
+
+.selectedHighlightsStylingsContainer .example {
+	grid-column: example; /* Place in 'choose_color' column */
 	text-align: left;
 	width: 100%;
 }
 
-.dynamic-highlights-settings .custom-css-wrapper .cm-editor {
-	border: 1px solid var(--background-modifier-border);
-	background-color: var(--background-primary-alt);
-	max-height: 15em;
+.selectedHighlightsStylingsContainer .selection-color-picker {
+	grid-column: color-picker; /* Place in 'color-picker' column */
+}
+
+.selectedHighlightsStylingsContainer .choose-decoration-text {
+	grid-column: choose_deco; /* Place in 'choose_deco' column */
+	text-align: left; /* Align text to the right */
+}
+
+.selectedHighlightsStylingsContainer .decoration-dropdown {
+	grid-column: drop-down; /* Place in 'drop-down' column */
+	border: none;
+}
+
+.selectedHighlightsStylingsContainer .selected-save-button {
+	grid-column: save; /* Place in 'save' column */
+}
+
+.selectedHighlightsStylingsContainer .selected-discard-button {
+	grid-column: selected-discard-button; /* Place in 'reset' column */
+}
+
+.selectedHighlightsStylingsContainer .selected-spacer {
+	grid-column: spacer3; /* Place in 'save' column */
+	border: none;
+}
+
+/* ##################### BUTTONS AND STUFF I DON'T UNDERSTAND #####################*/
+.dynamic-highlights-settings {
+	position: relative;
+}
+
+.dynamic-highlights-settings button.action-button {
+	display: grid;
+	place-content: center;
+	padding: 8px 18px;
+	/* set this to the obsidian default to address theme devs messing with it 👀 */
+	margin-right: 12px;
+}
+
+.modal.mod-settings .dynamic-highlights-settings .pcr-button,
+.modal.mod-settings .dynamic-highlights-settings .color-wrapper {
+	margin: 0;
+	padding: 0;
+	/* fixing a weird primary style that caused the picker to be oblong */
+	--scale-2-3: 0;
+	--scale-2-8: 0;
+	--scale-2-4: 0;
+}
+
+.modal.mod-settings
+	.dynamic-highlights-settings
+	.setting-item
+	.pickr
+	button.pcr-button {
+	border-radius: 50px;
 	overflow: hidden;
-	resize: vertical;
+	border: 2px solid var(--background-modifier-border);
+	height: 30px;
+	width: 30px;
 }
 
-.dynamic-highlights-settings .custom-css-wrapper .cm-editor[style*="height"] {
-	max-height: unset;
-}
+/* #region search term & save */
 
-.dynamic-highlights-settings .custom-css-wrapper .cm-gutters {
-	background-color: var(--background-primary-alt);
+.title-container {
+	margin-bottom: 1em; /* Adjust spacing below the title */
 }
-
-.dynamic-highlights-settings .cm-line {
-	font-family: var(--font-monospace);
-}
-
-/* #region custom css editor */
 
 /* #region mobile specific styles */
 
@@ -455,7 +367,15 @@
 .is-mobile
 	.dynamic-highlights-settings
 	.setting-item-control
-	input.highlighter-name {
+	button.action-button-discard,
+.is-mobile .dynamic-highlights-settings .query-wrapper input {
+	width: unset;
+}
+
+.is-mobile
+	.dynamic-highlights-settings
+	.setting-item-control
+	input.class-input {
 	width: fit-content;
 }
 
@@ -472,152 +392,6 @@
 	width: 100%;
 	margin: 0 4px;
 }
-
-/* #endregion mobile specific styles */
-
-/* #region persistent highlighter listing */
-
-.dynamic-highlights-settings .highlighter-container {
-	/* allow for copy and paste */
-	user-select: text;
-	border-bottom: 1px solid var(--background-modifier-border);
-	margin-top: 10px;
-	margin-bottom: 10px;
-}
-
-.dynamic-highlights-settings .highlighter-container .highlighter-details {
-	display: flex;
-	padding: 18px 0 18px 0;
-	border-top: none;
-}
-
-.dynamic-highlights-settings
-	.highlighter-container
-	.highlighter-details
-	.setting-item-control {
-	flex-wrap: nowrap;
-	flex-grow: 0;
-}
-
-.dynamic-highlights-settings .highlighter-setting-icon {
-	display: flex;
-	height: 20px;
-	width: 20px;
-}
-
-/* #region selection highlighter settings */
-
-.selection-highlighter-button-text {
-	align-content: center;
-	align-items: center;
-	/* TODO: switch to using grid with columns and rows */
-	flex-wrap: wrap;
-	grid-gap: 6px;
-	margin-top: 10px;
-	margin-bottom: 10px; /* Medium gap below the decoration style text */
-}
-
-.dynamic-highlights-settings .ignored-words-input {
-	width: 25rem;
-	height: 10em;
-	resize: vertical;
-}
-
-/* #endregion selection highlighter settings */
-
-/* #region persistent highlighters sortable ui */
-
-.dynamic-highlights-settings .highlighter-item-draggable {
-	cursor: initial;
-	display: grid;
-	grid-gap: 8px;
-	grid-template-columns: 0.2fr 0.5fr 7fr;
-	align-items: center;
-	border-top: 1px solid var(--background-modifier-border);
-}
-
-.dynamic-highlights-settings .highlighter-setting-icon-drag {
-	cursor: grab;
-}
-
-.dynamic-highlights-settings .highlighter-sortable-fallback {
-	cursor: grabbing;
-	box-shadow: 0px 3px 32px rgb(31 38 135 / 15%);
-}
-
-.dynamic-highlights-settings .highlighter-sortable-grab {
-	cursor: grabbing;
-}
-
-.dynamic-highlights-settings .highlighter-sortable-ghost {
-	opacity: 0.4;
-	cursor: grabbing;
-}
-
-.dynamic-highlights-settings .highlighter-sortable-chosen {
-	cursor: grabbing;
-	padding: 0 0 0 18px;
-	background-color: var(--background-primary);
-}
-
-.dynamic-highlights-settings .highlighter-sortable-drag {
-	cursor: grabbing;
-	box-shadow: 0px 3px 32px rgb(31 38 135 / 15%);
-}
-
-/* #endregion persistent highlighters sortable ui */
-
-/* #endregion settings tab */
-
-/* #region style settings import/export */
-
-.modal-dynamic-highlights {
-	height: 70vh;
-	display: flex;
-	flex-direction: column;
-}
-
-.modal-dynamic-highlights .modal-content {
-	flex-grow: 1;
-	margin: 0;
-	display: flex;
-	flex-direction: column;
-}
-
-.modal-dynamic-highlights textarea {
-	display: block;
-	width: 100%;
-	height: 100%;
-	font-family: var(--font-monospace) !important;
-	font-size: 12px;
-	white-space: pre;
-	overflow-wrap: normal;
-	overflow-x: scroll;
-	margin-bottom: 5px;
-}
-
-.modal-dynamic-highlights .setting-item {
-	align-items: flex-start;
-}
-
-.modal-dynamic-highlights .setting-item .setting-item-control a {
-	margin-left: 4px;
-}
-
-.modal-dynamic-highlights button {
-	margin: 10px 0 0;
-}
-
-.modal-dynamic-highlights .style-settings-import-error {
-	display: none;
-	color: var(--text-error);
-}
-
-.modal-dynamic-highlights .style-settings-import-error.active {
-	display: block;
-}
-
-/* #endregion style settings import/export */
 
 /* #region pickr vendored styles */
 .pickr {
@@ -1079,47 +853,96 @@
 
 /* #endregion pickr vendored styles */
 
-/* Here starts the css from the Highlightr Plugin by Chetachie Keuzor https://github.com/chetachiezikeuzor/Highlightr-Plugin */
-
-/*highlighter style*/
-/*lowlight*/
-.highlightr-lowlight {
-	--lowlight-background: var(--background-primary);
-	border-radius: 0;
-	background-image: linear-gradient(
-		360deg,
-		rgba(255, 255, 255, 0) 40%,
-		var(--lowlight-background) 40%
-	) !important;
+/* ##################### MODALS #####################*/
+.tag-modal-text {
+	width: 400px;
+	margin-top: -10px;
+	margin-right: 10px;
 }
 
-/*floating*/
-.highlightr-floating {
-	--floating-background: var(--background-primary);
-	border-radius: 0;
-	padding-bottom: 5px;
-	background-image: linear-gradient(
-		360deg,
-		rgba(255, 255, 255, 0) 28%,
-		var(--floating-background) 28%
-	) !important;
+.modal-content-grid {
+	display: grid;
+	grid:
+		[row1-start] [modal-helper-text] 1fr [row1-end]
+		[row2-start][inputEl] auto [spacer0] 5px [button1] auto [spacer1] 5px [button2] auto [spacer2] 10px [button3] auto [spacer3] 10px [selected-discard-button] auto [row2-end]
+		/ auto 50px auto;
+	gap: 10px;
+	width: 100%;
+	align-items: center;
 }
 
-/*rounded*/
-.highlightr-rounded {
-	margin: 0 -0.05em;
-	padding: 0.125em 0.15em;
-	border-radius: 0.2em;
-	-webkit-box-decoration-break: clone;
-	box-decoration-break: clone;
+.modal-content-grid .helper-text {
+	grid-column: modal-helper-text;
+	margin-right: 10px;
+}
+.modal-content-grid .modal-inputEl {
+	grid-column: inputEl;
+	align-self: center;
+	margin-left: 10px;
 }
 
-/*realistic*/
-.highlightr-realistic {
-	margin: 0 -0.05em;
-	padding: 0.1em 0.4em;
-	border-radius: 0.8em 0.3em;
-	-webkit-box-decoration-break: clone;
-	box-decoration-break: clone;
-	text-shadow: 0 0 0.75em var(--background-primary-alt);
+.modal-content-grid .modal-button1 {
+	grid-column: button1;
+	align-self: center;
+	margin: 10px;
+}
+
+.modal-content-grid .modal-button2 {
+	grid-column: button2;
+	align-self: center;
+	margin: 10px;
+}
+
+.modal-content-grid .modal-button3 {
+	grid-column: button2;
+	align-self: center;
+	margin: 10px;
+}
+
+/* #region style settings import/export */
+
+.modal-dynamic-highlights {
+	height: 70vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.modal-dynamic-highlights .modal-content {
+	flex-grow: 1;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.modal-dynamic-highlights textarea {
+	display: block;
+	width: 100%;
+	height: 100%;
+	font-family: var(--font-monospace) !important;
+	font-size: 12px;
+	white-space: pre;
+	overflow-wrap: normal;
+	overflow-x: scroll;
+	margin-bottom: 5px;
+}
+
+.modal-dynamic-highlights .setting-item {
+	align-items: flex-start;
+}
+
+.modal-dynamic-highlights .setting-item .setting-item-control a {
+	margin-left: 4px;
+}
+
+.modal-dynamic-highlights button {
+	margin: 10px 0 0;
+}
+
+.modal-dynamic-highlights .style-settings-import-error {
+	display: none;
+	color: var(--text-error);
+}
+
+.modal-dynamic-highlights .style-settings-import-error.active {
+	display: block;
 }
