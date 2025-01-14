@@ -1,6 +1,6 @@
 {
-	"id": "another-dynamic-highlights-plugin",
-	"name": "aDHl",
+	"id": "another-dynamic-highlights",
+	"name": "aDHL",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "The Dynamic Highlights Plugin, but with hotkeys, more options and sorting; works well with Highlightr.",
