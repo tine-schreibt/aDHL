@@ -1,6 +1,5 @@
 /node_modules
 /yarn.lock
 /data.json
-/main.js
 .gitignore
 /zeuch
