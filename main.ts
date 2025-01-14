@@ -108,25 +108,60 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 
 	// Command Palette and hotkeys
 	registerCommands() {
-		const config = this.settings.staticHighlighter;
+		const staticHighlighters = this.settings.staticHighlighter;
+		const selectionHighlight = this.settings.selectionHighlighter;
 		// Command for onOffSwitch
 		this.addCommand({
 			id: `toggle-adhl`,
-			name: `The Switch - Start/stop all highlighting`,
+			name: `The Switch - Start/stop all static highlighting`,
 			callback: () => {
 				// toggle
 				let toggleState: string = "";
-				if (config.onOffSwitch) {
-					config.onOffSwitch = false;
-					toggleState = "off";
-					new Notice(`Highlighting is now OFF.`);
-				} else if (!config.onOffSwitch) {
-					config.onOffSwitch = true;
-					toggleState = "on";
-					new Notice(`Highlighting is now ON.`);
+				if (staticHighlighters.onOffSwitch) {
+					staticHighlighters.onOffSwitch = false;
+					new Notice(`Static highlighting is now OFF.`);
+				} else if (!staticHighlighters.onOffSwitch) {
+					staticHighlighters.onOffSwitch = true;
+					new Notice(`Static highlighting is now ON.`);
 				}
 				this.saveSettings();
 				this.updateStaticHighlighter();
+			},
+		});
+
+		this.addCommand({
+			id: `toggle-cursor`,
+			name: `Start/stop highlighting the word around the cursor`,
+			callback: () => {
+				// toggle
+				let toggleState: string = "";
+				if (selectionHighlight.highlightWordAroundCursor) {
+					selectionHighlight.highlightWordAroundCursor = false;
+					new Notice(`Highlighting the word around the cursor is now OFF.`);
+				} else if (!selectionHighlight.highlightWordAroundCursor) {
+					selectionHighlight.highlightWordAroundCursor = true;
+					new Notice(`Highlighting the word around the cursor is now ON.`);
+				}
+				this.saveSettings();
+				this.updateSelectionHighlighter();
+			},
+		});
+
+		this.addCommand({
+			id: `toggle-selected`,
+			name: `Start/stop highlighting actively selected text.`,
+			callback: () => {
+				// toggle
+				let toggleState: string = "";
+				if (selectionHighlight.highlightSelectedText) {
+					selectionHighlight.highlightSelectedText = false;
+					new Notice(`Highlighting selected text is now OFF.`);
+				} else if (!selectionHighlight.highlightSelectedText) {
+					selectionHighlight.highlightSelectedText = true;
+					new Notice(`Highlighting selected text is now ON.`);
+				}
+				this.saveSettings();
+				this.updateSelectionHighlighter();
 			},
 		});
 
@@ -134,28 +169,36 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 		let sortedQueryOrder: string[] = this.settings.staticHighlighter.queryOrder;
 		sortedQueryOrder.sort();
 		sortedQueryOrder.forEach((highlighter) => {
-			if (config.queries[highlighter]) {
-				if (config.spreadTag.includes(config.queries[highlighter].tag)) {
+			if (staticHighlighters.queries[highlighter]) {
+				if (
+					staticHighlighters.spreadTag.includes(
+						staticHighlighters.queries[highlighter].tag
+					)
+				) {
 					this.addCommand({
 						id: `toggle-${highlighter}`,
-						name: `Toggle highlighter "${highlighter} (tag: ${config.queries[highlighter].tag})"`,
+						name: `Toggle highlighter "${highlighter} (tag: ${staticHighlighters.queries[highlighter].tag})"`,
 						callback: () => {
 							// toggle
 							let toggleState: string = "";
-							if (config.queries[highlighter].highlighterEnabled) {
-								config.queries[highlighter].highlighterEnabled = false;
+							if (staticHighlighters.queries[highlighter].highlighterEnabled) {
+								staticHighlighters.queries[highlighter].highlighterEnabled =
+									false;
 								toggleState = "OFF";
-							} else if (!config.queries[highlighter].highlighterEnabled) {
-								config.queries[highlighter].highlighterEnabled = true;
+							} else if (
+								!staticHighlighters.queries[highlighter].highlighterEnabled
+							) {
+								staticHighlighters.queries[highlighter].highlighterEnabled =
+									true;
 								toggleState = "ON";
 							}
 							// notify of states
-							config.queries[highlighter].tagEnabled
+							staticHighlighters.queries[highlighter].tagEnabled
 								? new Notice(
-										`Toggled "${highlighter}" ${toggleState}; its tag "${config.queries[highlighter].tag}" is ON.`
+										`Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is ON.`
 								  )
 								: new Notice(
-										`Toggled "${highlighter}" ${toggleState}; its tag "${config.queries[highlighter].tag}" is OFF.`
+										`Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is OFF.`
 								  );
 							this.saveSettings();
 							this.updateStaticHighlighter();
@@ -166,26 +209,26 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 		});
 
 		// Commands for tags
-		let tagList: string[] = [];
 		sortedQueryOrder.forEach((highlighter) => {
-			if (config.queries[highlighter]) {
-				let tag = config.queries[highlighter].tag;
+			if (staticHighlighters.queries[highlighter]) {
+				let tag = staticHighlighters.queries[highlighter].tag;
 				this.addCommand({
 					id: `toggle-${tag}`,
 					name: `Toggle tag "${tag}"`,
 					callback: () => {
-						let currentState = config.queries[highlighter].tagEnabled;
+						let currentState =
+							staticHighlighters.queries[highlighter].tagEnabled;
 
 						// Toggle the state for all highlighters with the same tag
-						Object.keys(config.queries).forEach((key) => {
-							if (config.queries[key].tag === tag) {
-								config.queries[key].tagEnabled = !currentState;
+						Object.keys(staticHighlighters.queries).forEach((key) => {
+							if (staticHighlighters.queries[key].tag === tag) {
+								staticHighlighters.queries[key].tagEnabled = !currentState;
 							}
 						});
 
-						if (config.queries[highlighter].tagEnabled) {
+						if (staticHighlighters.queries[highlighter].tagEnabled) {
 							new Notice(`Toggled "${tag}" ON.`);
-						} else if (config.queries[highlighter].tagEnabled) {
+						} else if (staticHighlighters.queries[highlighter].tagEnabled) {
 							new Notice(
 								`Toggled "${tag}" OFF. All highlighters carrying this tag are now OFF, too.`
 							);
@@ -193,6 +236,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 
 						this.saveSettings();
 						this.updateStaticHighlighter();
+						console.log("registered command for tag ", tag);
 					},
 				});
 			}
