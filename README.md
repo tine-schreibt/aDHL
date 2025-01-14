@@ -60,10 +60,11 @@ Scroll down to find all elements explained, left to right, top to bottom. The ex
 
 **Example queries that use regEx**
 
-- **Highlight all dialogue:** (Copy everything between the two back ticks \`\`)
+- **Highlight all dialogue:** 
   - `"(.*?)" ` <- Highlights all between two ""
   - `'(.*?)'` <- Highlights all between two ''
   - `<(.*?)/>` <- Highlights all between < and />
+  - if you're reading this as raw .md, make sure to NOT copy the two backticks \`\`.
 - **Highlight several words:**
   - untoward |henceforth |betwixt <- the pipe - | - means 'or', so this highlights all these words; spaces aren't necessary but make it more readable.
   - /untoward |henceforth |betwixt/i <- This highlights all these words, case INsensitive; due to the way regEx is implemented in this plugin, mixing case sensitive and insensitive in a single regEx doesn't work.
