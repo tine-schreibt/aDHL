@@ -7,7 +7,7 @@ Here's a picture of the settings panel, including some use cases and highlighter
 
 **Persistent highlights**
 
-- **Import:** Imports settings; you can't import highlighters from the original Plugin, sorry. But you'll have to touch them all in order to get the benefits of the revamped version, anyway, so...
+- **Import:** Imports settings; you can't import highlighters from the original Plugin, sorry. But you'll have to touch them all in order to get the benefits of the revamped version, so...
 - **Export:** Exports settings
 - **toggle:** This is The Switch that starts/stops all highlights being rendered; find it in the Command Palette. If you can tell me why it keeps this border at the top, please do.
 
