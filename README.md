@@ -1,4 +1,4 @@
-This plugin is based on '<a href="https://github.com/nothingislost/obsidian-dynamic-highlights">Dynamic Highlights</a>' by nothingislost. I fixed a bug in the regEx, but otherwise I left the basic mechanics untouched. I just added a lot more customisability and some usability features, which I hope you find worthwhile. 
+This plugin is based on '<a href="https://github.com/nothingislost/obsidian-dynamic-highlights">Dynamic Highlights</a>' by nothingislost. I fixed a bug in the regEx, but otherwise I left the basic mechanics untouched. I just added a lot more customisability and some usability features, which I hope you find worthwhile.
 The pretty highlight styles I got from <a href="https://github.com/chetachiezikeuzor/highlightr-Plugin/">Highlightr</a> by chetachiezikeuzor, so if you're using that, aDHL will fit right in, style wise.
 
 Here's a picture of the settings panel, including some use cases and highlighter examples.
