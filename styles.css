@@ -1,3 +1,6 @@
+/* This file is a bit of a mess but I am too done to 
+clean it up right now, so deal with it -.- */
+
 /* ##################### HEADLINE #####################*/
 
 .headline-toggle-container {
@@ -68,7 +71,7 @@
 	padding-bottom: 0px;
 }
 .define-query-ui-top-container .setting-item {
-padding: 0px 0px 0px;
+	padding: 0px 0px 0px;
 }
 
 /* Reorder elements in the flexbox */

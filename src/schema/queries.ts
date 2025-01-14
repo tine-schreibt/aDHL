@@ -35,7 +35,7 @@ export const queriesSchema = {
 					type: "array",
 				},
 				enabled: {
-					tyle: "boolean",
+					type: "boolean",
 				},
 				tag: {
 					type: "string",

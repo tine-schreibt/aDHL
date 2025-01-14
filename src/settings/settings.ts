@@ -1,19 +1,9 @@
-/* added decoType */
-
 import {
-	staticHighlightConfig,
 	StaticHighlightOptions,
 } from "src/highlighters/static";
 import { SelectionHighlightOptions } from "../highlighters/selection";
 import { ignoredWords } from "./ignoredWords";
 import { StyleSpec } from "style-mod";
-
-/*
-interface SearchConfig {
-  value: string;
-  type: string;
-  range: { from: number; to: number };
-}*/
 
 export type markTypes = "line" | "match";
 
@@ -22,7 +12,6 @@ export interface CSSSettings {
 	[key: string]: SettingValue;
 }
 
-// Enable/Disable Highlighters (searchQuery)
 interface SearchQuery {
 	query: string;
 	class: string;
@@ -70,10 +59,3 @@ export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
 		onOffSwitch: true,
 	},
 };
-
-/*
-export function setAttributes(element: any, attributes: any) {
-  for (let key in attributes) {
-    element.setAttribute(key, attributes[key]);
-  }
-}*/

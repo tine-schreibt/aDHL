@@ -1,5 +1,3 @@
-/* added if (query.enabled) {  */
-
 // originally from: https://github.com/codemirror/search/blob/main/src/selection-match.ts
 import { SearchCursor } from "@codemirror/search";
 import {
@@ -9,9 +7,7 @@ import {
 	Facet,
 	Range,
 } from "@codemirror/state";
-import { syntaxTree } from "@codemirror/language";
-//import { tokenClassNodeProp } from "@codemirror/language-data";
-import {
+import { syntaxTree } from "@codemirror/language";import {
 	Decoration,
 	DecorationSet,
 	EditorView,
@@ -20,7 +16,6 @@ import {
 	WidgetType,
 } from "@codemirror/view";
 import { cloneDeep } from "lodash";
-import type { RegExpExecArray } from "regexp-match-indices/types";
 import AnotherDynamicHighlightsPlugin from "main";
 import { SearchQueries } from "src/settings/settings";
 import { StyleSpec } from "style-mod";
@@ -223,7 +218,7 @@ const staticHighlighter = ViewPlugin.fromClass(
 	{
 		provide: (plugin) => [
 			// these are separated out so that we can set decoration priority
-			// it's also much easier to sort the decorations when they're Taged
+			// it's also much easier to sort the decorations when they're tagged
 			EditorView.decorations.of(
 				(v) => v.plugin(plugin)?.lineDecorations || Decoration.none
 			),
