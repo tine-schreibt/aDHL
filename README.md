@@ -66,8 +66,9 @@ Scroll down to find all elements explained, left to right, top to bottom. The ex
   - `<(.*?)/>` <- Highlights all between < and />
   - if you're reading this as raw .md, make sure to NOT copy the two backticks \`\`.
 - **Highlight several words:**
-  - untoward |henceforth |betwixt <- the pipe - | - means 'or', so this highlights all these words; spaces aren't necessary but make it more readable.
-  - /untoward |henceforth |betwixt/i <- This highlights all these words, case INsensitive; due to the way regEx is implemented in this plugin, mixing case sensitive and insensitive in a single regEx doesn't work.
+  - `untoward |henceforth |betwixt` <- the pipe - | - means 'or', so this highlights all these words; spaces aren't necessary but make it more readable.
+  - `/untoward |henceforth |betwixt/i` <- This highlights all these words, case INsensitive; due to the way regEx is implemented in this plugin, mixing case sensitive and insensitive in a single regEx doesn't work.
+  - same here; don't copy the two backticks \`\`.
 
 And that's it. Let me know if I forgot anything.
 I might add a modal for on/off toggling, but only if many people would find that useful.
