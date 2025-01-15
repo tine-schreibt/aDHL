@@ -398,17 +398,23 @@ clean it up right now, so deal with it -.- */
 .is-mobile
 	.dynamic-highlights-settings
 	.setting-item-control
-	button.action-button-save,
-.is-mobile .dynamic-highlights-settings .query-wrapper input {
+	button.action-button-save {
 	width: unset;
 }
-
 .is-mobile
 	.dynamic-highlights-settings
 	.setting-item-control
-	button.action-button-discard,
-.is-mobile .dynamic-highlights-settings .query-wrapper input {
+	button.action-button-discard {
 	width: unset;
+}
+
+.is-mobile .dynamic-highlights-settings .define-Query-UI {
+	margin-bottom: 40px;
+	padding-bottom: 40px;
+}
+
+.is-mobile .dynamic-highlights-settings .define-Query-UI input {
+	width: 50px;
 }
 
 .is-mobile

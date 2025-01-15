@@ -1,6 +1,6 @@
 This plugin is based on '<a href="https://github.com/nothingislost/obsidian-dynamic-highlights">Dynamic Highlights</a>' by nothingislost. I fixed a bug in the regEx, but otherwise I left the basic mechanics untouched. I just added a lot more customisability and some usability features, which I hope you find worthwhile.
 
-The pretty highlight styles I got from <a href="https://github.com/chetachiezikeuzor/highlightr-Plugin/">Highlightr</a> by chetachiezikeuzor, so if you're using that, aDHL will fit right in, style wise.
+The four prettiest highlight styles - bg rounded, bg realistic, ul floating and ul lowlight - are from <a href="https://github.com/chetachiezikeuzor/highlightr-Plugin/">Highlightr</a> by chetachiezikeuzor, so if you're using that, aDHL will fit right in, style wise.
 
 Here's a picture of the settings panel, including some use cases and highlighter examples.
 Scroll down to find all elements explained, left to right, top to bottom. The example queries can be found all the way down.
@@ -18,7 +18,7 @@ Scroll down to find all elements explained, left to right, top to bottom. The ex
 - **First Row:**
   - **First input field:** Here you input your highlighter's name.
   - **Checkerboard circle:** This is the color picker. Click on it to get a... well, picker, and the option to input a hexa or hsla. By default it's set to your chosen accent color with an opacity of 0.25.
-  - **Second input field:** Here you input your search query. It also shows what the highlight will look like. If a highlight seems to not be rendered, try upping the opacity of your color.
+  - **Second input field:** Here you input your search query. It also shows what the highlight will look like. If a highlight seems to not be rendered, try upping the opacity of your color or (mostly if you're using a Dark Theme) changing it altogether.
   - **Dropdown:** All your tags. Choose one or make a new one. Intended to group your highlighters together and make them easier to manage. Find all your tags in the Command Palette/Hotkey panel.
   - **Save button:** Save your highlighters.
   - **Discard button**: Discard changes; useful when you start to edit a highlighter and then think better of it.
@@ -60,7 +60,7 @@ Scroll down to find all elements explained, left to right, top to bottom. The ex
 
 **Example queries that use regEx**
 
-- **Highlight all dialogue:** 
+- **Highlight all dialogue:**
   - `"(.*?)" ` <- Highlights all between two ""
   - `'(.*?)'` <- Highlights all between two ''
   - `<(.*?)/>` <- Highlights all between < and />
