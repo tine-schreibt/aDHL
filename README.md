@@ -67,7 +67,7 @@ Scroll down to find all elements explained, left to right, top to bottom. The ex
   - `<(.*?)/>` <- Highlights all between < and />
 - **Highlight several words:**
   - same here; don't copy the two backticks \`\`.
-  - `untoward |henceforth |betwixt` <- the pipe - | - means 'or', so this highlights all these words; spaces aren't necessary but make it more readable.
+  - `untoward |henceforth |betwixt` <- the pipe - | - means 'or', so this highlights all these words; spaces are there to make it more readable, *they are also part of the search term, though, so instances where the word is followed by a `,` won't be highlighted*. Keep that in mind when phrasing your search. 
   - `/untoward |henceforth |betwixt/i` <- This highlights all these words, case INsensitive; due to the way regEx is implemented in this plugin, mixing case sensitive and insensitive in a single regEx doesn't work.
 
 And that's it. Let me know if I forgot anything.
