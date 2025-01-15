@@ -2,7 +2,7 @@ This plugin is based on '<a href="https://github.com/nothingislost/obsidian-dyna
 
 The four prettiest highlight styles - bg rounded, bg realistic, ul floating and ul lowlight - are from <a href="https://github.com/chetachiezikeuzor/highlightr-Plugin/">Highlightr</a> by chetachiezikeuzor, so if you're using that, aDHL will fit right in, style wise.
 
-Here's a picture of the settings panel as it looks on desktop, including some use cases and highlighter examples. The plugin works fine on mobile, but please don't make me do any more css fudgery, please I beg you I just can't -.-
+Here's a picture of the settings panel as it looks on desktop, including some use cases and highlighter examples. The plugin works fine on mobile, its settings pane just looks a but wonky (please don't make me do any more css fudgery, please I beg you I just can't -.-)
 Scroll down to find all elements explained, left to right, top to bottom. The example queries can be found all the way down.
 
 <img src="https://github.com/tine-schreibt/active_aDHL/blob/main/Another-dynamic-highlights-plugin.png?raw=true">
