@@ -1,3 +1,6 @@
+/* This file is a bit of a mess but I am too done to 
+clean it up right now, so deal with it -.- */
+
 /* ##################### HEADLINE #####################*/
 
 .headline-toggle-container {
@@ -20,7 +23,8 @@
 .dynamic-highlights-settings .import-export-wrapper {
 	right: 0;
 	position: absolute;
-	padding: 0 30px;
+	padding-bottom: 8px;
+	margin-bottom: 8px;
 }
 
 .dynamic-highlights-settings .import-export-wrapper a {
@@ -43,13 +47,15 @@
 	display: block;
 }
 
+.dynamic-highlights-settings .define-Query-UI .setting-item-name {
+	margin-bottom: 8px;
+}
+
 .dynamic-highlights-settings .define-Query-UI .setting-item-control {
 	align-content: center;
 	align-items: center;
 	flex-wrap: wrap;
-	grid-gap: 10px;
 	justify-content: flex-start;
-	margin-top: 5px;
 	border-top: none;
 }
 
@@ -57,31 +63,55 @@
 .define-query-ui-top-container {
 	display: flex;
 	gap: 10px;
-	align-items: center;
-	justify-content: flex-start; /* Align items to the left */
+	align-items: center; /* Stretch elements to match container height */
+	height: 30px; /* Adjust to match your design */
+	line-height: 30px; /* Vertically align text */
+	justify-content: center; /* Align items to the left */
 	border-bottom: none;
+	padding-bottom: 0px;
+}
+.define-query-ui-top-container .setting-item {
+	padding: 0px 0px 0px;
 }
 
 /* Reorder elements in the flexbox */
 .query-name-input {
 	order: -3; /* Place Query Name input third */
+	margin: 0;
 }
 
 .color-button-wrapper {
 	order: -2; /* Place Color Picker fourth */
-	margin-bottom: -3px;
+	/*margin-bottom: -3px;*/
 }
 
 .query-input {
 	order: -1; /* Place Query Input fifth */
+	margin: 0;
+	padding: 0;
 }
 
 .tag-dropdown {
-	order: 0; /* Place Tag Dropdown last */
-	padding-top: 5px;
-	margin-bottom: -6px;
+	order: 0;
+	margin: 0;
 	margin-right: 12px;
+	padding: 4px;
+	max-width: 140px; /* Restrict the dropdown width */
+	white-space: nowrap; /* Prevent text from wrapping */
+	overflow: hidden; /* Hide overflow text */
+	text-overflow: ellipsis; /* Show ellipsis for overflowing text */
+	display: inline-block; /* Ensure the dropdown behaves like an inline element */
+	background-image: none;
 }
+
+.tag-dropdown select {
+	width: 100%; /* Ensure the select element fills the container */
+	max-width: 140px; /* Match the max-width of the parent for consistency */
+	white-space: nowrap; /* Prevent text wrapping within the dropdown */
+	overflow: hidden; /* Ensure no overflow issues */
+	text-overflow: ellipsis; /* Add ellipsis for long options */
+}
+
 .save-button {
 	order: 2; /* Move Save button to the first position */
 }
@@ -103,10 +133,12 @@
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	justify-content: start; /* Align items to the left */
+	height: 30px;
+	justify-content: center; /* Align items to the left */
+	margin-top: -3px;
 	border-top: none;
-	margin-top: -45px;
-	margin-left: 0px;
+	margin-left: -26px;
+	margin-bottom: 10px;
 }
 /* Reorder elements in the flexbox */
 .deco-dropdown {
@@ -149,8 +181,8 @@
 /* This is for the display of the highlighters themselves */
 
 .your-highlighters {
-	margin-top: -20px;
-	border-top: 1px solid #ccc;
+	margin-top: 0px;
+	/* border-top: 1px solid #ccc;*/
 	padding-top: 10px;
 	font-size: 1.2em;
 	font-weight: 550;
@@ -158,6 +190,7 @@
 	padding-bottom: 10px;
 	margin-bottom: 0px;
 	margin-right: 10px;
+	border-bottom: none;
 }
 
 .tag-container {
@@ -204,6 +237,7 @@
 	display: grid;
 	align-items: center;
 	grid-template-columns: repeat(2, auto);
+	border-bottom: none;
 }
 .dynamic-highlights-settings .highlighter-container {
 	/* allow for copy and paste */
@@ -227,7 +261,12 @@
 	border-top: none;
 }
 
-/* ##################### BUTTON AND TOGGLE STYLES #####################*/
+/* ##################### BUTTON, TOGGLE AND TEXT AREA STYLES #####################*/
+.dynamic-highlights-settings .ignored-words-input {
+	width: 15rem;
+	height: 8em;
+	resize: vertical;
+}
 
 .enabled-highlighter-toggle {
 	opacity: 0.7; /* Greyed out */
@@ -945,4 +984,42 @@
 
 .modal-dynamic-highlights .style-settings-import-error.active {
 	display: block;
+}
+
+.dynamic-highlights-settings .highlighter-item-draggable {
+  cursor: initial;
+  display: grid;
+  grid-gap: 8px;
+  grid-template-columns: 0.2fr 0.5fr 7fr;
+  align-items: center;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.dynamic-highlights-settings .highlighter-setting-icon-drag {
+  cursor: grab;
+}
+
+.dynamic-highlights-settings .highlighter-sortable-fallback {
+  cursor: grabbing;
+  box-shadow: 0px 3px 32px rgb(31 38 135 / 15%);
+}
+
+.dynamic-highlights-settings .highlighter-sortable-grab {
+  cursor: grabbing;
+}
+
+.dynamic-highlights-settings .highlighter-sortable-ghost {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+.dynamic-highlights-settings .highlighter-sortable-chosen {
+  cursor: grabbing;
+  padding: 0 0 0 18px;
+  background-color: var(--background-primary);
+}
+
+.dynamic-highlights-settings .highlighter-sortable-drag {
+  cursor: grabbing;
+  box-shadow: 0px 3px 32px rgb(31 38 135 / 15%);
 }
