@@ -1,6 +1,3 @@
-/* This file is a bit of a mess but I am too done to 
-clean it up right now, so deal with it -.- */
-
 /* ##################### HEADLINE #####################*/
 
 .headline-toggle-container {
@@ -23,8 +20,7 @@ clean it up right now, so deal with it -.- */
 .dynamic-highlights-settings .import-export-wrapper {
 	right: 0;
 	position: absolute;
-	padding-bottom: 8px;
-	margin-bottom: 8px;
+	padding: 0 30px;
 }
 
 .dynamic-highlights-settings .import-export-wrapper a {
@@ -47,15 +43,13 @@ clean it up right now, so deal with it -.- */
 	display: block;
 }
 
-.dynamic-highlights-settings .define-Query-UI .setting-item-name {
-	margin-bottom: 8px;
-}
-
 .dynamic-highlights-settings .define-Query-UI .setting-item-control {
 	align-content: center;
 	align-items: center;
 	flex-wrap: wrap;
+	grid-gap: 10px;
 	justify-content: flex-start;
+	margin-top: 5px;
 	border-top: none;
 }
 
@@ -63,55 +57,31 @@ clean it up right now, so deal with it -.- */
 .define-query-ui-top-container {
 	display: flex;
 	gap: 10px;
-	align-items: center; /* Stretch elements to match container height */
-	height: 30px; /* Adjust to match your design */
-	line-height: 30px; /* Vertically align text */
-	justify-content: center; /* Align items to the left */
+	align-items: center;
+	justify-content: flex-start; /* Align items to the left */
 	border-bottom: none;
-	padding-bottom: 0px;
-}
-.define-query-ui-top-container .setting-item {
-	padding: 0px 0px 0px;
 }
 
 /* Reorder elements in the flexbox */
 .query-name-input {
 	order: -3; /* Place Query Name input third */
-	margin: 0;
 }
 
 .color-button-wrapper {
 	order: -2; /* Place Color Picker fourth */
-	/*margin-bottom: -3px;*/
+	margin-bottom: -3px;
 }
 
 .query-input {
 	order: -1; /* Place Query Input fifth */
-	margin: 0;
-	padding: 0;
 }
 
 .tag-dropdown {
-	order: 0;
-	margin: 0;
+	order: 0; /* Place Tag Dropdown last */
+	padding-top: 5px;
+	margin-bottom: -6px;
 	margin-right: 12px;
-	padding: 4px;
-	max-width: 140px; /* Restrict the dropdown width */
-	white-space: nowrap; /* Prevent text from wrapping */
-	overflow: hidden; /* Hide overflow text */
-	text-overflow: ellipsis; /* Show ellipsis for overflowing text */
-	display: inline-block; /* Ensure the dropdown behaves like an inline element */
-	background-image: none;
 }
-
-.tag-dropdown select {
-	width: 100%; /* Ensure the select element fills the container */
-	max-width: 140px; /* Match the max-width of the parent for consistency */
-	white-space: nowrap; /* Prevent text wrapping within the dropdown */
-	overflow: hidden; /* Ensure no overflow issues */
-	text-overflow: ellipsis; /* Add ellipsis for long options */
-}
-
 .save-button {
 	order: 2; /* Move Save button to the first position */
 }
@@ -133,12 +103,10 @@ clean it up right now, so deal with it -.- */
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	height: 30px;
-	justify-content: center; /* Align items to the left */
-	margin-top: -3px;
+	justify-content: start; /* Align items to the left */
 	border-top: none;
-	margin-left: -26px;
-	margin-bottom: 10px;
+	margin-top: -45px;
+	margin-left: 0px;
 }
 /* Reorder elements in the flexbox */
 .deco-dropdown {
@@ -181,8 +149,8 @@ clean it up right now, so deal with it -.- */
 /* This is for the display of the highlighters themselves */
 
 .your-highlighters {
-	margin-top: 0px;
-	/* border-top: 1px solid #ccc;*/
+	margin-top: -20px;
+	border-top: 1px solid #ccc;
 	padding-top: 10px;
 	font-size: 1.2em;
 	font-weight: 550;
@@ -190,7 +158,6 @@ clean it up right now, so deal with it -.- */
 	padding-bottom: 10px;
 	margin-bottom: 0px;
 	margin-right: 10px;
-	border-bottom: none;
 }
 
 .tag-container {
@@ -237,7 +204,6 @@ clean it up right now, so deal with it -.- */
 	display: grid;
 	align-items: center;
 	grid-template-columns: repeat(2, auto);
-	border-bottom: none;
 }
 .dynamic-highlights-settings .highlighter-container {
 	/* allow for copy and paste */
@@ -261,12 +227,7 @@ clean it up right now, so deal with it -.- */
 	border-top: none;
 }
 
-/* ##################### BUTTON, TOGGLE AND TEXT AREA STYLES #####################*/
-.dynamic-highlights-settings .ignored-words-input {
-	width: 15rem;
-	height: 8em;
-	resize: vertical;
-}
+/* ##################### BUTTON AND TOGGLE STYLES #####################*/
 
 .enabled-highlighter-toggle {
 	opacity: 0.7; /* Greyed out */
@@ -398,23 +359,17 @@ clean it up right now, so deal with it -.- */
 .is-mobile
 	.dynamic-highlights-settings
 	.setting-item-control
-	button.action-button-save {
+	button.action-button-save,
+.is-mobile .dynamic-highlights-settings .query-wrapper input {
 	width: unset;
 }
+
 .is-mobile
 	.dynamic-highlights-settings
 	.setting-item-control
-	button.action-button-discard {
+	button.action-button-discard,
+.is-mobile .dynamic-highlights-settings .query-wrapper input {
 	width: unset;
-}
-
-.is-mobile .dynamic-highlights-settings .define-Query-UI {
-	margin-bottom: 40px;
-	padding-bottom: 40px;
-}
-
-.is-mobile .dynamic-highlights-settings .define-Query-UI input {
-	width: 50px;
 }
 
 .is-mobile
