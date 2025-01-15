@@ -88,6 +88,8 @@ export class SettingTab extends PluginSettingTab {
 		// Enable modals save and redraw the display
 		const modalSaveAndReload = async () => {
 			await this.plugin.saveSettings();
+			this.plugin.updateStaticHighlighter();
+
 			this.display(); // Refresh the UI after saving
 		};
 
@@ -538,6 +540,9 @@ export class SettingTab extends PluginSettingTab {
 				if (tagStatusValue == undefined) {
 					tagStatusValue = true;
 				}
+				if (!expandedTags.includes(tagNameValue)) {
+					expandedTags.push(tagNameValue);
+				}
 
 				// If creating, check if the class name already exists
 				if (currentHighlighterName) {
@@ -742,6 +747,7 @@ export class SettingTab extends PluginSettingTab {
 					};
 					// Save and redraw the display
 					await this.plugin.saveSettings();
+					this.plugin.registerCommands();
 					this.plugin.updateStaticHighlighter();
 					this.plugin.updateStyles();
 					this.display();
@@ -1016,7 +1022,11 @@ export class SettingTab extends PluginSettingTab {
 				const highlighterButtons = new Setting(settingItem)
 					.setClass("highlighter-details")
 					.setName(highlighter)
-					.setDesc(`query: ` + query);
+					.setDesc(
+						config.queries[highlighter].regex
+							? `regEx: ` + query
+							: `query: ` + query
+					);
 
 				// The toggle to enable/disable the highlighter
 				highlighterButtons.addToggle((highlighterToggle) => {
@@ -1155,30 +1165,20 @@ export class SettingTab extends PluginSettingTab {
 		const chooseCommands = new Setting(containerEl);
 		chooseCommands.setName("Hotkeys and Command Palette");
 		chooseCommands.setDesc(
-			"All your tags will automatically be available in the Command Palette/Hotkeys panel to toggle on/off. You can choose tags whose highlighters you want to toggle individually using the Command Palette or a Hotkey. The default is #unsorted, the input is case sensitive, separate tags by comma."
+			"All your tags will automatically be available in the Command Palette/Hotkeys panel to toggle on/off. To toggle individual highlighters via Command/Hotkey, add their tag(s) here as a comma separated list. The input is case sensitive, the default is #unsorted."
 		);
-		const spreadTagInput = new TextComponent(chooseCommands.controlEl);
-		spreadTagInput.setPlaceholder("#unsorted");
-		spreadTagInput.inputEl.ariaLabel = "Tag name";
-		spreadTagInput.inputEl.addClass("class-input");
-
-		chooseCommands.addButton((button) => {
-			button
-				.setClass("action-button")
-				.setClass("action-button-save")
-				.setClass("mod-cta")
-				.setIcon("save")
-				.onClick(async () => {
-					// Split the input into an array of strings by a separator (e.g., commas)
-					this.plugin.settings.staticHighlighter.spreadTag =
-						spreadTagInput.inputEl.value
-							.split(",") // Split by commas (or your chosen separator)
-							.map((tag) => tag.trim()) // Clean up each tag
-							.filter((tag) => tag.length > 0); // Remove empty strings
-
-					// Save settings
+		chooseCommands.addTextArea((text) => {
+			text.inputEl.addClass("ignored-words-input");
+			text
+				.setValue(this.plugin.settings.staticHighlighter.spreadTag.join(", "))
+				.onChange(async (value) => {
+					this.plugin.settings.staticHighlighter.spreadTag = value
+						.split(",") // Split by commas (or your chosen separator)
+						.map((tag) => tag.trim()) // Clean up each tag
+						.filter((tag) => tag.length > 0); // Remove empty strings
 					await this.plugin.saveSettings();
 					this.plugin.registerCommands();
+					this.plugin.updateSelectionHighlighter();
 					new Notice("Commands created");
 				});
 		});
@@ -1393,7 +1393,9 @@ export class SettingTab extends PluginSettingTab {
 			});
 		new Setting(containerEl)
 			.setName("Ignored words")
-			.setDesc("A comma delimted list of words that will not be highlighted")
+			.setDesc(
+				"A comma separated list of words that will be ignored by selection highlights."
+			)
 			.addTextArea((text) => {
 				text.inputEl.addClass("ignored-words-input");
 				text
