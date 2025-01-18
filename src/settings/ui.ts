@@ -116,7 +116,7 @@ export class SettingTab extends PluginSettingTab {
 			} else if (deco == "bold") {
 				cssSnippet = `font-weight: 600; color: ${resolveColor()}`;
 			} else if (deco == "underline wavy") {
-				cssSnippet = `text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: ${resolveColor()}`;
+				cssSnippet = `  text-decoration: underline; -webkit-text-decoration-color: ${resolveColor()}; text-decoration-color: ${resolveColor()}; -webkit-text-decoration-style: wavy; text-decoration-style: wavy;`;
 			} else if (deco === "border solid") {
 				cssSnippet = `border: 1px solid ${resolveColor()}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
 			} else if (deco === "border dashed") {
@@ -601,11 +601,17 @@ export class SettingTab extends PluginSettingTab {
 						};
 					} else if (staticDecorationValue === "underline wavy") {
 						staticCssSnippet = {
-							textDecoration: "underline wavy",
+							textDecoration: "underline",
+							webkitTextDecorationColor:
+								staticHexValue === "default"
+									? "var(--text-accent)"
+									: staticHexValue,
 							textDecorationColor:
 								staticHexValue === "default"
 									? "var(--text-accent)"
 									: staticHexValue,
+							webkitTextDecorationStyle: "wavy",
+							textDecorationStyle: "wavy",
 						};
 					} else if (staticDecorationValue === "border solid") {
 						staticCssSnippet = {
