@@ -166,7 +166,9 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 		});
 
 		// Commands for highlighters
-		let sortedQueryOrder: string[] = this.settings.staticHighlighter.queryOrder;
+		let sortedQueryOrder: string[] = [
+			...this.settings.staticHighlighter.queryOrder,
+		];
 		sortedQueryOrder.sort();
 		sortedQueryOrder.forEach((highlighter) => {
 			if (staticHighlighters.queries[highlighter]) {

@@ -57,7 +57,7 @@ export class newTagModal extends Modal {
 				this.nameHolder = newTagName;
 				this.dropdown.addOption(newTagName, newTagName);
 				this.dropdown.setValue(newTagName);
-				this.expandedTags.push(newTagName);
+				this.expandedTags.unshift(newTagName);
 			} else {
 				new Notice(`Please enter a tag name (case sensitive).`);
 			}

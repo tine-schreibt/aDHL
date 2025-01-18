@@ -96,61 +96,57 @@ export class SettingTab extends PluginSettingTab {
 		// Make color and dropdown choices into standard css snippets
 		const snippetMaker = (deco: string, color: string) => {
 			let cssSnippet;
-			if (color == "default" || color == undefined) {
-				if (deco == "background") {
-					cssSnippet = `background-color: var(--text-accent)`;
-				} else if (deco == "background rounded") {
-					cssSnippet = `background:var(--text-accent); margin: 0 -0.05em; padding: 0.125em 0.15em; border-radius: 0.2em; -webkit-box-decoration-break: clone; box-decoration-break: clone; `;
-				} else if (deco == "background realistic") {
-					cssSnippet = `background:var(--text-accent); margin: 0 -0.05em; padding: 0.1em 0.4em; border-radius: 0.8em 0.3em; -webkit-box-decoration-break: clone; box-decoration-break: clone; text-shadow: 0 0 0.75em var(--background-primary-alt)`;
-				} else if (deco == "underline lowlight") {
-					cssSnippet = `background:var(--text-accent); padding: .125em .125em; --lowlight-background: var(--background-primary); border-radius: 0; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 40%,var(--lowlight-background) 40%)`;
-				} else if (deco == "underline floating") {
-					cssSnippet = `background:var(--text-accent); --floating-background: var(--background-primary); border-radius: 0; padding-bottom: 5px; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 28%,var(--floating-background) 28%)`;
-				} else if (deco == "color") {
-					cssSnippet = `font-weight: 400; color: var(--text-accent)`;
-				} else if (deco == "bold") {
-					cssSnippet = `font-weight: 600; color: var(--text-accent)`;
-				} else if (deco == "underline wavy") {
-					cssSnippet = `text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: var(--text-accent);`;
-				} else if (deco === "border solid") {
-					cssSnippet =
-						"border: 1px solid var(--text-accent); border-radius: 5px; padding: 1px; padding-bottom: 2px";
-				} else if (deco === "border dashed") {
-					cssSnippet =
-						"border: 1px dashed var(--text-accent); border-radius: 5px; padding: 1px; padding-bottom: 2px";
-				} else if (deco === "line-through") {
-					cssSnippet = `text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--text-accent)`;
-				} else {
-					cssSnippet = `text-decoration: ${deco}; text-decoration-color: var(--text-accent)`;
-				}
+			if (color == undefined) {
+				color = "default";
+			}
+			if (deco == "background") {
+				cssSnippet = `background-color: ${
+					color === "default" ? "var(--text-accent)" : color
+				}`;
+			} else if (deco == "background rounded") {
+				cssSnippet = `background: ${
+					color === "default" ? "var(--text-accent)" : color
+				}; margin: 0 -0.05em; padding: 0.125em 0.15em; border-radius: 0.2em; -webkit-box-decoration-break: clone; box-decoration-break: clone`;
+			} else if (deco == "background realistic") {
+				cssSnippet = `background: ${
+					color === "default" ? "var(--text-accent)" : color
+				}; margin: 0 -0.05em; padding: 0.1em 0.4em; border-radius: 0.8em 0.3em; -webkit-box-decoration-break: clone; box-decoration-break: clone; text-shadow: 0 0 0.75em var(--background-primary-alt)`;
+			} else if (deco == "underline lowlight") {
+				cssSnippet = `position: relative; background-color: transparent; padding: 0.125em 0.125em; border-radius: 0; background-image: linear-gradient(360deg, ${
+					color === "default" ? "var(--text-accent)" : color
+				} 40%, transparent 40%)`;
+			} else if (deco == "underline floating") {
+				cssSnippet = `position: relative; background-color: transparent; padding: 0.125em; padding-bottom: 5px; border-radius: 0; background-image: linear-gradient(360deg, ${
+					color === "default" ? "var(--text-accent)" : color
+				} 28%, transparent 28%)`;
+			} else if (deco == "color") {
+				cssSnippet = `font-weight: 400; color: ${
+					color === "default" ? "var(--text-accent)" : color
+				}`;
+			} else if (deco == "bold") {
+				cssSnippet = `font-weight: 600; color: ${
+					color === "default" ? "var(--text-accent)" : color
+				}`;
+			} else if (deco == "underline wavy") {
+				cssSnippet = `text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: ${
+					color === "default" ? "var(--text-accent)" : color
+				}`;
+			} else if (deco === "border solid") {
+				cssSnippet = `border: 1px solid ${
+					color === "default" ? "var(--text-accent)" : color
+				}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
+			} else if (deco === "border dashed") {
+				cssSnippet = `border: 1px dashed ${
+					color === "default" ? "var(--text-accent)" : color
+				}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
+			} else if (deco === "line-through") {
+				cssSnippet = `text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: ${
+					color === "default" ? "var(--text-accent)" : color
+				}`;
 			} else {
-				if (deco == "background" || deco == undefined) {
-					cssSnippet = `background-color: ${color}`;
-				} else if (deco == "color") {
-					cssSnippet = `font-weight: 400; color: ${color}`;
-				} else if (deco == "background rounded") {
-					console.log("background rounded!");
-					cssSnippet = `background: ${color}; margin: 0 -0.05em; padding: 0.125em 0.15em; border-radius: 0.2em; -webkit-box-decoration-break: clone; box-decoration-break: clone;`;
-				} else if (deco == "background realistic") {
-					cssSnippet = `background: ${color}; margin: 0 -0.05em; padding: 0.1em 0.4em; border-radius: 0.8em 0.3em; -webkit-box-decoration-break: clone; box-decoration-break: clone; text-shadow: 0 0 0.75em var(--background-primary-alt)`;
-				} else if (deco == "underline lowlight") {
-					cssSnippet = `background: ${color}; padding: .125em .125em; --lowlight-background: var(--background-primary); border-radius: 0; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 40%,var(--lowlight-background) 40%)`;
-				} else if (deco == "underline floating") {
-					cssSnippet = `background: ${color}; --floating-background: var(--background-primary); border-radius: 0; padding-bottom: 5px; background-image: linear-gradient(360deg,rgba(255, 255, 255, 0) 28%,var(--floating-background) 28%)`;
-				} else if (deco == "bold") {
-					cssSnippet = `font-weight: 600; color: ${color}`;
-				} else if (deco == "underline wavy") {
-					cssSnippet = `text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: ${color};`;
-				} else if (deco === "border solid") {
-					cssSnippet = `border: 1px solid ${color}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
-				} else if (deco === "border dashed") {
-					cssSnippet = `border: 1px dashed ${color}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
-				} else if (deco === "line-through") {
-					cssSnippet = `text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: ${color}`;
-				} else {
-					cssSnippet = `text-decoration: ${deco}; text-decoration-color: ${color}`;
-				}
+				cssSnippet = `text-decoration: ${deco}; text-decoration-color: ${
+					color === "default" ? "var(--text-accent)" : color
+				}`;
 			}
 			return cssSnippet;
 		};
@@ -549,6 +545,7 @@ export class SettingTab extends PluginSettingTab {
 					if (state == "creating") {
 						if (!config.queryOrder.includes(currentHighlighterName)) {
 							config.queryOrder.unshift(currentHighlighterName);
+							console.log("New queryOrder after unshift:", config.queryOrder);
 						} else {
 							new Notice("Highlighter name already exists");
 							return;
@@ -557,172 +554,120 @@ export class SettingTab extends PluginSettingTab {
 					// Logic for the static css snippet, which can't be a standard css snippet
 					// because it's implemented as StyleSpec in static.css
 					let staticCssSnippet: StyleSpec = {};
-					if (staticHexValue === "default") {
-						if (staticDecorationValue === "background") {
-							staticCssSnippet = {
-								backgroundColor: "var(--text-accent)",
-							};
-						} else if (staticDecorationValue === "background rounded") {
-							staticCssSnippet = {
-								background: "var(--text-accent)",
-								margin: "0 -0.05em",
-								padding: "0.125em 0.15em",
-								borderRadius: "0.2em",
-								WebkitBoxDecorationBreak: "clone",
-								boxDecorationBreak: "clone",
-							};
-						} else if (staticDecorationValue === "background realistic") {
-							staticCssSnippet = {
-								background: "var(--text-accent)",
-								margin: "0 -0.05em",
-								padding: "0.1em 0.4em",
-								borderRadius: "0.8em 0.3em",
-								WebkitBoxDecorationBreak: "clone",
-								boxDecorationBreak: "clone",
-								textShadow: "0 0 0.75em var(--background-primary-alt)",
-							};
-						} else if (staticDecorationValue === "underline lowlight") {
-							staticCssSnippet = {
-								background: "var(--text-accent)",
-								padding: ".125em .125em",
-								lowlightBackground: "var(--background-primary)",
-								borderRadius: "0",
-								backgroundImage:
-									"linear-gradient(360deg,rgba(255, 255, 255, 0) 40%,var(--lowlight-background) 40%)",
-							};
-						} else if (staticDecorationValue === "underline floating") {
-							staticCssSnippet = {
-								background: "var(--text-accent)",
-								floatingBackground: "var(--background-primary)",
-								borderRadius: "0",
-								paddingBottom: "5px",
-								backgroundImage:
-									"linear-gradient(360deg,rgba(255, 255, 255, 0) 28%,var(--floating-background) 28%)",
-							};
-						} else if (staticDecorationValue === "color") {
-							staticCssSnippet = {
-								fontWeight: "400",
-								color: "var(--text-accent)",
-							};
-						} else if (staticDecorationValue === "bold") {
-							staticCssSnippet = {
-								fontWeight: "600",
-								color: "var(--text-accent)",
-							};
-						} else if (staticDecorationValue === "underline wavy") {
-							staticCssSnippet = {
-								textDecoration: "underline wavy",
-								textDecorationColor: "var(--text-accent)",
-							};
-						} else if (staticDecorationValue === "border solid") {
-							staticCssSnippet = {
-								border: "1px solid var(--text-accent)",
-								borderRadius: "5px",
-								padding: "1px",
-								paddingBottom: "2px",
-							};
-						} else if (staticDecorationValue === "border dashed") {
-							staticCssSnippet = {
-								border: "1px dashed var(--text-accent)",
-								borderRadius: "5px",
-								padding: "1px",
-								paddingBottom: "2px",
-							};
-						} else if (staticDecorationValue === "line-through") {
-							staticCssSnippet = {
-								textDecoration: "line-through",
-								textDecorationThickness: "2px",
-								textDecorationColor: "var(--text-accent)",
-							};
-						} else {
-							staticCssSnippet = {
-								textDecoration: staticDecorationValue,
-								textDecorationColor: "var(--text-accent)",
-							};
-						}
+					if (staticDecorationValue === "background") {
+						staticCssSnippet = {
+							backgroundColor:
+								staticHexValue === "default"
+									? "var(--text-accent)"
+									: staticHexValue,
+						};
+					} else if (staticDecorationValue === "background rounded") {
+						staticCssSnippet = {
+							background: "var(--text-accent)",
+							margin: "0 -0.05em",
+							padding: "0.125em 0.15em",
+							borderRadius: "0.2em",
+							WebkitBoxDecorationBreak: "clone",
+							boxDecorationBreak: "clone",
+						};
+					} else if (staticDecorationValue === "background realistic") {
+						staticCssSnippet = {
+							background: "var(--text-accent)",
+							margin: "0 -0.05em",
+							padding: "0.1em 0.4em",
+							borderRadius: "0.8em 0.3em",
+							WebkitBoxDecorationBreak: "clone",
+							boxDecorationBreak: "clone",
+							textShadow: "0 0 0.75em var(--background-primary-alt)",
+						};
+					} else if (staticDecorationValue === "underline lowlight") {
+						staticCssSnippet = {
+							position: "relative",
+							backgroundColor: "transparent",
+							padding: ".125em .125em",
+							borderRadius: "0",
+							backgroundImage: `linear-gradient(
+									360deg,
+									${staticHexValue === "default" ? "var(--text-accent)" : staticHexValue} 40%,
+									transparent 40%
+								)`,
+						};
+					} else if (staticDecorationValue === "underline floating") {
+						staticCssSnippet = {
+							position: "relative",
+							backgroundColor: "transparent",
+							padding: ".125em",
+							paddingBottom: "5px",
+							borderRadius: "0",
+							backgroundImage: `linear-gradient(
+									360deg,
+									${staticHexValue === "default" ? "var(--text-accent)" : staticHexValue} 28%,
+									transparent 28%
+								)`,
+						};
+					} else if (staticDecorationValue === "color") {
+						staticCssSnippet = {
+							fontWeight: "400",
+							color:
+								staticHexValue === "default"
+									? "var(--text-accent)"
+									: staticHexValue,
+						};
+					} else if (staticDecorationValue === "bold") {
+						staticCssSnippet = {
+							fontWeight: "600",
+							color:
+								staticHexValue === "default"
+									? "var(--text-accent)"
+									: staticHexValue,
+						};
+					} else if (staticDecorationValue === "underline wavy") {
+						staticCssSnippet = {
+							textDecoration: "underline wavy",
+							textDecorationColor:
+								staticHexValue === "default"
+									? "var(--text-accent)"
+									: staticHexValue,
+						};
+					} else if (staticDecorationValue === "border solid") {
+						staticCssSnippet = {
+							border: `1px solid ${
+								staticHexValue === "default"
+									? "var(--text-accent)"
+									: staticHexValue
+							}`,
+							borderRadius: "5px",
+							padding: "1px",
+							paddingBottom: "2px",
+						};
+					} else if (staticDecorationValue === "border dashed") {
+						staticCssSnippet = {
+							border: `1px dashed ${
+								staticHexValue === "default"
+									? "var(--text-accent)"
+									: staticHexValue
+							}`,
+							borderRadius: "5px",
+							padding: "1px",
+							paddingBottom: "2px",
+						};
+					} else if (staticDecorationValue === "line-through") {
+						staticCssSnippet = {
+							textDecoration: "line-through",
+							textDecorationThickness: "2px",
+							textDecorationColor:
+								staticHexValue === "default"
+									? "var(--text-accent)"
+									: staticHexValue,
+						};
 					} else {
-						if (staticDecorationValue === "background") {
-							staticCssSnippet = {
-								backgroundColor: staticHexValue,
-							};
-						} else if (staticDecorationValue === "background rounded") {
-							staticCssSnippet = {
-								background: staticHexValue,
-								margin: "0 -0.05em",
-								padding: "0.125em 0.15em",
-								borderRadius: "0.2em",
-								WebkitBoxDecorationBreak: "clone",
-								boxDecorationBreak: "clone",
-							};
-						} else if (staticDecorationValue === "background realistic") {
-							staticCssSnippet = {
-								background: staticHexValue,
-								margin: "0 -0.05em",
-								padding: "0.1em 0.4em",
-								borderRadius: "0.8em 0.3em",
-								WebkitBoxDecorationBreak: "clone",
-								boxDecorationBreak: "clone",
-								textShadow: "0 0 0.75em var(--background-primary-alt)",
-							};
-						} else if (staticDecorationValue === "underline lowlight") {
-							staticCssSnippet = {
-								background: staticHexValue,
-								padding: ".125em .125em",
-								lowlightBackground: "var(--background-primary)",
-								borderRadius: "0",
-								backgroundImage:
-									"linear-gradient(360deg,rgba(255, 255, 255, 0) 40%,var(--lowlight-background) 40%)",
-							};
-						} else if (staticDecorationValue === "underline floating") {
-							staticCssSnippet = {
-								background: staticHexValue,
-								floatingBackground: "var(--background-primary)",
-								borderRadius: "0",
-								paddingBottom: "5px",
-								backgroundImage:
-									"linear-gradient(360deg,rgba(255, 255, 255, 0) 28%,var(--floating-background) 28%)",
-							};
-						} else if (staticDecorationValue === "color") {
-							staticCssSnippet = {
-								fontWeight: "400",
-								color: staticHexValue,
-							};
-						} else if (staticDecorationValue === "bold") {
-							staticCssSnippet = {
-								fontWeight: "600",
-								color: staticHexValue,
-							};
-						} else if (staticDecorationValue === "underline wavy") {
-							staticCssSnippet = {
-								textDecoration: "underline wavy",
-								textDecorationThickness: "1px",
-								textDecorationColor: "var(--text-accent)",
-							};
-						} else if (staticDecorationValue === "border solid") {
-							staticCssSnippet = {
-								border: `1px solid ${staticHexValue}`,
-								borderRadius: "5px",
-								paddingBottom: "2px",
-							};
-						} else if (staticDecorationValue === "border dashed") {
-							staticCssSnippet = {
-								border: `1px dashed ${staticHexValue}`,
-								borderRadius: "5px",
-								padding: "1px",
-								paddingBottom: "2px",
-							};
-						} else if (staticDecorationValue === "line-through") {
-							staticCssSnippet = {
-								textDecoration: "line-through",
-								textDecorationThickness: "2px",
-								textDecorationColor: `${staticHexValue}`,
-							};
-						} else {
-							staticCssSnippet = {
-								textDecoration: staticDecorationValue,
-								textDecorationColor: staticHexValue,
-							};
-						}
+						staticCssSnippet = {
+							textDecoration: staticDecorationValue,
+							textDecorationColor:
+								staticHexValue === "default"
+									? "var(--text-accent)"
+									: staticHexValue,
+						};
 					}
 
 					// Make a standard snippet for the cool icon next to the highlighters
@@ -814,12 +759,8 @@ export class SettingTab extends PluginSettingTab {
 			cls: "highlighter-container",
 		});
 		const titleElement = highlightersContainer.createEl("div", {
-			cls: "your-highlighters", // sets the font
+			cls: "your-highlighters",
 		});
-		// Tried to make it a grid; failed.
-		titleElement.style.display = "flex";
-		titleElement.style.alignItems = "center";
-		titleElement.style.justifyContent = "space-between";
 
 		const titleText = titleElement.createEl("span", {
 			text: "Your highlighters and tags",
@@ -862,12 +803,9 @@ export class SettingTab extends PluginSettingTab {
 						cls: "toggle-icon",
 					});
 					toggleIcon.addClass("tag-icon");
-					toggleIcon.style.cursor = "pointer";
 					// Make the tag name clickable as well
-					let tagName = tagHeader.createSpan("tag-header");
+					let tagName = tagHeader.createSpan("tag-name");
 					tagName.setText(tag);
-					tagName.addClass("tag-name");
-					tagName.style.cursor = "pointer";
 
 					// make a container for the highlighters
 					let highlightersList = tagContainer.createEl("div", {
@@ -879,26 +817,29 @@ export class SettingTab extends PluginSettingTab {
 					// set the appropriate expand/collapse icon
 					if (expandedTags.includes(tag)) {
 						setIcon(toggleIcon, "chevron-down");
-						highlightersList.style.display = "block";
+						highlightersList.removeClass("highlighters-list-collapsed");
+						highlightersList.addClass("highlighters-list-expanded");
 					} else {
 						setIcon(toggleIcon, "chevron-right");
-						highlightersList.style.display = "none";
+						highlightersList.removeClass("highlighters-list-expanded");
+						highlightersList.addClass("highlighters-list-collapsed");
 					}
 
 					const tagExpandToggle = () => {
 						// toggle to collapsed
 						if (expandedTags.includes(tag)) {
-							setIcon(toggleIcon, "chevron-right"); // Add a down arrow icon (expand state)
-							highlightersList.style.display = "none";
+							setIcon(toggleIcon, "chevron-right");
+							highlightersList.removeClass("highlighters-list-expanded");
+							highlightersList.addClass("highlighters-list-collapsed");
 							expandedTags = expandedTags.filter((entry) => entry != tag);
-							this.plugin.saveSettings();
 						} else {
 							// toggle to expanded
 							setIcon(toggleIcon, "chevron-down");
-							highlightersList.style.display = "block";
+							highlightersList.removeClass("highlighters-list-collapsed");
+							highlightersList.addClass("highlighters-list-expanded");
 							expandedTags.unshift(tag);
 						}
-						// and save so state persists when saving or closing the plugin
+						// Save settings after the toggle
 						this.plugin.settings.staticHighlighter.expandedTags = expandedTags;
 						this.plugin.saveSettings();
 					};
@@ -908,7 +849,6 @@ export class SettingTab extends PluginSettingTab {
 					toggleIcon.onclick = () => {
 						tagExpandToggle();
 					};
-					tagHeader.style.cursor = "default"; // Force default cursor for the entire container
 					// Create the toggle for enabling/disabling the tag
 					const tagButtons = new Setting(tagHeader).setClass(
 						"tag-header-buttons"
@@ -1007,13 +947,21 @@ export class SettingTab extends PluginSettingTab {
 				// the whole layout of this part crashes and burns
 				settingItem.addClass("highlighter-item-draggable");
 				const dragIcon = settingItem.createEl("span");
-				const colorIcon = settingItem.createEl("span");
 				dragIcon.addClass(
 					"highlighter-setting-icon",
 					"highlighter-setting-icon-drag"
 				);
-				colorIcon.addClass("highlighter-setting-icon");
-				colorIcon.innerHTML = `<span style="font-size: medium; ${config.queries[highlighter].colorIconSnippet}">abc</span>`;
+				const styleIcon = settingItem.createEl("span");
+				styleIcon.addClass("highlighter-style-icon");
+				const abc = styleIcon.createEl("span", {
+					text: "abc",
+					cls: "highlighter-setting-icon-abc",
+				});
+				abc.style.fontSize = "medium";
+				Object.assign(
+					abc.style,
+					this.parseCssString(config.queries[highlighter].colorIconSnippet)
+				);
 				dragIcon.addClass(
 					"highlighter-setting-icon",
 					"highlighter-setting-icon-drag"
@@ -1406,6 +1354,24 @@ export class SettingTab extends PluginSettingTab {
 						this.plugin.updateSelectionHighlighter();
 					});
 			});
+	}
+
+	private parseCssString(cssString: string): Partial<CSSStyleDeclaration> {
+		const styleObject: { [key: string]: string } = {};
+		const styles = cssString.split(";").filter((style) => style.trim());
+
+		styles.forEach((style) => {
+			const [property, value] = style.split(":").map((part) => part.trim());
+			if (property && value) {
+				// Convert kebab-case to camelCase for style properties
+				const camelProperty = property.replace(/-([a-z])/g, (g) =>
+					g[1].toUpperCase()
+				);
+				styleObject[camelProperty] = value;
+			}
+		});
+
+		return styleObject as Partial<CSSStyleDeclaration>;
 	}
 }
 

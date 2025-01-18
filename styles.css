@@ -181,6 +181,10 @@ clean it up right now, so deal with it -.- */
 /* This is for the display of the highlighters themselves */
 
 .your-highlighters {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
 	margin-top: 0px;
 	/* border-top: 1px solid #ccc;*/
 	padding-top: 10px;
@@ -189,7 +193,6 @@ clean it up right now, so deal with it -.- */
 	font-kerning: 0.05em;
 	padding-bottom: 10px;
 	margin-bottom: 0px;
-	margin-right: 10px;
 	border-bottom: none;
 }
 
@@ -225,6 +228,15 @@ clean it up right now, so deal with it -.- */
 	font-size: medium;
 	border-bottom: 1px;
 	background-color: #ffffff;
+	cursor: pointer;
+}
+
+.highlighters-list-expanded {
+	display: block;
+}
+
+.highlighters-list-collapsed {
+	display: none;
 }
 
 .tag-header .Tag-toggle {
@@ -245,6 +257,21 @@ clean it up right now, so deal with it -.- */
 	border-bottom: 1px solid var(--background-modifier-border);
 	margin-top: 10px;
 	margin-bottom: 10px;
+}
+
+.highlighter-style-icon {
+	position: relative;
+	display: inline-block;
+	padding: 0.1em 0.2em;
+}
+
+.highlighter-style-icon-abc {
+	font-size: medium;
+	position: relative;
+	z-index: 1;
+	display: inline-block;
+	line-height: normal;
+	padding: 0.1em 0;
 }
 
 .dynamic-highlights-settings .highlighter-container .highlighter-details {
@@ -987,39 +1014,39 @@ clean it up right now, so deal with it -.- */
 }
 
 .dynamic-highlights-settings .highlighter-item-draggable {
-  cursor: initial;
-  display: grid;
-  grid-gap: 8px;
-  grid-template-columns: 0.2fr 0.5fr 7fr;
-  align-items: center;
-  border-top: 1px solid var(--background-modifier-border);
+	cursor: initial;
+	display: grid;
+	grid-gap: 8px;
+	grid-template-columns: 0.2fr 0.5fr 7fr;
+	align-items: center;
+	border-top: 1px solid var(--background-modifier-border);
 }
 
 .dynamic-highlights-settings .highlighter-setting-icon-drag {
-  cursor: grab;
+	cursor: grab;
 }
 
 .dynamic-highlights-settings .highlighter-sortable-fallback {
-  cursor: grabbing;
-  box-shadow: 0px 3px 32px rgb(31 38 135 / 15%);
+	cursor: grabbing;
+	box-shadow: 0px 3px 32px rgb(31 38 135 / 15%);
 }
 
 .dynamic-highlights-settings .highlighter-sortable-grab {
-  cursor: grabbing;
+	cursor: grabbing;
 }
 
 .dynamic-highlights-settings .highlighter-sortable-ghost {
-  opacity: 0.4;
-  cursor: grabbing;
+	opacity: 0.4;
+	cursor: grabbing;
 }
 
 .dynamic-highlights-settings .highlighter-sortable-chosen {
-  cursor: grabbing;
-  padding: 0 0 0 18px;
-  background-color: var(--background-primary);
+	cursor: grabbing;
+	padding: 0 0 0 18px;
+	background-color: var(--background-primary);
 }
 
 .dynamic-highlights-settings .highlighter-sortable-drag {
-  cursor: grabbing;
-  box-shadow: 0px 3px 32px rgb(31 38 135 / 15%);
+	cursor: grabbing;
+	box-shadow: 0px 3px 32px rgb(31 38 135 / 15%);
 }
