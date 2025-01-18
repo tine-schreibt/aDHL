@@ -1,25 +1,17 @@
 /* This file is a bit of a mess but I am too done to 
 clean it up right now, so deal with it -.- */
 
-/* ##################### HEADLINE #####################*/
+/* ##################### CONTAINER & HEADER #####################*/
 
-.headline-toggle-container {
-	display: flex;
-	align-items: center;
-	justify-content: space-between; /* Adjust alignment as needed */
-	gap: 10px; /* Add space between the text and toggle */
-	margin-right: 50; /* Remove default margin from <h3> */
-	border-top: "none";
-}
-
-.headline-text {
-	margin-right: 50; /* Remove default margin from <h3> */
-	border-top: "none";
+/* Base container styles */
+.dynamic-highlights-settings {
+	position: relative;
 }
 
 .dynamic-highlights-settings h3.persistent-highlights {
 	padding: 5px;
 }
+
 .dynamic-highlights-settings .import-export-wrapper {
 	right: 0;
 	position: absolute;
@@ -30,6 +22,22 @@ clean it up right now, so deal with it -.- */
 .dynamic-highlights-settings .import-export-wrapper a {
 	padding: 0 0.2em;
 }
+
+/* Header section */
+.headline-toggle-container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-right: 50;
+	border-top: "none";
+}
+
+.headline-text {
+	margin-right: 50;
+	border-top: "none";
+}
+
 .headline-toggle-container .setting-item {
 	border-top: none;
 }
@@ -43,15 +51,15 @@ clean it up right now, so deal with it -.- */
 	width: 20px;
 }
 
-.dynamic-highlights-settings .define-Query-UI {
+.dynamic-highlights-settings .define-query-ui {
 	display: block;
 }
 
-.dynamic-highlights-settings .define-Query-UI .setting-item-name {
+.dynamic-highlights-settings .define-query-ui .setting-item-name {
 	margin-bottom: 8px;
 }
 
-.dynamic-highlights-settings .define-Query-UI .setting-item-control {
+.dynamic-highlights-settings .define-query-ui .setting-item-control {
 	align-content: center;
 	align-items: center;
 	flex-wrap: wrap;
@@ -63,30 +71,30 @@ clean it up right now, so deal with it -.- */
 .define-query-ui-top-container {
 	display: flex;
 	gap: 10px;
-	align-items: center; /* Stretch elements to match container height */
-	height: 30px; /* Adjust to match your design */
-	line-height: 30px; /* Vertically align text */
-	justify-content: center; /* Align items to the left */
+	align-items: center;
+	height: 30px;
+	line-height: 30px;
+	justify-content: center;
 	border-bottom: none;
 	padding-bottom: 0px;
 }
+
 .define-query-ui-top-container .setting-item {
 	padding: 0px 0px 0px;
 }
 
 /* Reorder elements in the flexbox */
 .query-name-input {
-	order: -3; /* Place Query Name input third */
+	order: -3;
 	margin: 0;
 }
 
 .color-button-wrapper {
-	order: -2; /* Place Color Picker fourth */
-	/*margin-bottom: -3px;*/
+	order: -2;
 }
 
 .query-input {
-	order: -1; /* Place Query Input fifth */
+	order: -1;
 	margin: 0;
 	padding: 0;
 }
@@ -96,50 +104,53 @@ clean it up right now, so deal with it -.- */
 	margin: 0;
 	margin-right: 12px;
 	padding: 4px;
-	max-width: 140px; /* Restrict the dropdown width */
-	white-space: nowrap; /* Prevent text from wrapping */
-	overflow: hidden; /* Hide overflow text */
-	text-overflow: ellipsis; /* Show ellipsis for overflowing text */
-	display: inline-block; /* Ensure the dropdown behaves like an inline element */
+	max-width: 140px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: inline-block;
 	background-image: none;
 }
 
 .tag-dropdown select {
-	width: 100%; /* Ensure the select element fills the container */
-	max-width: 140px; /* Match the max-width of the parent for consistency */
-	white-space: nowrap; /* Prevent text wrapping within the dropdown */
-	overflow: hidden; /* Ensure no overflow issues */
-	text-overflow: ellipsis; /* Add ellipsis for long options */
+	width: 100%;
+	max-width: 140px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .save-button {
-	order: 2; /* Move Save button to the first position */
+	order: 2;
 }
 
 .discard-button {
-	order: 3; /* Move Discard button to the second position */
+	order: 3;
 }
+
 .dynamic-highlights-settings .action-button.action-button-save {
 	align-self: center;
 	margin-left: auto;
 }
+
 .dynamic-highlights-settings .action-button.action-button-discard {
 	align-self: center;
 	margin-left: auto;
 }
-/* Contains the dropdown, regEx and marks */
 
+/* Contains the dropdown, regEx and marks */
 .define-query-ui-bottom-container {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 	height: 30px;
-	justify-content: center; /* Align items to the left */
+	justify-content: center;
 	margin-top: -3px;
 	border-top: none;
 	margin-left: -26px;
 	margin-bottom: 10px;
 }
+
 /* Reorder elements in the flexbox */
 .deco-dropdown {
 	order: 0;
@@ -197,21 +208,21 @@ clean it up right now, so deal with it -.- */
 }
 
 .tag-container {
-	border: 1px solid #ccc; /* Add a complete border */
-	/*border-radius: 10px; /* Optional: Add some rounding to the corners */
+	border: 1px solid #ccc;
+	/*border-radius: 10px;*/
 	padding: 15px;
 	/*background-color: #bbb3c638;*/
 }
 
 .tag-container .tag-header {
-	display: flex; /* Use flexbox for layout */
-	align-items: center; /* Center items vertically */
-	cursor: pointer; /* Keep the pointer cursor */
+	display: flex;
+	align-items: center;
+	cursor: pointer;
 }
 
 .tag-header-buttons {
-	display: flex; /* Use flexbox for layout */
-	align-items: center; /* Center items vertically */
+	display: flex;
+	align-items: center;
 	border: none;
 }
 
@@ -239,18 +250,19 @@ clean it up right now, so deal with it -.- */
 	display: none;
 }
 
-.tag-header .Tag-toggle {
+.tag-header .tag-toggle {
 	margin-left: auto;
 	border-top: 1px;
 	border-bottom: 1px;
 }
 
-.dynamic-highlights-settings .Tag-wrapper {
+.dynamic-highlights-settings .tag-wrapper {
 	display: grid;
 	align-items: center;
 	grid-template-columns: repeat(2, auto);
 	border-bottom: none;
 }
+
 .dynamic-highlights-settings .highlighter-container {
 	/* allow for copy and paste */
 	user-select: text;
@@ -279,6 +291,7 @@ clean it up right now, so deal with it -.- */
 	padding: 18px 0 18px 0;
 	border-top: none;
 }
+
 .dynamic-highlights-settings
 	.highlighter-container
 	.highlighter-details
@@ -296,18 +309,19 @@ clean it up right now, so deal with it -.- */
 }
 
 .enabled-highlighter-toggle {
-	opacity: 0.7; /* Greyed out */
+	opacity: 0.7;
 }
+
 .disabled-highlighter-toggle {
-	opacity: 0.3; /* Greyed out */
-	pointer-events: none; /* Prevent interaction */
-	cursor: not-allowed; /* Show a 'disabled' cursor */
+	opacity: 0.3;
+	pointer-events: none;
+	cursor: not-allowed;
 }
 
 .disabled-toggle {
-	opacity: 0.5; /* Greyed out */
-	pointer-events: none; /* Prevent interaction */
-	cursor: not-allowed; /* Show a 'disabled' cursor */
+	opacity: 0.5;
+	pointer-events: none;
+	cursor: not-allowed;
 }
 
 .mod-cta-inverted {
@@ -347,35 +361,35 @@ clean it up right now, so deal with it -.- */
 }
 
 .selectedHighlightsStylingsContainer .example {
-	grid-column: example; /* Place in 'choose_color' column */
+	grid-column: example;
 	text-align: left;
 	width: 100%;
 }
 
 .selectedHighlightsStylingsContainer .selection-color-picker {
-	grid-column: color-picker; /* Place in 'color-picker' column */
+	grid-column: color-picker;
 }
 
 .selectedHighlightsStylingsContainer .choose-decoration-text {
-	grid-column: choose_deco; /* Place in 'choose_deco' column */
-	text-align: left; /* Align text to the right */
+	grid-column: choose_deco;
+	text-align: left;
 }
 
 .selectedHighlightsStylingsContainer .decoration-dropdown {
-	grid-column: drop-down; /* Place in 'drop-down' column */
+	grid-column: drop-down;
 	border: none;
 }
 
 .selectedHighlightsStylingsContainer .selected-save-button {
-	grid-column: save; /* Place in 'save' column */
+	grid-column: save;
 }
 
 .selectedHighlightsStylingsContainer .selected-discard-button {
-	grid-column: selected-discard-button; /* Place in 'reset' column */
+	grid-column: selected-discard-button;
 }
 
 .selectedHighlightsStylingsContainer .selected-spacer {
-	grid-column: spacer3; /* Place in 'save' column */
+	grid-column: spacer3;
 	border: none;
 }
 
@@ -946,6 +960,7 @@ clean it up right now, so deal with it -.- */
 	grid-column: modal-helper-text;
 	margin-right: 10px;
 }
+
 .modal-content-grid .modal-inputEl {
 	grid-column: inputEl;
 	align-self: center;
@@ -969,6 +984,46 @@ clean it up right now, so deal with it -.- */
 	align-self: center;
 	margin: 10px;
 }
+
+/* #region mobile specific styles */
+.is-mobile
+	.dynamic-highlights-settings
+	.setting-item-control
+	button.action-button-save,
+.is-mobile .dynamic-highlights-settings .query-wrapper input {
+	width: unset;
+}
+
+.is-mobile
+	.dynamic-highlights-settings
+	.setting-item-control
+	button.action-button-discard,
+.is-mobile .dynamic-highlights-settings .query-wrapper input {
+	width: unset;
+}
+
+.is-mobile
+	.dynamic-highlights-settings
+	.setting-item-control
+	input.class-input {
+	width: fit-content;
+}
+
+.is-mobile .dynamic-highlights-settings .query-wrapper {
+	display: grid;
+	grid-template-columns: 1fr auto auto;
+	place-items: center;
+}
+
+.is-mobile .dynamic-highlights-settings .setting-item-control select,
+.is-mobile .dynamic-highlights-settings .setting-item-control input,
+.is-mobile .dynamic-highlights-settings .setting-item-control textarea,
+.is-mobile .dynamic-highlights-settings .setting-item-control button {
+	width: 100%;
+	margin: 0 4px;
+}
+
+/* #endregion mobile specific styles */
 
 /* #region style settings import/export */
 
@@ -1054,4 +1109,48 @@ clean it up right now, so deal with it -.- */
 .dynamic-highlights-settings .highlighter-sortable-drag {
 	cursor: grabbing;
 	box-shadow: 0px 3px 32px rgb(31 38 135 / 15%);
+}
+
+/* ##################### ADDITIONAL STYLES #####################*/
+
+/* Title and search related */
+.title-container {
+	margin-bottom: 1em; /* Adjust spacing below the title */
+}
+
+/* General button styles */
+.dynamic-highlights-settings button.action-button {
+	display: grid;
+	place-content: center;
+	padding: 8px 18px;
+	margin-right: 12px;
+}
+
+/* Search term & save region */
+/* Any specific styles for search and save functionality */
+
+/* General utility classes */
+.highlighterToggleOpacity {
+	opacity: 0.5;
+}
+
+/* Drag and drop related */
+.highlighter-item-draggable {
+	cursor: grab;
+}
+
+.highlighter-sortable-fallback {
+	opacity: 0;
+}
+
+.highlighter-sortable-ghost {
+	opacity: 0.5;
+}
+
+.highlighter-sortable-chosen {
+	background: var(--background-modifier-hover);
+}
+
+.highlighter-sortable-drag {
+	opacity: 0.5;
 }

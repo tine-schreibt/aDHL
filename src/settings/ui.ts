@@ -217,7 +217,7 @@ export class SettingTab extends PluginSettingTab {
 		const defineQueryUI = new Setting(containerEl);
 		defineQueryUI
 			.setName("Define persistent highlighters")
-			.setClass("define-Query-UI");
+			.setClass("define-query-ui");
 
 		const defineQueryUITop = new Setting(defineQueryUI.controlEl);
 
