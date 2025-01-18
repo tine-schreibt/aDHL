@@ -131,35 +131,28 @@ export class SettingTab extends PluginSettingTab {
 
 		// sort highlighters and tags alphabetically
 		const sortAlphabetically = async () => {
-			let tagList: string[] = [];
-			let interimQueryOrder: string[] = [];
-			let queryOrder = this.plugin.settings.staticHighlighter.queryOrder;
-			const queries = this.plugin.settings.staticHighlighter.queries;
-			// sort queryOrder
-			await config.queryOrder.sort();
-			// then iterate through it and collect tags
-			await queryOrder.forEach((highlighter) => {
-				if (!tagList.includes(queries[highlighter].tag)) {
-					tagList.push(queries[highlighter].tag);
-				}
-			});
-			// sort the tag list
-			await tagList.sort();
-			// then iterate through the sorted tags...
-			await tagList.forEach((tag) => {
-				// and look for their alphabetically sorted highlighters
-				// logging away the ones that are done
-				let done: string[] = [];
-				queryOrder.forEach((highlighter) => {
-					if (!done.includes(highlighter)) {
-						if (queries[highlighter].tag === tag)
-							interimQueryOrder.push(highlighter);
-						done.push(highlighter);
-					}
-				});
-			}); // Tadaaaaa!
-			this.plugin.settings.staticHighlighter.queryOrder = interimQueryOrder;
-			this.plugin.saveSettings();
+			const { queryOrder, queries } = this.plugin.settings.staticHighlighter;
+
+			// 1. Get unique tags and sort them
+			const tagList = [
+				...new Set(queryOrder.map((h) => queries[h].tag)),
+			].sort();
+
+			// 2. Create a map of tags to their highlighters
+			const tagToHighlighters = tagList.reduce((acc, tag) => {
+				// Get all highlighters for this tag and sort them alphabetically
+				acc[tag] = queryOrder
+					.filter((highlighter) => queries[highlighter].tag === tag)
+					.sort();
+				return acc;
+			}, {} as Record<string, string[]>);
+
+			// 3. Create the final sorted array by concatenating sorted highlighters from each sorted tag
+			const sortedQueryOrder = tagList.flatMap((tag) => tagToHighlighters[tag]);
+
+			// 4. Update the settings
+			this.plugin.settings.staticHighlighter.queryOrder = sortedQueryOrder;
+			await this.plugin.saveSettings();
 			this.display();
 		};
 
@@ -668,7 +661,6 @@ export class SettingTab extends PluginSettingTab {
 						staticCss: staticCssSnippet, // the deco css snippet
 						colorIconSnippet: makecolorIconSnippet, // the icon snippet
 						regex: queryTypeValue, // the regex
-
 						query: queryValue, // the search term/expression
 						mark: enabledMarksMaker(), // the marks
 						highlighterEnabled: true, // the enabled state of the highlighter
