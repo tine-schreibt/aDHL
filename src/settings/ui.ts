@@ -1,5 +1,5 @@
-import * as Modals from "./modals";
 import { EditorView } from "@codemirror/view";
+import { StyleSpec } from "style-mod";
 import Pickr from "@simonwep/pickr";
 import { createIcons, icons } from "lucide";
 
@@ -16,10 +16,10 @@ import {
 	ToggleComponent,
 } from "obsidian";
 import AnotherDynamicHighlightsPlugin from "../../main";
+import * as Modals from "./modals";
 import { ExportModal } from "./export";
 import { ImportModal } from "./import";
 import { markTypes } from "./settings";
-import { StyleSpec } from "style-mod";
 
 export class SettingTab extends PluginSettingTab {
 	plugin: AnotherDynamicHighlightsPlugin;
@@ -99,54 +99,32 @@ export class SettingTab extends PluginSettingTab {
 			if (color == undefined) {
 				color = "default";
 			}
+			const resolveColor = () =>
+				color === "default" ? "var(--text-accent)" : color;
 			if (deco == "background") {
-				cssSnippet = `background-color: ${
-					color === "default" ? "var(--text-accent)" : color
-				}`;
+				cssSnippet = `background-color: ${resolveColor()}`;
 			} else if (deco == "background rounded") {
-				cssSnippet = `background: ${
-					color === "default" ? "var(--text-accent)" : color
-				}; margin: 0 -0.05em; padding: 0.125em 0.15em; border-radius: 0.2em; -webkit-box-decoration-break: clone; box-decoration-break: clone`;
+				cssSnippet = `background: ${resolveColor()}; margin: 0 -0.05em; padding: 0.125em 0.15em; border-radius: 0.2em; -webkit-box-decoration-break: clone; box-decoration-break: clone`;
 			} else if (deco == "background realistic") {
-				cssSnippet = `background: ${
-					color === "default" ? "var(--text-accent)" : color
-				}; margin: 0 -0.05em; padding: 0.1em 0.4em; border-radius: 0.8em 0.3em; -webkit-box-decoration-break: clone; box-decoration-break: clone; text-shadow: 0 0 0.75em var(--background-primary-alt)`;
+				cssSnippet = `background: ${resolveColor()}; margin: 0 -0.05em; padding: 0.1em 0.4em; border-radius: 0.8em 0.3em; -webkit-box-decoration-break: clone; box-decoration-break: clone; text-shadow: 0 0 0.75em var(--background-primary-alt)`;
 			} else if (deco == "underline lowlight") {
-				cssSnippet = `position: relative; background-color: transparent; padding: 0.125em 0.125em; border-radius: 0; background-image: linear-gradient(360deg, ${
-					color === "default" ? "var(--text-accent)" : color
-				} 40%, transparent 40%)`;
+				cssSnippet = `position: relative; background-color: transparent; padding: 0.125em 0.125em; border-radius: 0; background-image: linear-gradient(360deg, ${resolveColor()} 40%, transparent 40%)`;
 			} else if (deco == "underline floating") {
-				cssSnippet = `position: relative; background-color: transparent; padding: 0.125em; padding-bottom: 5px; border-radius: 0; background-image: linear-gradient(360deg, ${
-					color === "default" ? "var(--text-accent)" : color
-				} 28%, transparent 28%)`;
+				cssSnippet = `position: relative; background-color: transparent; padding: 0.125em; padding-bottom: 5px; border-radius: 0; background-image: linear-gradient(360deg, ${resolveColor()} 28%, transparent 28%)`;
 			} else if (deco == "color") {
-				cssSnippet = `font-weight: 400; color: ${
-					color === "default" ? "var(--text-accent)" : color
-				}`;
+				cssSnippet = `font-weight: 400; color: ${resolveColor()}`;
 			} else if (deco == "bold") {
-				cssSnippet = `font-weight: 600; color: ${
-					color === "default" ? "var(--text-accent)" : color
-				}`;
+				cssSnippet = `font-weight: 600; color: ${resolveColor()}`;
 			} else if (deco == "underline wavy") {
-				cssSnippet = `text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: ${
-					color === "default" ? "var(--text-accent)" : color
-				}`;
+				cssSnippet = `text-decoration: underline wavy; text-decoration-thickness: 1px; text-decoration-color: ${resolveColor()}`;
 			} else if (deco === "border solid") {
-				cssSnippet = `border: 1px solid ${
-					color === "default" ? "var(--text-accent)" : color
-				}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
+				cssSnippet = `border: 1px solid ${resolveColor()}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
 			} else if (deco === "border dashed") {
-				cssSnippet = `border: 1px dashed ${
-					color === "default" ? "var(--text-accent)" : color
-				}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
+				cssSnippet = `border: 1px dashed ${resolveColor()}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
 			} else if (deco === "line-through") {
-				cssSnippet = `text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: ${
-					color === "default" ? "var(--text-accent)" : color
-				}`;
+				cssSnippet = `text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: ${resolveColor()}`;
 			} else {
-				cssSnippet = `text-decoration: ${deco}; text-decoration-color: ${
-					color === "default" ? "var(--text-accent)" : color
-				}`;
+				cssSnippet = `text-decoration: ${deco}; text-decoration-color: ${resolveColor()}`;
 			}
 			return cssSnippet;
 		};
@@ -185,16 +163,15 @@ export class SettingTab extends PluginSettingTab {
 			this.display();
 		};
 
-		const targetElement = document.body; // Adjust selector as needed
-		let hsl = getComputedStyle(targetElement)
-			.getPropertyValue("--text-accent")
-			.trim();
-
-		function convertHSLtoHSLA(hsl: string, alpha = 0.25) {
-			// Replace "hsl" with "hsla" and add the alpha value
+		const getAccentColor = (alpha = 0.25): string => {
+			const hsl = getComputedStyle(document.body)
+				.getPropertyValue("--text-accent")
+				.trim();
 			return hsl.replace("hsl", "hsla").replace(")", `, ${alpha})`);
-		}
-		const hslaColor = convertHSLtoHSLA(hsl, 0.25);
+		};
+
+		// Usage
+		const hslaColor = getAccentColor(0.25);
 
 		console.log("accentColor: ", hslaColor);
 
@@ -364,7 +341,7 @@ export class SettingTab extends PluginSettingTab {
 			tagDropdownComponent.addOption("create-new", "Create new tag");
 			tagDropdownComponent.onChange(async (value) => {
 				if (value === "create-new") {
-					const createNewTag = new Modals.newTagModal(
+					const createNewTag = new Modals.NewTagModal(
 						this.app,
 						tagDropdownComponent,
 						tagName,
@@ -563,7 +540,11 @@ export class SettingTab extends PluginSettingTab {
 						};
 					} else if (staticDecorationValue === "background rounded") {
 						staticCssSnippet = {
-							background: "var(--text-accent)",
+							background: `${
+								staticHexValue === "default"
+									? "var(--text-accent)"
+									: staticHexValue
+							}`,
 							margin: "0 -0.05em",
 							padding: "0.125em 0.15em",
 							borderRadius: "0.2em",
@@ -572,7 +553,11 @@ export class SettingTab extends PluginSettingTab {
 						};
 					} else if (staticDecorationValue === "background realistic") {
 						staticCssSnippet = {
-							background: "var(--text-accent)",
+							background: `${
+								staticHexValue === "default"
+									? "var(--text-accent)"
+									: staticHexValue
+							}`,
 							margin: "0 -0.05em",
 							padding: "0.1em 0.4em",
 							borderRadius: "0.8em 0.3em",

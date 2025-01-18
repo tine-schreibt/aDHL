@@ -392,6 +392,11 @@ clean it up right now, so deal with it -.- */
 	margin-right: 12px;
 }
 
+.modal-warning-text {
+	color: var(--text-error); /* Using Obsidian's built-in error color variable */
+	font-weight: bold;
+}
+
 .modal.mod-settings .dynamic-highlights-settings .pcr-button,
 .modal.mod-settings .dynamic-highlights-settings .color-wrapper {
 	margin: 0;
