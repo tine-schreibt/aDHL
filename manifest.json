@@ -1,10 +1,10 @@
 {
-	"id": "another-dynamic-highlights",
-	"name": "aDHL",
-	"version": "1.0.1",
-	"minAppVersion": "0.15.0",
-	"description": "The Dynamic Highlights Plugin, but with hotkeys, more options and sorting; works well with Highlightr.",
-	"author": "tine-schreibt",
-	"authorUrl": "https://github.com/tine-schreibt",
-	"isDesktopOnly": false
+  "id": "another-dynamic-highlights",
+  "name": "aDHL",
+  "version": "1.0.1",
+  "minAppVersion": "0.15.0",
+  "description": "Create pretty static highlighters from search or regEx. Group by tag and set commands for toggling. Based on Dynamic Highlights. Includes styles from Highlightr.",
+  "author": "tine-schreibt",
+  "authorUrl": "https://github.com/tine-schreibt",
+  "isDesktopOnly": false
 }

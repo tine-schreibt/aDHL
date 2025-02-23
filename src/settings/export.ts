@@ -46,7 +46,6 @@ export class ExportModal extends Modal {
           
                   // Add a success class to the button for feedback
                   copyButton.addClass("success");
-                  console.log("Copied to clipboard!");
                 } catch (err) {
                   console.error("Failed to copy to clipboard", err);
                 }
