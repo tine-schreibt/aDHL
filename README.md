@@ -62,14 +62,15 @@ left to right, top to bottom. The example queries can be found all the way down.
   expanded/collapsed.
 - **Tag name:** The name of your tag(s). **#unsorted** is the default tag. Your
   tags don't need a #, though.
-- **Toggle:** Toggle all highlighters associated with this tag on/off.
+- **Toggle:** Starts/stops rendering of all highlighters associated with this
+  tag. Individual highlight settings remain intact.
 - **Edit button:** Edit the tag name. If you choose a name that already exists,
   both tags will be merged.
 - **Delete button:** Delete the tag. _This will also delete all highlighters
   associated with it_, but there's a modal and a hurdle before anything is
   actually deleted, so you should be safe.
 - **abc icon**: This is a little preview of what your highlighter will look
-  like. I think it looks cute.
+  like. I think it's cute.
 - **Highlighter name and query/regEx:** The name of your highlighter and the
   stuff that it will highlight. Be sure to check if you have regEx enabled, if
   your regEx highlight doesn't seem to work.
