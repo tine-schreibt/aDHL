@@ -208,6 +208,7 @@ export class SettingTab extends PluginSettingTab {
     let tagDropdownComponent: DropdownComponent;
     let tagName: string;
     let tagStatus: boolean;
+    let selectionDecorationDropdownComponent: DropdownComponent;
 
     const defineQueryUI = new Setting(containerEl);
     defineQueryUI
@@ -1197,6 +1198,7 @@ export class SettingTab extends PluginSettingTab {
     selectionDecorationDropdown
       .setClass("decoration-dropdown")
       .addDropdown((dropdown) => {
+        selectionDecorationDropdownComponent = dropdown;
         dropdown.selectEl.setAttribute(
           "aria-label",
           "Select a decoration style for your highlighter"
@@ -1220,7 +1222,10 @@ export class SettingTab extends PluginSettingTab {
           .addOption("bold", "--- bold")
           .addOption("line-through", "Strikethrough")
           .setValue(
-            this.plugin.settings.selectionHighlighter.selectionDecoration
+            this.plugin.settings.selectionHighlighter.selectionDecoration ===
+              "default"
+              ? "underline dotted"
+              : this.plugin.settings.selectionHighlighter.selectionDecoration
           )
           .onChange((value) => {
             this.plugin.settings.selectionHighlighter.selectionDecoration =
@@ -1263,10 +1268,10 @@ export class SettingTab extends PluginSettingTab {
       .onClick(async () => {
         this.plugin.settings.selectionHighlighter.selectionColor = "default";
         this.plugin.settings.selectionHighlighter.selectionDecoration =
-          "default";
+          hslaColor;
         this.plugin.settings.selectionHighlighter.css =
           "text-decoration: underline dotted var(--text-accent)";
-        selectionColorPickerInstance.setColor("#42188038");
+        selectionDecorationDropdownComponent.setValue("underline dotted");
         await this.plugin.saveSettings();
         this.plugin.updateSelectionHighlighter();
         new Notice("Defaults reset");
