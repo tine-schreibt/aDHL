@@ -185,6 +185,7 @@ export class DeleteTagModal extends Modal {
 
     const deleteButton = new ButtonComponent(contentEl);
     deleteButton.setClass("action-button");
+    deleteButton.setClass("action-button-modal");
     deleteButton.setClass("action-button-delete");
     deleteButton.setWarning();
     deleteButton.setTooltip(`Delete ${this.oldTagName}.`);

@@ -961,19 +961,20 @@ clean it up right now, so deal with it -.- */
 .modal-content-grid .modal-button1 {
   grid-column: button1;
   align-self: center;
-  margin: 10px;
+  margin-right: 10px;
+  margin-left: 10px;
 }
 
 .modal-content-grid .modal-button2 {
   grid-column: button2;
   align-self: center;
-  margin: 10px;
+  margin-right: 10px;
 }
 
 .modal-content-grid .modal-button3 {
   grid-column: button2;
   align-self: center;
-  margin: 10px;
+  margin-right: 10px;
 }
 
 /* #region mobile specific styles */

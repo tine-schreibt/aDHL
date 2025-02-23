@@ -1173,13 +1173,20 @@ export class SettingTab extends PluginSettingTab {
         })
         .on("change", (color: Pickr.HSVaColor) => {
           const hexValue = color?.toHEXA().toString() || "";
-          let newColor;
+
           hexValue && hexValue.length == 6
-            ? (newColor = `${hexValue}A6`)
-            : (newColor = hexValue);
+            ? (this.plugin.settings.selectionHighlighter.selectionColor = `${hexValue}A6`)
+            : (this.plugin.settings.selectionHighlighter.selectionColor =
+                hexValue);
           this.plugin.saveSettings();
         })
         .on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
+          const hexValue = color?.toHEXA().toString() || "";
+          hexValue && hexValue.length == 6
+            ? (this.plugin.settings.selectionHighlighter.selectionColor = `${hexValue}A6`)
+            : (this.plugin.settings.selectionHighlighter.selectionColor =
+                hexValue);
+          this.plugin.saveSettings();
           instance.hide();
         });
     });
