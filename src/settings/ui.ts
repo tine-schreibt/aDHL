@@ -69,19 +69,21 @@ export class SettingTab extends PluginSettingTab {
       if (deco == "background") {
         cssSnippet = `background-color: ${resolveColor()}`;
       } else if (deco == "background rounded") {
-        cssSnippet = `background: ${resolveColor()}; margin: 0 -0.05em; padding: 0.125em 0.15em; border-radius: 0.2em; -webkit-box-decoration-break: clone; box-decoration-break: clone`;
+        cssSnippet = `position: relative; background-color: ${resolveColor()}; padding: 0.15em 0.25em; margin: 0; border-radius: 0.25em; box-decoration-break: clone; -webkit-box-decoration-break: clone; background-clip: padding-box; background-image: linear-gradient(to right, ${resolveColor()}dd, ${resolveColor()} 50%, ${resolveColor()}dd); box-shadow: inset 0 0 0 1px ${resolveColor()}22; display: inline;`;
       } else if (deco == "background realistic") {
-        cssSnippet = `background: ${resolveColor()}; margin: 0 -0.05em; padding: 0.1em 0.4em; border-radius: 0.8em 0.3em; -webkit-box-decoration-break: clone; box-decoration-break: clone; text-shadow: 0 0 0.75em var(--background-primary-alt)`;
+        cssSnippet = `position: relative; background-color: ${resolveColor()}; padding: 0.15em 0.45em; margin: 0; border-radius: 0.7em 0.25em; box-decoration-break: clone; -webkit-box-decoration-break: clone; background-image: linear-gradient(135deg, ${resolveColor()} 0%, ${resolveColor()}ee 100%); background-clip: padding-box; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); text-shadow: 0 1px 2px var(--background-primary-alt); display: inline`;
       } else if (deco == "underline lowlight") {
         cssSnippet = `position: relative; background-color: transparent; padding: 0.125em 0.125em; border-radius: 0; background-image: linear-gradient(360deg, ${resolveColor()} 40%, transparent 40%)`;
-      } else if (deco == "underline floating") {
-        cssSnippet = `position: relative; background-color: transparent; padding: 0.125em; padding-bottom: 5px; border-radius: 0; background-image: linear-gradient(360deg, ${resolveColor()} 28%, transparent 28%)`;
+      } else if (deco == "underline floating thick") {
+        cssSnippet = `position: relative; background-color: transparent; padding: 0.125em; padding-bottom: 5px; border-radius: 0; background-image: linear-gradient(360deg, ${resolveColor()} 25%, transparent 25%)`;
+      } else if (deco == "underline floating thin") {
+        cssSnippet = `position: relative; background-color: transparent; padding: 0.125em; padding-bottom: 5px; border-radius: 0; background-image: linear-gradient(360deg, ${resolveColor()} 15%, transparent 15%)`;
       } else if (deco == "color") {
         cssSnippet = `font-weight: 400; color: ${resolveColor()}`;
       } else if (deco == "bold") {
         cssSnippet = `font-weight: 600; color: ${resolveColor()}`;
       } else if (deco == "underline wavy") {
-        cssSnippet = `  text-decoration: underline; -webkit-text-decoration-color: ${resolveColor()}; text-decoration-color: ${resolveColor()}; -webkit-text-decoration-style: wavy; text-decoration-style: wavy;`;
+        cssSnippet = `text-decoration: underline; -webkit-text-decoration-color: ${resolveColor()}; text-decoration-color: ${resolveColor()}; -webkit-text-decoration-style: wavy; text-decoration-style: wavy;`;
       } else if (deco === "border solid") {
         cssSnippet = `border: 1px solid ${resolveColor()}; border-radius: 5px; padding: 1px; padding-bottom: 2px`;
       } else if (deco === "border dashed") {
@@ -385,7 +387,8 @@ export class SettingTab extends PluginSettingTab {
           .addOption("background realistic", "--- realistic")
           .addOption("underline", "Underline solid")
           .addOption("underline lowlight", "--- lowlight")
-          .addOption("underline floating", "--- floating")
+          .addOption("underline floating thick", "--- floating thick")
+          .addOption("underline floating thin", "--- floating thin")
           .addOption("underline dotted", "--- dotted")
           .addOption("underline dashed", "--- dashed")
           .addOption("underline wavy", "--- wavy")
@@ -535,39 +538,42 @@ export class SettingTab extends PluginSettingTab {
           // Logic for the static css snippet, which can't be a standard css snippet
           // because it's implemented as StyleSpec in static.css
           let staticCssSnippet: StyleSpec = {};
+          const resolveColor02 = () =>
+            staticHexValue === "default"
+              ? "var(--text-accent)"
+              : staticHexValue;
           if (staticDecorationValue === "background") {
             staticCssSnippet = {
-              backgroundColor:
-                staticHexValue === "default"
-                  ? "var(--text-accent)"
-                  : staticHexValue,
+              backgroundColor: resolveColor02(),
             };
           } else if (staticDecorationValue === "background rounded") {
             staticCssSnippet = {
-              background: `${
-                staticHexValue === "default"
-                  ? "var(--text-accent)"
-                  : staticHexValue
-              }`,
-              margin: "0 -0.05em",
-              padding: "0.125em 0.15em",
-              borderRadius: "0.2em",
-              WebkitBoxDecorationBreak: "clone",
+              position: "relative",
+              backgroundColor: `${resolveColor02()}`,
+              padding: "0.15em 0.25em",
+              margin: "0",
+              borderRadius: "0.25em",
               boxDecorationBreak: "clone",
+              WebkitBoxDecorationBreak: "clone",
+              backgroundClip: "padding-box",
+              backgroundImage: `linear-gradient(to right, ${resolveColor02()}dd, ${resolveColor02()} 50%, ${resolveColor02()}dd)`,
+              boxShadow: `inset 0 0 0 1px ${resolveColor02()}22`,
+              display: "inline",
             };
           } else if (staticDecorationValue === "background realistic") {
             staticCssSnippet = {
-              background: `${
-                staticHexValue === "default"
-                  ? "var(--text-accent)"
-                  : staticHexValue
-              }`,
-              margin: "0 -0.05em",
-              padding: "0.1em 0.4em",
-              borderRadius: "0.8em 0.3em",
-              WebkitBoxDecorationBreak: "clone",
+              position: "relative",
+              backgroundColor: `${resolveColor02()}`, // set base color
+              padding: "0.15em 0.45em",
+              margin: "0",
+              borderRadius: "0.7em 0.25em",
               boxDecorationBreak: "clone",
-              textShadow: "0 0 0.75em var(--background-primary-alt)",
+              WebkitBoxDecorationBreak: "clone",
+              backgroundImage: `linear-gradient(135deg, ${resolveColor02()} 0%, ${resolveColor02()}ee 100%)`,
+              backgroundClip: "padding-box",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+              textShadow: "0 1px 2px var(--background-primary-alt)",
+              display: "inline",
             };
           } else if (staticDecorationValue === "underline lowlight") {
             staticCssSnippet = {
@@ -577,11 +583,11 @@ export class SettingTab extends PluginSettingTab {
               borderRadius: "0",
               backgroundImage: `linear-gradient(
 									360deg,
-									${staticHexValue === "default" ? "var(--text-accent)" : staticHexValue} 40%,
+									${resolveColor02()} 40%,
 									transparent 40%
 								)`,
             };
-          } else if (staticDecorationValue === "underline floating") {
+          } else if (staticDecorationValue === "underline floating thick") {
             staticCssSnippet = {
               position: "relative",
               backgroundColor: "transparent",
@@ -590,58 +596,51 @@ export class SettingTab extends PluginSettingTab {
               borderRadius: "0",
               backgroundImage: `linear-gradient(
 									360deg,
-									${staticHexValue === "default" ? "var(--text-accent)" : staticHexValue} 28%,
-									transparent 28%
+									${resolveColor02()} 25%,
+									transparent 25%
+								)`,
+            };
+          } else if (staticDecorationValue === "underline floating thin") {
+            staticCssSnippet = {
+              position: "relative",
+              backgroundColor: "transparent",
+              padding: ".125em",
+              paddingBottom: "5px",
+              borderRadius: "0",
+              backgroundImage: `linear-gradient(
+									360deg,
+									${resolveColor02()} 15%,
+									transparent 15%
 								)`,
             };
           } else if (staticDecorationValue === "color") {
             staticCssSnippet = {
               fontWeight: "400",
-              color:
-                staticHexValue === "default"
-                  ? "var(--text-accent)"
-                  : staticHexValue,
+              color: resolveColor02(),
             };
           } else if (staticDecorationValue === "bold") {
             staticCssSnippet = {
               fontWeight: "600",
-              color:
-                staticHexValue === "default"
-                  ? "var(--text-accent)"
-                  : staticHexValue,
+              color: resolveColor02(),
             };
           } else if (staticDecorationValue === "underline wavy") {
             staticCssSnippet = {
               textDecoration: "underline",
-              webkitTextDecorationColor:
-                staticHexValue === "default"
-                  ? "var(--text-accent)"
-                  : staticHexValue,
-              textDecorationColor:
-                staticHexValue === "default"
-                  ? "var(--text-accent)"
-                  : staticHexValue,
+              webkitTextDecorationColor: resolveColor02(),
+              textDecorationColor: resolveColor02(),
               webkitTextDecorationStyle: "wavy",
               textDecorationStyle: "wavy",
             };
           } else if (staticDecorationValue === "border solid") {
             staticCssSnippet = {
-              border: `1px solid ${
-                staticHexValue === "default"
-                  ? "var(--text-accent)"
-                  : staticHexValue
-              }`,
+              border: `1px solid ${resolveColor02()}`,
               borderRadius: "5px",
               padding: "1px",
               paddingBottom: "2px",
             };
           } else if (staticDecorationValue === "border dashed") {
             staticCssSnippet = {
-              border: `1px dashed ${
-                staticHexValue === "default"
-                  ? "var(--text-accent)"
-                  : staticHexValue
-              }`,
+              border: `1px dashed ${resolveColor02()}`,
               borderRadius: "5px",
               padding: "1px",
               paddingBottom: "2px",
@@ -650,18 +649,12 @@ export class SettingTab extends PluginSettingTab {
             staticCssSnippet = {
               textDecoration: "line-through",
               textDecorationThickness: "2px",
-              textDecorationColor:
-                staticHexValue === "default"
-                  ? "var(--text-accent)"
-                  : staticHexValue,
+              textDecorationColor: resolveColor02(),
             };
           } else {
             staticCssSnippet = {
               textDecoration: staticDecorationValue,
-              textDecorationColor:
-                staticHexValue === "default"
-                  ? "var(--text-accent)"
-                  : staticHexValue,
+              textDecorationColor: resolveColor02(),
             };
           }
 
@@ -1212,7 +1205,8 @@ export class SettingTab extends PluginSettingTab {
           .addOption("background realistic", "--- realistic")
           .addOption("underline", "Underline solid")
           .addOption("underline lowlight", "--- lowlight")
-          .addOption("underline floating", "--- floating")
+          .addOption("underline floating thick", "--- floating thick")
+          .addOption("underline floating thin", "--- floating thin")
           .addOption("underline dotted", "--- dotted")
           .addOption("underline dashed", "--- dashed")
           .addOption("underline wavy", "--- wavy")

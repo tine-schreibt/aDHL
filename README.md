@@ -4,10 +4,9 @@ Highlights</a>' by nothingislost. I fixed a bug in the regEx, but otherwise I
 left the basic mechanics untouched. I just added a lot more customisability and
 some usability features, which I hope you find worthwhile.
 
-The four prettiest highlight styles - bg rounded, bg realistic, ul floating and
-ul lowlight - are from
+Some of the highlight styles were inspired by those available in
 <a href="https://github.com/chetachiezikeuzor/highlightr-Plugin/">Highlightr</a>
-by chetachiezikeuzor, so if you're using that, aDHL will fit right in, style
+by chetachiezikeuzor, so if you're using that, aDHL should fit right in, style
 wise.
 
 Here's a picture of the settings panel as it looks on desktop, including some
