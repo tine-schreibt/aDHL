@@ -112,11 +112,9 @@ left to right, top to bottom. The example queries can be found all the way down.
 **Example queries that use regEx**
 
 - **Highlight all dialogue:**
-  - if you're reading this as raw .md, make sure to NOT copy the two backticks
-    \`\`.
+  - make sure to NOT copy the two backticks \`\`.
   - `"(.*?)" ` <- Highlights all between two ""
   - `'(.*?)'` <- Highlights all between two ''
-  - `<(.*?)/>` <- Highlights all between < and />
 - **Highlight several words:**
   - same here; don't copy the two backticks \`\`.
   - `untoward |henceforth |betwixt` <- the pipe - | - means 'or', so this
