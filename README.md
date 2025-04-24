@@ -131,3 +131,5 @@ toggling, but only if many people would find that useful.
 
 If you want to express your joy at finding this neat little piece of code, you
 can throw me some coin: https://ko-fi.com/tine_schreibt
+
+(ignore this; git is driving me nuts)
