@@ -21,6 +21,8 @@ declare module "obsidian" {
     cm?: EditorView;
   }
 }
+// ignore this; this is just here so I can do a new commit because the 
+// fucking verification bot will take another look at this.
 
 export default class AnotherDynamicHighlightsPlugin extends Plugin {
   settings: AnotherDynamicHighlightsSettings;
