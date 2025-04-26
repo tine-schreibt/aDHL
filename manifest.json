@@ -1,7 +1,7 @@
 {
   "id": "another-dynamic-highlights",
   "name": "aDHL",
-  "version": "1.0.4",
+  "version": "1.0.1",
   "minAppVersion": "0.15.0",
   "description": "Create pretty static highlighters from search or regEx. Group by tag and set commands for toggling. Based on Dynamic Highlights. Works well with Highlightr.",
   "author": "tine-schreibt",
