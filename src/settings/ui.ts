@@ -938,7 +938,6 @@ export class SettingTab extends PluginSettingTab {
           text: "abc",
           cls: "highlighter-setting-icon-abc",
         });
-        abc.style.fontSize = "medium";
         Object.assign(
           abc.style,
           this.parseCssString(config.queries[highlighter].colorIconSnippet)
