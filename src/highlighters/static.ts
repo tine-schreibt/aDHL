@@ -24,6 +24,7 @@ import { RegExpCursor } from "./regexp-cursor";
 import { NodeProp } from "@lezer/common";
 
 export type StaticHighlightOptions = {
+  showInReadingMode: boolean;
   queries: SearchQueries;
   queryOrder: string[];
   tagOrder: string[];
@@ -35,6 +36,7 @@ export type StaticHighlightOptions = {
 const tokenClassNodeProp = new NodeProp();
 
 const defaultOptions: StaticHighlightOptions = {
+  showInReadingMode: false,
   queries: {},
   queryOrder: [],
   tagOrder: [],

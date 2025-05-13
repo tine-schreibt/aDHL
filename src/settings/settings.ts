@@ -49,6 +49,7 @@ export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
     css: "text-decoration: underline dotted var(--text-accent)",
   },
   staticHighlighter: {
+    showInReadingMode: false,
     queries: {},
     queryOrder: [],
     tagOrder: [],

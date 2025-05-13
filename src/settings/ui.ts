@@ -48,7 +48,6 @@ export class SettingTab extends PluginSettingTab {
     //##############################################################
     //######################### FUNCTIONS ######################
     //##############################################################
-    // would have put them at the bottom, but config.queryOrder is out of scope there
 
     // Enable modals save and redraw the display
     const modalSaveAndReload = async () => {
@@ -1078,7 +1077,19 @@ export class SettingTab extends PluginSettingTab {
         this.plugin.saveSettings();
       }
     });
-
+    const renderInReadingMode = new Setting(this.containerEl)
+      .setName("Show highlights in reading mode")
+      .setDesc(
+        "If enabled, highlights will also be shown in reading mode (preview)"
+      )
+      .addToggle((toggle) => {
+        toggle
+          .setValue(this.plugin.settings.staticHighlighter.showInReadingMode)
+          .onChange(async (value) => {
+            this.plugin.settings.staticHighlighter.showInReadingMode = value;
+            await this.plugin.saveSettings();
+          });
+      });
     const chooseCommands = new Setting(containerEl);
     chooseCommands.setName("Hotkeys and command palette");
     chooseCommands.setDesc(

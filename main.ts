@@ -1,6 +1,12 @@
 import { Extension, StateEffect } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-import { debounce, MarkdownView, Plugin, Notice } from "obsidian";
+import {
+  debounce,
+  MarkdownView,
+  MarkdownPostProcessor,
+  Plugin,
+  Notice,
+} from "obsidian";
 import {
   highlightSelectionMatches,
   reconfigureSelectionHighlighter,
@@ -21,7 +27,7 @@ declare module "obsidian" {
     cm?: EditorView;
   }
 }
-// ignore this; this is just here so I can do a new commit because the 
+// ignore this; this is just here so I can do a new commit because the
 // fucking verification bot will take another look at this.
 
 export default class AnotherDynamicHighlightsPlugin extends Plugin {
@@ -47,6 +53,10 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
       this.updateStyles();
       this.registerEditorExtension(this.extensions);
       this.initCSS();
+
+      // Register reading mode highlighter if enabled
+      this.registerReadingModeHighlighter();
+
       this.registerCommands();
     } catch (error) {
       console.error("Error loading settings:", error);
@@ -63,6 +73,25 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
+
+    // Re-register the reading mode processor when settings change
+    // This ensures reading mode reflects the current state
+    this.registerReadingModeHighlighter();
+
+    // Force re-render of all markdown views in reading mode
+    this.app.workspace.iterateAllLeaves((leaf) => {
+      if (leaf.view instanceof MarkdownView) {
+        // Check if the view is in preview mode
+        if (leaf.view.getMode() === "preview") {
+          // This triggers a full re-render of the preview
+          leaf.view.previewMode.rerender(true);
+        }
+      }
+    });
+
+    // The editor mode is already handled by these:
+    this.updateStaticHighlighter();
+    this.updateStyles();
   }
 
   initCSS() {
@@ -294,4 +323,147 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
     1000,
     true
   );
+
+  private processNodeForHighlights(node: Node, pattern: RegExp, query: any) {
+    // Skip already highlighted nodes
+    if (
+      node.nodeType === Node.ELEMENT_NODE &&
+      (node as Element).classList.contains("adhl-highlighted")
+    ) {
+      return;
+    }
+
+    // Process text nodes
+    if (node.nodeType === Node.TEXT_NODE && node.nodeValue) {
+      const nodeText: string = node.nodeValue;
+
+      // Skip pure whitespace nodes
+      if (!nodeText.trim()) {
+        return;
+      }
+
+      const matches = Array.from(nodeText.matchAll(pattern));
+
+      // Only log if matches are found
+      if (matches.length > 0) {
+        console.log("Found matches in text:", {
+          text: nodeText,
+          pattern: pattern,
+          matches: matches.map((m) => ({
+            text: m[0],
+            index: m.index,
+          })),
+        });
+
+        const fragment = document.createDocumentFragment();
+        let lastIndex = 0;
+
+        for (const match of matches) {
+          const matchIndex = match.index;
+          if (matchIndex === undefined) continue;
+
+          // Add text before match
+          if (matchIndex > lastIndex) {
+            fragment.appendChild(
+              document.createTextNode(nodeText.slice(lastIndex, matchIndex))
+            );
+          }
+
+          // Create highlight span
+          const highlight = document.createElement("span");
+          highlight.classList.add("adhl-highlighted", query.class);
+          highlight.textContent = match[0];
+
+          // Apply styles
+          if (query.staticCss) {
+            Object.entries(query.staticCss).forEach(([prop, value]) => {
+              const cssProperty = prop.replace(/([A-Z])/g, "-$1").toLowerCase();
+              highlight.style.setProperty(cssProperty, value as string);
+            });
+          }
+
+          fragment.appendChild(highlight);
+          lastIndex = matchIndex + match[0].length;
+        }
+
+        // Add remaining text
+        if (lastIndex < nodeText.length) {
+          fragment.appendChild(
+            document.createTextNode(nodeText.slice(lastIndex))
+          );
+        }
+
+        const parent = node.parentNode;
+        if (parent) {
+          parent.replaceChild(fragment, node);
+        }
+      }
+    }
+
+    // Process child nodes
+    Array.from(node.childNodes).forEach((child) =>
+      this.processNodeForHighlights(child, pattern, query)
+    );
+  }
+
+  private registerReadingModeHighlighter() {
+    // Force re-render of all markdown views in reading mode
+    this.app.workspace.iterateAllLeaves((leaf) => {
+      if (
+        leaf.view instanceof MarkdownView &&
+        leaf.view.getMode() === "preview"
+      ) {
+        // If reading mode is disabled, we need to remove existing highlights first
+        if (!this.settings.staticHighlighter.showInReadingMode) {
+          const container = leaf.view.previewMode.containerEl;
+          const highlights = container.querySelectorAll(".adhl-highlighted");
+          highlights.forEach((highlight) => {
+            // Replace the highlight span with its text content
+            highlight.replaceWith(highlight.textContent || "");
+          });
+        }
+        leaf.view.previewMode.rerender(true);
+      }
+    });
+
+    // Only register if the setting is enabled
+    if (this.settings.staticHighlighter.showInReadingMode) {
+      this.registerMarkdownPostProcessor(
+        (element: HTMLElement, context: any) => {
+          // Only process if the main switch is on AND reading mode highlights are enabled
+          if (
+            !this.settings.staticHighlighter.onOffSwitch ||
+            !this.settings.staticHighlighter.showInReadingMode
+          ) {
+            return;
+          }
+
+          // Get active queries
+          const activeQueries = Object.entries(
+            this.settings.staticHighlighter.queries
+          ).filter(
+            ([_, query]) => query.highlighterEnabled && query.tagEnabled
+          );
+
+          activeQueries.forEach(([highlighterName, query]) => {
+            try {
+              const pattern = query.regex
+                ? new RegExp(query.query, "gm")
+                : new RegExp(
+                    query.query.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"),
+                    "gm"
+                  );
+
+              this.processNodeForHighlights(element, pattern, query);
+            } catch (error) {
+              console.error(
+                `Error processing highlighter ${highlighterName}:`,
+                error
+              );
+            }
+          });
+        }
+      );
+    }
+  }
 }

@@ -10,6 +10,16 @@
   display: block !important;
 }
 
+.adhl-reading-highlights {
+  contain: strict;
+  pointer-events: none;
+}
+
+.adhl-reading-highlights > div {
+  pointer-events: none;
+  z-index: 1;
+}
+
 /* ##################### CONTAINER & HEADER #####################*/
 
 /* Base container styles */
