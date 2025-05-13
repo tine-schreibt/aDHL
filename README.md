@@ -75,6 +75,10 @@ left to right, top to bottom. The example queries can be found all the way down.
 - **Edit button**: Edit your highlighter.
 - **Delete button:** Delete your highlighter.
 
+**Show highlights in reading mode**
+
+- Toggle on or off if you want your highlights to be rendered in reading mode, too. 
+
 **Hotkeys and command palette**
 
 - All your tags are automatically added to the command palette/hotkeys for
