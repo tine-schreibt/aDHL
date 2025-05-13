@@ -1,3 +1,15 @@
+.modal-close-button {
+  display: block !important;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1000;
+}
+
+.modal.mod-settings .modal-close-button {
+  display: block !important;
+}
+
 /* ##################### CONTAINER & HEADER #####################*/
 
 /* Base container styles */
