@@ -447,12 +447,29 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 
           activeQueries.forEach(([highlighterName, query]) => {
             try {
-              const pattern = query.regex
-                ? new RegExp(query.query, "gm")
-                : new RegExp(
-                    query.query.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"),
-                    "gm"
-                  );
+              let patternString = query.query;
+              let flags = "gm"; // Default flags
+
+              if (query.regex) {
+                // Check if the query string contains flags like /pattern/flags
+                const match = query.query.match(/^\/(.*)\/([gimyus]*)$/);
+                if (match) {
+                  patternString = match[1];
+                  // Combine extracted flags with default, ensuring no duplicates
+                  flags = Array.from(
+                    new Set(flags.split("").concat(match[2].split("")))
+                  ).join("");
+                }
+                // If no flags in query string, patternString remains query.query and flags remain "gm"
+              } else {
+                patternString = query.query.replace(
+                  /[-\\/\\\\^$*+?.()|[\\]{}]/g,
+                  "\\$&"
+                );
+                // For non-regex, flags remain "gm" (though 'g' is most relevant for replacement, 'm' doesn't hurt)
+              }
+
+              const pattern = new RegExp(patternString, flags);
 
               this.processNodeForHighlights(element, pattern, query);
             } catch (error) {

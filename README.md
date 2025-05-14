@@ -1,7 +1,7 @@
 This plugin is based on 'Dynamic Highlights' by nothingislost. I fixed a bug in
 the regEx, but otherwise I left the basic mechanics untouched. I just added a
-lot more customisability and some usability features, which I hope you find
-worthwhile.
+lot more customisability and some usability features, which I hope you find 
+worthwhile. 
 
 Some of the highlight styles were inspired by those available in 'Highlightr' by
 chetachiezikeuzor, so if you're using that, aDHL should fit right in, style
@@ -77,7 +77,8 @@ left to right, top to bottom. The example queries can be found all the way down.
 
 **Show highlights in reading mode**
 
-- Toggle on or off if you want your highlights to be rendered in reading mode, too. 
+- Toggle on or off if you want your highlights to be rendered in reading mode,
+  too.
 
 **Hotkeys and command palette**
 
