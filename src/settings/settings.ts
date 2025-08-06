@@ -3,7 +3,7 @@ import { SelectionHighlightOptions } from "../highlighters/selection";
 import { ignoredWords } from "./ignoredWords";
 import { StyleSpec } from "style-mod";
 
-export type markTypes = "line" | "match";
+export type markTypes = "line" | "match" | "groups";
 
 export type SettingValue = number | string | boolean;
 export interface CSSSettings {
