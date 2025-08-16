@@ -1,3 +1,9 @@
+## [1.2.1]
+
+- I accidentally released main.ts in v1.2.0, which broke the plugin for everyone.
+- I'm very sorry for the inconvenience -.- 
+- I have now included the correct file
+
 ## [1.2.0]
 
 ## New:
