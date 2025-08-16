@@ -460,6 +460,21 @@ export class SettingTab extends PluginSettingTab {
       );
     });
 
+    // "groups" toggle, to highlight regex capture groups instead of whole match
+    defineQueryUIBottom.controlEl.createSpan("groups-text").setText("groups");
+    const groupsToggle = new ToggleComponent(
+      defineQueryUIBottom.controlEl
+    ).setValue(false);
+    groupsToggle.setTooltip("Highlight regex capture groups");
+    groupsToggle.toggleEl.addClass("groups-toggle");
+    groupsToggle.onChange((active) => {
+      regexToggle.setValue(active || regexToggle.getValue());
+      groupsToggle.setTooltip(`${active ? "Deactivate" : "Activate"} regex capture group highlighting`);
+      if (active && !queryInput.getValue().contains("(")) {
+        new Notice("Your regex does not contain any capture groups");
+      }
+    });
+
     // The save Button
     // helper variable stores highlighter to enable changing its other settings
     let currentHighlighterName: string | null = null;
@@ -506,6 +521,11 @@ export class SettingTab extends PluginSettingTab {
             enabledMarks.push("line");
           } else {
             enabledMarks = enabledMarks.filter((value) => value != "line");
+          }
+          if (groupsToggle.getValue() && !enabledMarks.includes("groups")) {
+            enabledMarks.push("groups");
+          } else {
+            enabledMarks = enabledMarks.filter((value) => value != "groups");
           }
           return enabledMarks;
         };
@@ -1034,7 +1054,7 @@ export class SettingTab extends PluginSettingTab {
                 tagStatus = options.tagEnabled;
                 staticPickrInstance.setColor(options.staticColor);
                 regexToggle.setValue(options.regex);
-                // matcheToggle / lineToggle
+                // matcheToggle / lineToggle / groupsToggle
                 if (options?.mark) {
                   if (options?.mark.includes("match")) {
                     matchToggle.setValue(true);
@@ -1045,6 +1065,11 @@ export class SettingTab extends PluginSettingTab {
                     lineToggle.setValue(true);
                   } else {
                     lineToggle.setValue(false);
+                  }
+                  if (options?.mark.includes("groups")) {
+                    groupsToggle.setValue(true);
+                  } else {
+                    groupsToggle.setValue(false);
                   }
                 }
                 containerEl.scrollTop = 0;

@@ -191,12 +191,32 @@ const staticHighlighter = ViewPlugin.fromClass(
                 if (!lineClasses[linePos]) lineClasses[linePos] = [];
                 lineClasses[linePos].push(query.class);
               }
+
+              const ranges: Array<{ content: string, start: number, end: number }> = [];
+
               if (!query.mark || query.mark?.contains("match")) {
-                const markDeco = Decoration.mark({
+                ranges.push({content: string, start: from, end: to});
+              }
+
+              if (query.mark?.contains("groups") && 'match' in cursor.value) {
+                const groups = cursor.value.match;
+                const fullMatch = groups[0];
+                let searchStart = 0;
+                for (let i = 1; i < groups.length; i++) {
+                  const match = groups[i];
+                  if (!match) continue;
+                  const groupIndex = fullMatch.indexOf(match, searchStart);
+                  const groupStart = from + groupIndex;
+                  searchStart = groupIndex + match.length;
+                  ranges.push({content: match, start: groupStart, end: groupStart + match.length});
+                }
+              }
+
+              for (const {content, start, end} of ranges) {
+                tokenDecos.push(Decoration.mark({
                   class: query.class,
-                  attributes: { "data-contents": string },
-                });
-                tokenDecos.push(markDeco.range(from, to));
+                  attributes: {"data-contents": content.trim()},
+                }).range(start, end));
               }
             }
           }
