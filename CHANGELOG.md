@@ -1,3 +1,10 @@
+## [1.2.2]
+
+- main.js was corrupted in [1.2.1] 
+- I am sorry for that inconvenience, too
+- what a day
+
+
 ## [1.2.1]
 
 - I accidentally released main.ts in v1.2.0, which broke the plugin for everyone.
