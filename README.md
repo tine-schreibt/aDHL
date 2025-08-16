@@ -1,7 +1,11 @@
 This plugin is based on 'Dynamic Highlights' by nothingislost. I fixed a bug in
 the regEx, but otherwise I left the basic mechanics untouched. I just added a
-lot more customisability and some usability features, which I hope you find 
-worthwhile. 
+lot more customisability and some usability features, which I hope you find
+worthwhile.
+
+UPDATES
+
+- 2025-08-16: @leonrjg added capture group functionality. Thank you!
 
 Some of the highlight styles were inspired by those available in 'Highlightr' by
 chetachiezikeuzor, so if you're using that, aDHL should fit right in, style
@@ -45,6 +49,7 @@ left to right, top to bottom. The example queries can be found all the way down.
   - **RegEx toggle:** Turn regEx on/off. This obviously uses JavaScript
     flavoured regEx. Find info here: https://www.regular-expressions.info. As I
     said, I fixed one bug, but there might be some left.
+  - **Groups toggle:** Toggle capture groups on/off.
   - **Matches toggle:** Toggle on/off if matches will be highlighted.
   - **Parent line toggle:** Toggle on/off if the parent line of a match will be
     highlighted.

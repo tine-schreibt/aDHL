@@ -1,3 +1,9 @@
+## [1.2.0]
+
+## New:
+
+- Now you can also use capture groups. Thanks to @leonrjg for this contribution!
+
 ## [1.1.0]
 
 ## Fixes:
