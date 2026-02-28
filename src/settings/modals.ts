@@ -1,7 +1,6 @@
 import {
   App,
   Notice,
-  setIcon,
   DropdownComponent,
   Modal,
   TextComponent,

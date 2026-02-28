@@ -105,13 +105,16 @@ export class SettingTab extends PluginSettingTab {
       ].sort();
 
       // 2. Create a map of tags to their highlighters
-      const tagToHighlighters = tagList.reduce((acc, tag) => {
-        // Get all highlighters for this tag and sort them alphabetically
-        acc[tag] = queryOrder
-          .filter((highlighter) => queries[highlighter].tag === tag)
-          .sort();
-        return acc;
-      }, {} as Record<string, string[]>);
+      const tagToHighlighters = tagList.reduce(
+        (acc, tag) => {
+          // Get all highlighters for this tag and sort them alphabetically
+          acc[tag] = queryOrder
+            .filter((highlighter) => queries[highlighter].tag === tag)
+            .sort();
+          return acc;
+        },
+        {} as Record<string, string[]>,
+      );
 
       // 3. Create the final sorted array by concatenating sorted highlighters from each sorted tag
       const sortedQueryOrder = tagList.flatMap((tag) => tagToHighlighters[tag]);
@@ -139,7 +142,7 @@ export class SettingTab extends PluginSettingTab {
     containerEl.addClass("persistent-highlights");
     containerEl.addClass("dynamic-highlights-settings");
 
-    // Import/Export buttons
+    /*   // Import/Export buttons
     const importExportEl = containerEl.createDiv("import-export-wrapper");
     importExportEl.createEl(
       "a",
@@ -173,7 +176,7 @@ export class SettingTab extends PluginSettingTab {
           ).open();
         });
       }
-    );
+    );*/
 
     const headlineAndToggle = new Setting(containerEl)
       .setHeading()
@@ -183,7 +186,7 @@ export class SettingTab extends PluginSettingTab {
         headlineToggle.setTooltip(
           config.onOffSwitch
             ? `Deactivate highlighing`
-            : `Activate highlighting`
+            : `Activate highlighting`,
         );
         headlineToggle.toggleEl.addClass("headline-toggle");
         headlineToggle.setValue(config.onOffSwitch).onChange((value) => {
@@ -192,7 +195,7 @@ export class SettingTab extends PluginSettingTab {
           this.plugin.updateStaticHighlighter();
           this.display();
           headlineToggle.setTooltip(
-            value ? `Highlighting active` : `Highlighting inactive`
+            value ? `Highlighting active` : `Highlighting inactive`,
           );
         });
       });
@@ -229,7 +232,7 @@ export class SettingTab extends PluginSettingTab {
 
     // Color picker
     const colorButtonWrapper = defineQueryUITop.controlEl.createDiv(
-      "color-button-wrapper"
+      "color-button-wrapper",
     );
     let staticPickrInstance: Pickr;
     const colorPicker = new ButtonComponent(colorButtonWrapper);
@@ -271,7 +274,7 @@ export class SettingTab extends PluginSettingTab {
           instance.hide();
           queryInput.inputEl.setAttribute(
             "style",
-            snippetMaker(staticDecorationValue, "default")
+            snippetMaker(staticDecorationValue, "default"),
           );
         })
         .on("cancel", (instance: Pickr) => {
@@ -285,7 +288,7 @@ export class SettingTab extends PluginSettingTab {
             : (newColor = colorHex);
           queryInput.inputEl.setAttribute(
             "style",
-            snippetMaker(staticDecorationValue, newColor)
+            snippetMaker(staticDecorationValue, newColor),
           );
         })
         .on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
@@ -304,7 +307,7 @@ export class SettingTab extends PluginSettingTab {
 
     // Tag dropdown
     const tagDropdownWrapper = defineQueryUITop.controlEl.createDiv(
-      "tag-dropdown-wrapper"
+      "tag-dropdown-wrapper",
     );
     const tagDropdown = new Setting(tagDropdownWrapper);
     tagDropdown.setClass("tag-dropdown").addDropdown((dropdown) => {
@@ -312,7 +315,7 @@ export class SettingTab extends PluginSettingTab {
       dropdown.addOption("#unsorted", "#unsorted");
       dropdown.selectEl.setAttribute(
         "aria-label",
-        "Select a tag for your highlighter"
+        "Select a tag for your highlighter",
       );
       if (!dropdown.selectEl.classList.contains("has-tooltip")) {
         dropdown.selectEl.classList.add("has-tooltip");
@@ -342,7 +345,7 @@ export class SettingTab extends PluginSettingTab {
             this.app,
             tagDropdownComponent,
             tagName,
-            expandedTags
+            expandedTags,
           );
           createNewTag.open();
         }
@@ -375,7 +378,7 @@ export class SettingTab extends PluginSettingTab {
         staticDecorationDropdownComponent = dropdown;
         dropdown.selectEl.setAttribute(
           "aria-label",
-          "Select a decoration style for your highlighter"
+          "Select a decoration style for your highlighter",
         );
         if (!dropdown.selectEl.classList.contains("has-tooltip")) {
           dropdown.selectEl.classList.add("has-tooltip");
@@ -405,7 +408,7 @@ export class SettingTab extends PluginSettingTab {
               .toString();
             queryInput.inputEl.setAttribute(
               "style",
-              snippetMaker(staticDecorationValue, color)
+              snippetMaker(staticDecorationValue, color),
             );
           });
       });
@@ -413,7 +416,7 @@ export class SettingTab extends PluginSettingTab {
     // RegEx toggle
     defineQueryUIBottom.controlEl.createSpan("regex-text").setText("regEx");
     const regexToggle = new ToggleComponent(
-      defineQueryUIBottom.controlEl
+      defineQueryUIBottom.controlEl,
     ).setValue(false);
     regexToggle.setTooltip("Activate RegEx");
     regexToggle.toggleEl.addClass("regex-toggle");
@@ -430,7 +433,7 @@ export class SettingTab extends PluginSettingTab {
     // "match" toggle, to decorate matched characters
     defineQueryUIBottom.controlEl.createSpan("matches-text").setText("matches");
     const matchToggle = new ToggleComponent(
-      defineQueryUIBottom.controlEl
+      defineQueryUIBottom.controlEl,
     ).setValue(true);
     matchToggle.setTooltip("Deactivate highlighting matches");
     matchToggle.toggleEl.addClass("matches-toggle");
@@ -440,14 +443,14 @@ export class SettingTab extends PluginSettingTab {
       matchToggle.setTooltip(
         value
           ? "Deactivate highlighting matches"
-          : "Activate highlighting matches"
+          : "Activate highlighting matches",
       );
     });
 
     // "line" toggle, to decorate the entire parent line
     defineQueryUIBottom.controlEl.createSpan("line-text").setText("lines");
     const lineToggle = new ToggleComponent(
-      defineQueryUIBottom.controlEl
+      defineQueryUIBottom.controlEl,
     ).setValue(false);
     lineToggle.setTooltip("Activate higlighting of parent line");
     lineToggle.toggleEl.addClass("line-toggle");
@@ -456,20 +459,22 @@ export class SettingTab extends PluginSettingTab {
       lineToggle.setTooltip(
         value
           ? "Deactivate higlighting of parent line"
-          : "Activate higlighting of parent line"
+          : "Activate higlighting of parent line",
       );
     });
 
     // "groups" toggle, to highlight regex capture groups instead of whole match
     defineQueryUIBottom.controlEl.createSpan("groups-text").setText("groups");
     const groupsToggle = new ToggleComponent(
-      defineQueryUIBottom.controlEl
+      defineQueryUIBottom.controlEl,
     ).setValue(false);
     groupsToggle.setTooltip("Highlight regex capture groups");
     groupsToggle.toggleEl.addClass("groups-toggle");
     groupsToggle.onChange((active) => {
       regexToggle.setValue(active || regexToggle.getValue());
-      groupsToggle.setTooltip(`${active ? "Deactivate" : "Activate"} regex capture group highlighting`);
+      groupsToggle.setTooltip(
+        `${active ? "Deactivate" : "Activate"} regex capture group highlighting`,
+      );
       if (active && !queryInput.getValue().contains("(")) {
         new Notice("Your regex does not contain any capture groups");
       }
@@ -680,11 +685,12 @@ export class SettingTab extends PluginSettingTab {
           // Make a standard snippet for the cool icon next to the highlighters
           let makecolorIconSnippet: string = snippetMaker(
             staticDecorationValue,
-            staticHexValue
+            staticHexValue,
           );
           // Gather all the stuff we need to make our highlighter
+
           config.queries[currentHighlighterName] = {
-            class: currentHighlighterName, // the name
+            class: currentHighlighterName.replace(" ", "-"), // the name
             staticColor: staticHexValue || hslaColor, // the color
             staticDecoration: staticDecorationValue, // the deco
             staticCss: staticCssSnippet, // the deco css snippet
@@ -746,7 +752,7 @@ export class SettingTab extends PluginSettingTab {
             staticPickrInstance.setColor(hslaColor);
             queryNameInput.inputEl.setAttribute(
               "style",
-              `background-color: none; color: var(--text-normal);`
+              `background-color: none; color: var(--text-normal);`,
             );
             staticPickrInstance.hide();
             regexToggle.setValue(false);
@@ -852,13 +858,13 @@ export class SettingTab extends PluginSettingTab {
           };
           // Create the toggle for enabling/disabling the tag
           const tagButtons = new Setting(tagHeader).setClass(
-            "tag-header-buttons"
+            "tag-header-buttons",
           );
           tagButtons.addToggle((tagToggle) => {
             tagToggle.setTooltip(
               config.queries[highlighter].tagEnabled
                 ? `Deactivate ${tag}`
-                : `Activate ${tag}`
+                : `Activate ${tag}`,
             );
             // logic to grey out the toggle when appropriate
             let tagIsDisabled: boolean =
@@ -891,7 +897,7 @@ export class SettingTab extends PluginSettingTab {
                   // Refresh the highlighter decorations and display
                   this.plugin.updateStaticHighlighter();
                   this.display();
-                })()
+                })(),
               );
             });
           });
@@ -910,7 +916,7 @@ export class SettingTab extends PluginSettingTab {
                     tagDropdownComponent,
                     expandedTags,
                     this.plugin.settings.staticHighlighter,
-                    modalSaveAndReload
+                    modalSaveAndReload,
                   );
                   renameTag.open();
                 });
@@ -929,7 +935,7 @@ export class SettingTab extends PluginSettingTab {
                     tag,
                     this.plugin.settings.staticHighlighter,
                     expandedTags,
-                    modalSaveAndReload
+                    modalSaveAndReload,
                   );
                   deleteTag.open();
                 });
@@ -949,7 +955,7 @@ export class SettingTab extends PluginSettingTab {
         const dragIcon = settingItem.createEl("span");
         dragIcon.addClass(
           "highlighter-setting-icon",
-          "highlighter-setting-icon-drag"
+          "highlighter-setting-icon-drag",
         );
         const styleIcon = settingItem.createEl("span");
         styleIcon.addClass("highlighter-style-icon");
@@ -959,11 +965,11 @@ export class SettingTab extends PluginSettingTab {
         });
         Object.assign(
           abc.style,
-          this.parseCssString(config.queries[highlighter].colorIconSnippet)
+          this.parseCssString(config.queries[highlighter].colorIconSnippet),
         );
         dragIcon.addClass(
           "highlighter-setting-icon",
-          "highlighter-setting-icon-drag"
+          "highlighter-setting-icon-drag",
         );
 
         const highlighterButtons = new Setting(settingItem)
@@ -972,7 +978,7 @@ export class SettingTab extends PluginSettingTab {
           .setDesc(
             config.queries[highlighter].regex
               ? `regEx: ` + query
-              : `query: ` + query
+              : `query: ` + query,
           );
 
         // The toggle to enable/disable the highlighter
@@ -980,13 +986,13 @@ export class SettingTab extends PluginSettingTab {
           highlighterToggle.setTooltip(
             config.queries[highlighter].highlighterEnabled
               ? `Deactivate ${highlighter}`
-              : `Activate ${highlighter}`
+              : `Activate ${highlighter}`,
           );
           // logic to grey out the toggle when appropriate
           let highlighterIsDisabled: boolean =
             !this.plugin.settings.staticHighlighter.onOffSwitch;
           highlighterToggle.setValue(
-            config.queries[highlighter].highlighterEnabled ?? true
+            config.queries[highlighter].highlighterEnabled ?? true,
           );
           if (
             // if the highlighter is disabled for some reason
@@ -995,18 +1001,18 @@ export class SettingTab extends PluginSettingTab {
           ) {
             highlighterToggle.setDisabled(highlighterIsDisabled);
             highlighterToggle.toggleEl.classList.remove(
-              "enabled-highlighter-toggle"
+              "enabled-highlighter-toggle",
             );
             highlighterToggle.toggleEl.classList.add(
-              "disabled-highlighter-toggle"
+              "disabled-highlighter-toggle",
             );
           } else {
             // if it is enabled
             highlighterToggle.toggleEl.classList.remove(
-              "enabled-highlighter-toggle"
+              "disabled-highlighter-toggle",
             );
             highlighterToggle.toggleEl.classList.add(
-              "enabled-highlighter-toggle"
+              "enabled-highlighter-toggle",
             );
           }
           highlighterToggle.onChange((value) => {
@@ -1016,7 +1022,7 @@ export class SettingTab extends PluginSettingTab {
             // Update the 'enabled' property of the highlighter
             config.queries[highlighter].highlighterEnabled = value;
             highlighterToggle.setTooltip(
-              value ? `Deactivate ${highlighter}` : `Activate ${highlighter}`
+              value ? `Deactivate ${highlighter}` : `Activate ${highlighter}`,
             );
 
             (async () => {
@@ -1046,7 +1052,7 @@ export class SettingTab extends PluginSettingTab {
                 staticPickrInstance.setColor(options.staticColor);
                 queryInput.inputEl.value = options.query;
                 staticDecorationDropdownComponent.setValue(
-                  options.staticDecoration
+                  options.staticDecoration,
                 );
                 staticDecorationValue = options.staticDecoration;
                 tagName = options.tag;
@@ -1089,7 +1095,7 @@ export class SettingTab extends PluginSettingTab {
                   highlighter,
                   this.plugin.settings.staticHighlighter,
                   config.queryOrder,
-                  modalSaveAndReload
+                  modalSaveAndReload,
                 );
                 deleteHighlighter.open();
               });
@@ -1097,7 +1103,7 @@ export class SettingTab extends PluginSettingTab {
       } else {
         this.plugin.settings.staticHighlighter.queryOrder =
           this.plugin.settings.staticHighlighter.queryOrder.filter(
-            (item) => item != highlighter
+            (item) => item != highlighter,
           );
         this.plugin.saveSettings();
       }
@@ -1105,7 +1111,7 @@ export class SettingTab extends PluginSettingTab {
     const renderInReadingMode = new Setting(this.containerEl)
       .setName("Show highlights in reading mode")
       .setDesc(
-        "If enabled, highlights will also be shown in reading mode (preview)"
+        "If enabled, highlights will also be shown in reading mode (preview)",
       )
       .addToggle((toggle) => {
         toggle
@@ -1118,7 +1124,7 @@ export class SettingTab extends PluginSettingTab {
     const chooseCommands = new Setting(containerEl);
     chooseCommands.setName("Hotkeys and command palette");
     chooseCommands.setDesc(
-      `All your tags are automatically added to the command palette/hotkeys for toggling. If you want to toggle individual highlighters via palette/hotkey, input a comma separated list of their names (case sensitive). Highlighters with the tag '#unsorted' are added automatically.`
+      `All your tags are automatically added to the command palette/hotkeys for toggling. If you want to toggle individual highlighters via palette/hotkey, input a comma separated list of their names (case sensitive). Highlighters with the tag '#unsorted' are added automatically.`,
     );
     chooseCommands.addTextArea((text) => {
       text.inputEl.addClass("ignored-words-input");
@@ -1142,7 +1148,7 @@ export class SettingTab extends PluginSettingTab {
 
     const selectionHighlightUI = new Setting(containerEl);
     const rowWrapper = selectionHighlightUI.controlEl.createDiv(
-      "selectedHighlightsStylingsContainer"
+      "selectedHighlightsStylingsContainer",
     );
 
     const descriptionText = rowWrapper.createDiv("choose-color-text");
@@ -1229,7 +1235,7 @@ export class SettingTab extends PluginSettingTab {
         selectionDecorationDropdownComponent = dropdown;
         dropdown.selectEl.setAttribute(
           "aria-label",
-          "Select a decoration style for your highlighter"
+          "Select a decoration style for your highlighter",
         );
         if (!dropdown.selectEl.classList.contains("has-tooltip")) {
           dropdown.selectEl.classList.add("has-tooltip");
@@ -1254,7 +1260,7 @@ export class SettingTab extends PluginSettingTab {
             this.plugin.settings.selectionHighlighter.selectionDecoration ===
               "default"
               ? "underline dotted"
-              : this.plugin.settings.selectionHighlighter.selectionDecoration
+              : this.plugin.settings.selectionHighlighter.selectionDecoration,
           )
           .onChange((value) => {
             this.plugin.settings.selectionHighlighter.selectionDecoration =
@@ -1279,7 +1285,7 @@ export class SettingTab extends PluginSettingTab {
         // Make a snippet out of the chosen values
         this.plugin.settings.selectionHighlighter.css = snippetMaker(
           decoration,
-          color
+          color,
         );
         // save and update
         new Notice("Selection highlighter style saved.");
@@ -1316,7 +1322,7 @@ export class SettingTab extends PluginSettingTab {
       .addToggle((toggle) => {
         toggle
           .setValue(
-            this.plugin.settings.selectionHighlighter.highlightWordAroundCursor
+            this.plugin.settings.selectionHighlighter.highlightWordAroundCursor,
           )
           .onChange((value) => {
             this.plugin.settings.selectionHighlighter.highlightWordAroundCursor =
@@ -1331,7 +1337,7 @@ export class SettingTab extends PluginSettingTab {
       .addToggle((toggle) => {
         toggle
           .setValue(
-            this.plugin.settings.selectionHighlighter.highlightSelectedText
+            this.plugin.settings.selectionHighlighter.highlightSelectedText,
           )
           .onChange((value) => {
             this.plugin.settings.selectionHighlighter.highlightSelectedText =
@@ -1343,13 +1349,13 @@ export class SettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Highlight delay")
       .setDesc(
-        "The delay, in milliseconds, before selection highlights will appear. Must be greater than 200ms."
+        "The delay, in milliseconds, before selection highlights will appear. Must be greater than 200ms.",
       )
       .addText((text) => {
         text.inputEl.type = "number";
         text
           .setValue(
-            String(this.plugin.settings.selectionHighlighter.highlightDelay)
+            String(this.plugin.settings.selectionHighlighter.highlightDelay),
           )
           .onChange((value) => {
             if (parseInt(value) < 200) value = "200";
@@ -1363,7 +1369,7 @@ export class SettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Ignored words")
       .setDesc(
-        "A comma separated list of words that will be ignored by selection highlights."
+        "A comma separated list of words that will be ignored by selection highlights.",
       )
       .addTextArea((text) => {
         text.inputEl.addClass("ignored-words-input");
@@ -1386,7 +1392,7 @@ export class SettingTab extends PluginSettingTab {
       if (property && value) {
         // Convert kebab-case to camelCase for style properties
         const camelProperty = property.replace(/-([a-z])/g, (g) =>
-          g[1].toUpperCase()
+          g[1].toUpperCase(),
         );
         styleObject[camelProperty] = value;
       }
