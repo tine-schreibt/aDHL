@@ -1,6 +1,6 @@
 {
   "name": "another-dynamic-highlights-plugin",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Another Dynamic Highlights Plugin that highlights RegEx and word under cursor.",
   "main": "main.js",
   "scripts": {
