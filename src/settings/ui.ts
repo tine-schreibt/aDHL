@@ -1331,7 +1331,6 @@ export class SettingTab extends PluginSettingTab {
             this.plugin.updateSelectionHighlighter();
           });
       });
-
     new Setting(containerEl)
       .setName("Highlight all occurrences of the actively selected text")
       .addToggle((toggle) => {
@@ -1346,6 +1345,43 @@ export class SettingTab extends PluginSettingTab {
             this.plugin.updateSelectionHighlighter();
           });
       });
+
+    new Setting(containerEl)
+      .setName("Minimum selection length")
+      .setDesc("Set to 1 for Chinese characters")
+      .addText((text) => {
+        text.inputEl.type = "number";
+        text
+          .setValue(
+            String(
+              this.plugin.settings.selectionHighlighter.minSelectionLength,
+            ),
+          )
+          .onChange((value) => {
+            this.plugin.settings.selectionHighlighter.minSelectionLength =
+              parseInt(value);
+            this.plugin.saveSettings();
+            this.plugin.updateSelectionHighlighter();
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Maximum number of matches")
+      .setDesc("If there are too many matches, highlighting is blocked.")
+      .addText((text) => {
+        text.inputEl.type = "number";
+        text
+          .setValue(
+            String(this.plugin.settings.selectionHighlighter.maxMatches),
+          )
+          .onChange((value) => {
+            this.plugin.settings.selectionHighlighter.maxMatches =
+              parseInt(value);
+            this.plugin.saveSettings();
+            this.plugin.updateSelectionHighlighter();
+          });
+      });
+
     new Setting(containerEl)
       .setName("Highlight delay")
       .setDesc(

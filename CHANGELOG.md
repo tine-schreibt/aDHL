@@ -1,3 +1,6 @@
+## [1.2.5]
+- added option to set selection length and max number of matches to improve usability for Chinese characters
+
 ## [1.2.3]
 
 - updated glob to version 11.1.0
