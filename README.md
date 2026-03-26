@@ -112,6 +112,8 @@ left to right, top to bottom. The example queries can be found all the way down.
 - **Highlight all occurrences of the actively selected text:** As the
   description says. Find a toggle for this also in the Control Palette/Hotkey
   panel.
+- **Mininum selection length:** You can set this to 1 so Chinese characters can be highlighted.
+- **Maximum number of matches:** If the plugin finds more matches than this, highlighting will be blocked.
 - **Highlight delay:** For when you want the word around your cursor to be
   highlighted, but only when you stop typing for a moment.
 - **Ignored words:** A list of words you don't want to be highlighted, even when
