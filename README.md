@@ -5,6 +5,8 @@ worthwhile.
 
 UPDATES
 
+- 2026-03-26: You can now choose the min length of selection highlights. Set it
+  to 1 to work for Chinese charactes. 
 - 2025-08-16: @leonrjg added capture group functionality. Thank you!
 
 Some of the highlight styles were inspired by those available in 'Highlightr' by
