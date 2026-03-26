@@ -80,7 +80,7 @@
 /* FLEXBOX TOP ROW */
 .define-query-ui-top-container {
   display: flex;
-  gap: 10px;
+  gap: 5px;
   align-items: center;
   height: 30px;
   line-height: 30px;
@@ -109,12 +109,16 @@
   padding: 0;
 }
 
+
+.tag-dropdown-wrapper{
+  margin: 0;
+}
 .tag-dropdown {
   order: 0;
   margin: 0;
-  margin-right: 12px;
+  margin-right: 5px;
   padding: 4px;
-  max-width: 140px;
+  max-width: 100px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -151,13 +155,13 @@
 /* Contains the dropdown, regEx and marks */
 .define-query-ui-bottom-container {
   display: flex;
+  gap: 5px;
   align-items: center;
-  gap: 10px;
   height: 30px;
+  line-height: 30px;
   justify-content: center;
   margin-top: -3px;
   border-top: none;
-  margin-left: -26px;
   margin-bottom: 10px;
 }
 
@@ -165,6 +169,7 @@
 .deco-dropdown {
   order: 0;
   margin-top: 3px;
+  margin-left: -18px;
   margin-right: 5px;
 }
 
