@@ -50,6 +50,7 @@ export const DEFAULT_SETTINGS: AnotherDynamicHighlightsSettings = {
   },
   staticHighlighter: {
     showInReadingMode: false,
+    debugMode: false,
     queries: {},
     queryOrder: [],
     tagOrder: [],

@@ -346,7 +346,8 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 
       // Only log if matches are found
       if (matches.length > 0) {
-        console.log("Found matches in text:", {
+        if (this.settings.staticHighlighter.debugMode) {
+          console.log("Found matches in text:", {
           text: nodeText,
           pattern: pattern,
           matches: matches.map((m) => ({
@@ -354,6 +355,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
             index: m.index,
           })),
         });
+        }
 
         const fragment = document.createDocumentFragment();
         let lastIndex = 0;
