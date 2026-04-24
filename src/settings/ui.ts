@@ -65,7 +65,9 @@ export class SettingTab extends PluginSettingTab {
       }
       const resolveColor = () =>
         color === "default" ? "var(--text-accent)" : color;
-      if (deco == "background") {
+      if (deco == "none") {
+        cssSnippet = "";
+      } else if (deco == "background") {
         cssSnippet = `background-color: ${resolveColor()}`;
       } else if (deco == "background rounded") {
         cssSnippet = `position: relative; background-color: ${resolveColor()}; padding: 0.15em 0.25em; margin: 0; border-radius: 0.25em; box-decoration-break: clone; -webkit-box-decoration-break: clone; background-clip: padding-box; background-image: linear-gradient(to right, ${resolveColor()}dd, ${resolveColor()} 50%, ${resolveColor()}dd); box-shadow: inset 0 0 0 1px ${resolveColor()}22; display: inline;`;
@@ -220,6 +222,7 @@ export class SettingTab extends PluginSettingTab {
       .setClass("define-query-ui");
 
     const defineQueryUITop = new Setting(defineQueryUI.controlEl);
+    defineQueryUITop.setClass("define-query-ui-top-container");
 
     // Input field for the highlighter name
     const queryNameInput = new TextComponent(defineQueryUITop.controlEl);
@@ -384,6 +387,7 @@ export class SettingTab extends PluginSettingTab {
           dropdown.selectEl.classList.add("has-tooltip");
         }
         dropdown
+          .addOption("none", "None (class only)")
           .addOption("background", "Background square")
           .addOption("background rounded", "--- rounded")
           .addOption("background realistic", "--- realistic")
@@ -413,10 +417,14 @@ export class SettingTab extends PluginSettingTab {
           });
       });
 
+    // Toggles grid container
+    const togglesGrid = defineQueryUIBottom.controlEl.createDiv("toggles-grid");
+
     // RegEx toggle
-    defineQueryUIBottom.controlEl.createSpan("regex-text").setText("regEx");
+    const regexPair = togglesGrid.createDiv("toggle-pair");
+    regexPair.createSpan("regex-text").setText("regEx");
     const regexToggle = new ToggleComponent(
-      defineQueryUIBottom.controlEl,
+      regexPair,
     ).setValue(false);
     regexToggle.setTooltip("Activate RegEx");
     regexToggle.toggleEl.addClass("regex-toggle");
@@ -431,9 +439,10 @@ export class SettingTab extends PluginSettingTab {
     });
 
     // "match" toggle, to decorate matched characters
-    defineQueryUIBottom.controlEl.createSpan("matches-text").setText("matches");
+    const matchPair = togglesGrid.createDiv("toggle-pair");
+    matchPair.createSpan("matches-text").setText("matches");
     const matchToggle = new ToggleComponent(
-      defineQueryUIBottom.controlEl,
+      matchPair,
     ).setValue(true);
     matchToggle.setTooltip("Deactivate highlighting matches");
     matchToggle.toggleEl.addClass("matches-toggle");
@@ -448,9 +457,10 @@ export class SettingTab extends PluginSettingTab {
     });
 
     // "line" toggle, to decorate the entire parent line
-    defineQueryUIBottom.controlEl.createSpan("line-text").setText("lines");
+    const linePair = togglesGrid.createDiv("toggle-pair");
+    linePair.createSpan("line-text").setText("lines");
     const lineToggle = new ToggleComponent(
-      defineQueryUIBottom.controlEl,
+      linePair,
     ).setValue(false);
     lineToggle.setTooltip("Activate higlighting of parent line");
     lineToggle.toggleEl.addClass("line-toggle");
@@ -464,9 +474,10 @@ export class SettingTab extends PluginSettingTab {
     });
 
     // "groups" toggle, to highlight regex capture groups instead of whole match
-    defineQueryUIBottom.controlEl.createSpan("groups-text").setText("groups");
+    const groupsPair = togglesGrid.createDiv("toggle-pair");
+    groupsPair.createSpan("groups-text").setText("groups");
     const groupsToggle = new ToggleComponent(
-      defineQueryUIBottom.controlEl,
+      groupsPair,
     ).setValue(false);
     groupsToggle.setTooltip("Highlight regex capture groups");
     groupsToggle.toggleEl.addClass("groups-toggle");
@@ -480,10 +491,11 @@ export class SettingTab extends PluginSettingTab {
       }
     });
 
-    // The save Button
+    // The save & discard buttons group
     // helper variable stores highlighter to enable changing its other settings
     let currentHighlighterName: string | null = null;
-    const saveButton = new ButtonComponent(defineQueryUITop.controlEl);
+    const buttonsGroup = defineQueryUITop.controlEl.createDiv("define-buttons-group");
+    const saveButton = new ButtonComponent(buttonsGroup);
     saveButton.buttonEl.setAttribute("state", "creating");
     saveButton
       .setClass("save-button")
@@ -566,7 +578,9 @@ export class SettingTab extends PluginSettingTab {
             staticHexValue === "default"
               ? "var(--text-accent)"
               : staticHexValue;
-          if (staticDecorationValue === "background") {
+          if (staticDecorationValue === "none") {
+            staticCssSnippet = {};
+          } else if (staticDecorationValue === "background") {
             staticCssSnippet = {
               backgroundColor: resolveColor02(),
             };
@@ -723,7 +737,7 @@ export class SettingTab extends PluginSettingTab {
       });
 
     // The discard button
-    const discardButton = new ButtonComponent(defineQueryUITop.controlEl);
+    const discardButton = new ButtonComponent(buttonsGroup);
     discardButton
       .setClass("discard-button")
       .setClass("action-button")
@@ -1035,6 +1049,43 @@ export class SettingTab extends PluginSettingTab {
 
         highlighterButtons
           .addButton((button) => {
+            button.setTooltip(`Duplicate ${highlighter} as a new highlighter`);
+            button
+              .setClass("action-button")
+              .setClass("action-button-highlighterslist")
+              .setClass("mod-cta-inverted")
+              .setIcon("copy")
+              .onClick(async () => {
+                const options = config.queries[highlighter];
+                let copyName = highlighter + " (copy)";
+                let counter = 1;
+                while (config.queries[copyName]) {
+                  counter++;
+                  copyName = highlighter + ` (copy ${counter})`;
+                }
+                config.queries[copyName] = {
+                  class: copyName.replace(/ /g, "-"),
+                  staticColor: options.staticColor,
+                  staticDecoration: options.staticDecoration,
+                  staticCss: { ...options.staticCss },
+                  colorIconSnippet: options.colorIconSnippet,
+                  regex: options.regex,
+                  query: options.query,
+                  mark: options.mark ? [...options.mark] : undefined,
+                  highlighterEnabled: true,
+                  tag: options.tag,
+                  tagEnabled: options.tagEnabled,
+                };
+                const tagIndex = config.queryOrder.indexOf(highlighter);
+                config.queryOrder.splice(tagIndex + 1, 0, copyName);
+                await this.plugin.saveSettings();
+                this.plugin.updateStaticHighlighter();
+                this.plugin.updateStyles();
+                this.display();
+                new Notice(`Duplicated as "${copyName}"`);
+              });
+          })
+          .addButton((button) => {
             button.setTooltip(`Edit ${highlighter} highlighter`);
             button
               .setClass("action-button")
@@ -1118,6 +1169,19 @@ export class SettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.staticHighlighter.showInReadingMode)
           .onChange(async (value) => {
             this.plugin.settings.staticHighlighter.showInReadingMode = value;
+            await this.plugin.saveSettings();
+          });
+      });
+    new Setting(this.containerEl)
+      .setName("Debug mode")
+      .setDesc(
+        "If enabled, match details will be logged to the developer console.",
+      )
+      .addToggle((toggle) => {
+        toggle
+          .setValue(this.plugin.settings.staticHighlighter.debugMode)
+          .onChange(async (value) => {
+            this.plugin.settings.staticHighlighter.debugMode = value;
             await this.plugin.saveSettings();
           });
       });
@@ -1241,6 +1305,7 @@ export class SettingTab extends PluginSettingTab {
           dropdown.selectEl.classList.add("has-tooltip");
         }
         dropdown
+          .addOption("none", "None (class only)")
           .addOption("background", "Background square")
           .addOption("background rounded", "--- rounded")
           .addOption("background realistic", "--- realistic")

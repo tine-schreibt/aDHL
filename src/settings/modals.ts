@@ -182,7 +182,9 @@ export class DeleteTagModal extends Modal {
 
     tagDeleteDecision.placeholder = `Delete ${this.oldTagName}!`;
 
-    const deleteButton = new ButtonComponent(contentEl);
+    const buttonContainer = contentEl.createDiv("modal-button-container");
+
+    const deleteButton = new ButtonComponent(buttonContainer);
     deleteButton.setClass("action-button");
     deleteButton.setClass("action-button-modal");
     deleteButton.setClass("action-button-delete");
@@ -218,7 +220,7 @@ export class DeleteTagModal extends Modal {
       }
     });
 
-    const cancelButton = new ButtonComponent(contentEl);
+    const cancelButton = new ButtonComponent(buttonContainer);
     cancelButton.setClass("action-button");
     cancelButton.setClass("action-button-cancel");
     cancelButton.setCta();
@@ -261,7 +263,9 @@ export class DeleteHighlighterModal extends Modal {
       cls: "Tag-modal-helper",
     });
 
-    const deleteButton = new ButtonComponent(contentEl);
+    const buttonContainer = contentEl.createDiv("modal-button-container");
+
+    const deleteButton = new ButtonComponent(buttonContainer);
     deleteButton.setClass("action-button");
     deleteButton.setClass("action-button-delete-modal");
     deleteButton.setWarning();
@@ -281,7 +285,7 @@ export class DeleteHighlighterModal extends Modal {
       }
     });
 
-    const cancelButton = new ButtonComponent(contentEl);
+    const cancelButton = new ButtonComponent(buttonContainer);
     cancelButton.setClass("action-button");
     cancelButton.setClass("action-button-cancel");
     cancelButton.setCta();
