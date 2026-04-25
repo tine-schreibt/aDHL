@@ -73,56 +73,72 @@
   align-content: center;
   align-items: center;
   flex-wrap: wrap;
-  justify-content: flex-start;
   border-top: none;
 }
 
 /* FLEXBOX TOP ROW */
 .define-query-ui-top-container {
+  border-top: none;
+  padding: 0;
+}
+
+.define-query-ui-top-container > .setting-item-info {
+  display: none;
+}
+
+.define-query-ui-top-container > .setting-item-control {
   display: flex;
   gap: 5px;
   align-items: center;
-  height: 30px;
-  line-height: 30px;
-  justify-content: center;
-  border-bottom: none;
-  padding-bottom: 0px;
+  flex-wrap: wrap;
+  width: 100%;
 }
 
 .define-query-ui-top-container .setting-item {
-  padding: 0px 0px 0px;
+  padding: 0;
 }
 
 /* Reorder elements in the flexbox */
 .query-name-input {
   order: -3;
   margin: 0;
+  min-width: 80px;
+  flex: 1 1 80px;
 }
 
 .color-button-wrapper {
   order: -2;
+  flex-shrink: 0;
 }
 
 .query-input {
   order: -1;
   margin: 0;
   padding: 0;
+  min-width: 80px;
+  flex: 1 1 80px;
 }
 
 
-.tag-dropdown-wrapper{
+.tag-dropdown-wrapper {
   margin: 0;
+  flex-shrink: 0;
 }
+
+/* Collapse the nested Setting inside tag-dropdown */
+.tag-dropdown-wrapper .setting-item-info {
+  display: none;
+}
+
 .tag-dropdown {
   order: 0;
   margin: 0;
-  margin-right: 5px;
-  padding: 4px;
-  max-width: 100px;
+  padding: 0;
+  border-top: none;
+  max-width: 110px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: inline-block;
   background-image: none;
 }
 
@@ -134,73 +150,79 @@
   text-overflow: ellipsis;
 }
 
-.save-button {
-  order: 2;
-}
-
-.discard-button {
-  order: 3;
-}
-
-.dynamic-highlights-settings .action-button.action-button-save {
-  align-self: center;
+.define-buttons-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
   margin-left: auto;
 }
 
-.dynamic-highlights-settings .action-button.action-button-discard {
-  align-self: center;
-  margin-left: auto;
+.define-buttons-group .action-button {
+  margin-right: 0;
+  padding: 6px 12px;
 }
 
 /* Contains the dropdown, regEx and marks */
 .define-query-ui-bottom-container {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  height: 30px;
-  line-height: 30px;
-  justify-content: center;
-  margin-top: -3px;
   border-top: none;
+  padding: 0;
   margin-bottom: 10px;
 }
 
-/* Reorder elements in the flexbox */
+.define-query-ui-bottom-container > .setting-item-info {
+  display: none;
+}
+
+.dynamic-highlights-settings .define-query-ui-bottom-container > .setting-item-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+/* Collapse nested Setting inside deco-dropdown */
+.deco-dropdown .setting-item-info {
+  display: none;
+}
+
+.deco-dropdown .setting-item.deco-dropdown {
+  border-top: none;
+  padding: 0;
+}
+
 .deco-dropdown {
-  order: 0;
-  margin-top: 3px;
-  margin-left: -18px;
-  margin-right: 5px;
+  margin: 0;
+  flex-shrink: 0;
 }
 
-.regEx-text {
-  order: 1;
-  text-align: start;
-  margin-right: -3px;
+/* Toggles grid: 4 cols when wide, 2 cols when narrow */
+.toggles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 2px 10px;
+  align-items: center;
+  margin-left: auto;
 }
 
-.regEx-toggle {
-  order: 2;
-  margin-right: 5px;
+@media (min-width: 700px) {
+  .toggles-grid {
+    grid-template-columns: repeat(4, auto);
+  }
 }
 
-.matches-text {
-  order: 3;
-  text-align: start;
-  margin-left: 10px;
+/* Each toggle pair (label + checkbox) inline */
+.toggle-pair {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
 }
 
-.matches-toggle {
-  order: 4;
-}
-
-.line-text {
-  order: 5;
-  margin-left: 10px;
-}
-
-.line-toggle {
-  order: 6;
+.toggle-pair > span {
+  font-size: var(--font-smallest);
 }
 
 /* ##################### YOUR HIGHLIGHTERS AND TAGS #####################*/
@@ -223,10 +245,14 @@
 }
 
 .tag-container {
-  border: 1px solid #ccc;
-  /*border-radius: 10px;*/
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
   padding: 15px;
-  /*background-color: #bbb3c638;*/
+  margin-bottom: 8px;
+}
+
+.tag-container .setting-item {
+  background: transparent;
 }
 
 .tag-container .tag-header {
@@ -238,7 +264,14 @@
 .tag-header-buttons {
   display: flex;
   align-items: center;
+  gap: 4px;
   border: none;
+  flex-shrink: 0;
+}
+
+.tag-header-buttons .action-button {
+  margin-right: 0;
+}
 }
 
 .tag-header .toggle-icon {
@@ -253,7 +286,7 @@
   font-weight: 600;
   font-size: medium;
   border-bottom: 1px;
-  background-color: #ffffff;
+  background-color: var(--background-primary);
   cursor: pointer;
 }
 
@@ -311,9 +344,18 @@
   .highlighter-container
   .highlighter-details
   .setting-item-control {
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   flex-grow: 0;
   border-top: none;
+  gap: 4px;
+}
+
+.dynamic-highlights-settings
+  .highlighter-container
+  .highlighter-details
+  .setting-item-control .action-button {
+  margin-right: 0;
+  padding: 6px 12px;
 }
 
 /* ##################### BUTTON, TOGGLE AND TEXT AREA STYLES #####################*/
@@ -359,53 +401,36 @@
 }
 
 .selectedHighlightsStylingsContainer {
-  display: grid;
-  grid-template-columns:
-    [example] auto
-    [color-picker] auto
-    [spacer1] 5px
-    [drop-down] auto
-    [spacer2] 10px
-    [save] auto
-    [selected-discard-button] auto
-    [spacer3] 10px [end];
-  grid-template-rows: [row] auto;
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   width: 100%;
   align-items: center;
 }
 
 .selectedHighlightsStylingsContainer .example {
-  grid-column: example;
   text-align: left;
-  width: 100%;
 }
 
 .selectedHighlightsStylingsContainer .selection-color-picker {
-  grid-column: color-picker;
 }
 
 .selectedHighlightsStylingsContainer .choose-decoration-text {
-  grid-column: choose_deco;
   text-align: left;
 }
 
 .selectedHighlightsStylingsContainer .decoration-dropdown {
-  grid-column: drop-down;
   border: none;
 }
 
 .selectedHighlightsStylingsContainer .selected-save-button {
-  grid-column: save;
 }
 
 .selectedHighlightsStylingsContainer .selected-discard-button {
-  grid-column: selected-discard-button;
 }
 
 .selectedHighlightsStylingsContainer .selected-spacer {
-  grid-column: spacer3;
-  border: none;
+  display: none;
 }
 
 /* ##################### BUTTONS AND STUFF I DON'T UNDERSTAND #####################*/
@@ -418,7 +443,7 @@
   place-content: center;
   padding: 8px 18px;
   /* set this to the obsidian default to address theme devs messing with it 👀 */
-  margin-right: 12px;
+  margin-right: 0;
 }
 
 .modal-warning-text {
@@ -954,6 +979,13 @@
 /* #endregion pickr vendored styles */
 
 /* ##################### MODALS #####################*/
+.modal-button-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
 .tag-modal-text {
   width: 400px;
   margin-top: -10px;
@@ -1139,7 +1171,7 @@
   display: grid;
   place-content: center;
   padding: 8px 18px;
-  margin-right: 12px;
+  margin-right: 0;
 }
 
 /* Search term & save region */
