@@ -96,7 +96,9 @@ left to right, top to bottom. The example queries can be found all the way down.
   too.
 
 **Enable debug mode**
-- If enabled, match details will be logged to the console.
+
+- If enabled, match details will be logged to the console - provided you have
+  highlighting for reading mode enabled, and you editor is in reading mode.
 
 **Hotkeys and command palette**
 

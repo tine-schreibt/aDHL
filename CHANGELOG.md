@@ -1,3 +1,6 @@
+## [1.2.8]
+- small additon to the UI, clarifying the use of debug mode
+
 ## [1.2.7]
 
 Kindly contributed by @Moyf. Thank you so much!

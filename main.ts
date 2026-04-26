@@ -118,7 +118,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
   updateSelectionHighlighter() {
     this.extensions.remove(this.selectionHighlighter);
     this.selectionHighlighter = highlightSelectionMatches(
-      this.settings.selectionHighlighter
+      this.settings.selectionHighlighter,
     );
     this.extensions.push(this.selectionHighlighter);
     this.app.workspace.updateOptions();
@@ -222,10 +222,10 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
               // notify of states
               staticHighlighters.queries[highlighter].tagEnabled
                 ? new Notice(
-                    `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is ON.`
+                    `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is ON.`,
                   )
                 : new Notice(
-                    `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is OFF.`
+                    `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is OFF.`,
                   );
               this.saveSettings();
               this.updateStaticHighlighter();
@@ -257,7 +257,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
               new Notice(`Toggled "${tag}" ON.`);
             } else if (staticHighlighters.queries[highlighter].tagEnabled) {
               new Notice(
-                `Toggled "${tag}" OFF. All highlighters carrying this tag are now OFF, too.`
+                `Toggled "${tag}" OFF. All highlighters carrying this tag are now OFF, too.`,
               );
             }
 
@@ -292,10 +292,10 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
               // notify of states
               staticHighlighters.queries[highlighter].tagEnabled
                 ? new Notice(
-                    `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is ON.`
+                    `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is ON.`,
                   )
                 : new Notice(
-                    `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is OFF.`
+                    `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is OFF.`,
                   );
               this.saveSettings();
               this.updateStaticHighlighter();
@@ -321,7 +321,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
       });
     },
     1000,
-    true
+    true,
   );
 
   private processNodeForHighlights(node: Node, pattern: RegExp, query: any) {
@@ -348,13 +348,13 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
       if (matches.length > 0) {
         if (this.settings.staticHighlighter.debugMode) {
           console.log("Found matches in text:", {
-          text: nodeText,
-          pattern: pattern,
-          matches: matches.map((m) => ({
-            text: m[0],
-            index: m.index,
-          })),
-        });
+            text: nodeText,
+            pattern: pattern,
+            matches: matches.map((m) => ({
+              text: m[0],
+              index: m.index,
+            })),
+          });
         }
 
         const fragment = document.createDocumentFragment();
@@ -367,7 +367,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
           // Add text before match
           if (matchIndex > lastIndex) {
             fragment.appendChild(
-              document.createTextNode(nodeText.slice(lastIndex, matchIndex))
+              document.createTextNode(nodeText.slice(lastIndex, matchIndex)),
             );
           }
 
@@ -391,7 +391,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
         // Add remaining text
         if (lastIndex < nodeText.length) {
           fragment.appendChild(
-            document.createTextNode(nodeText.slice(lastIndex))
+            document.createTextNode(nodeText.slice(lastIndex)),
           );
         }
 
@@ -404,7 +404,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 
     // Process child nodes
     Array.from(node.childNodes).forEach((child) =>
-      this.processNodeForHighlights(child, pattern, query)
+      this.processNodeForHighlights(child, pattern, query),
     );
   }
 
@@ -442,9 +442,9 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 
           // Get active queries
           const activeQueries = Object.entries(
-            this.settings.staticHighlighter.queries
+            this.settings.staticHighlighter.queries,
           ).filter(
-            ([_, query]) => query.highlighterEnabled && query.tagEnabled
+            ([_, query]) => query.highlighterEnabled && query.tagEnabled,
           );
 
           activeQueries.forEach(([highlighterName, query]) => {
@@ -459,14 +459,14 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
                   patternString = match[1];
                   // Combine extracted flags with default, ensuring no duplicates
                   flags = Array.from(
-                    new Set(flags.split("").concat(match[2].split("")))
+                    new Set(flags.split("").concat(match[2].split(""))),
                   ).join("");
                 }
                 // If no flags in query string, patternString remains query.query and flags remain "gm"
               } else {
                 patternString = query.query.replace(
                   /[-\\/\\\\^$*+?.()|[\\]{}]/g,
-                  "\\$&"
+                  "\\$&",
                 );
                 // For non-regex, flags remain "gm" (though 'g' is most relevant for replacement, 'm' doesn't hurt)
               }
@@ -477,11 +477,11 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
             } catch (error) {
               console.error(
                 `Error processing highlighter ${highlighterName}:`,
-                error
+                error,
               );
             }
           });
-        }
+        },
       );
     }
   }

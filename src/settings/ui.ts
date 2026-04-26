@@ -423,9 +423,7 @@ export class SettingTab extends PluginSettingTab {
     // RegEx toggle
     const regexPair = togglesGrid.createDiv("toggle-pair");
     regexPair.createSpan("regex-text").setText("regEx");
-    const regexToggle = new ToggleComponent(
-      regexPair,
-    ).setValue(false);
+    const regexToggle = new ToggleComponent(regexPair).setValue(false);
     regexToggle.setTooltip("Activate RegEx");
     regexToggle.toggleEl.addClass("regex-toggle");
     regexToggle.onChange((value) => {
@@ -441,9 +439,7 @@ export class SettingTab extends PluginSettingTab {
     // "match" toggle, to decorate matched characters
     const matchPair = togglesGrid.createDiv("toggle-pair");
     matchPair.createSpan("matches-text").setText("matches");
-    const matchToggle = new ToggleComponent(
-      matchPair,
-    ).setValue(true);
+    const matchToggle = new ToggleComponent(matchPair).setValue(true);
     matchToggle.setTooltip("Deactivate highlighting matches");
     matchToggle.toggleEl.addClass("matches-toggle");
 
@@ -459,9 +455,7 @@ export class SettingTab extends PluginSettingTab {
     // "line" toggle, to decorate the entire parent line
     const linePair = togglesGrid.createDiv("toggle-pair");
     linePair.createSpan("line-text").setText("lines");
-    const lineToggle = new ToggleComponent(
-      linePair,
-    ).setValue(false);
+    const lineToggle = new ToggleComponent(linePair).setValue(false);
     lineToggle.setTooltip("Activate higlighting of parent line");
     lineToggle.toggleEl.addClass("line-toggle");
     lineToggle.onChange((value) => {
@@ -476,9 +470,7 @@ export class SettingTab extends PluginSettingTab {
     // "groups" toggle, to highlight regex capture groups instead of whole match
     const groupsPair = togglesGrid.createDiv("toggle-pair");
     groupsPair.createSpan("groups-text").setText("groups");
-    const groupsToggle = new ToggleComponent(
-      groupsPair,
-    ).setValue(false);
+    const groupsToggle = new ToggleComponent(groupsPair).setValue(false);
     groupsToggle.setTooltip("Highlight regex capture groups");
     groupsToggle.toggleEl.addClass("groups-toggle");
     groupsToggle.onChange((active) => {
@@ -494,7 +486,9 @@ export class SettingTab extends PluginSettingTab {
     // The save & discard buttons group
     // helper variable stores highlighter to enable changing its other settings
     let currentHighlighterName: string | null = null;
-    const buttonsGroup = defineQueryUITop.controlEl.createDiv("define-buttons-group");
+    const buttonsGroup = defineQueryUITop.controlEl.createDiv(
+      "define-buttons-group",
+    );
     const saveButton = new ButtonComponent(buttonsGroup);
     saveButton.buttonEl.setAttribute("state", "creating");
     saveButton
@@ -1162,7 +1156,15 @@ export class SettingTab extends PluginSettingTab {
     const renderInReadingMode = new Setting(this.containerEl)
       .setName("Show highlights in reading mode")
       .setDesc(
-        "If enabled, highlights will also be shown in reading mode (preview)",
+        createFragment((desc) => {
+          desc.createSpan({
+            text: "If enabled, highlights will also be shown in reading mode (preview).",
+          });
+          desc.createEl("br");
+          desc.createSpan({
+            text: "You need to activate this if you want to use debug mode.",
+          });
+        }),
       )
       .addToggle((toggle) => {
         toggle
@@ -1175,7 +1177,7 @@ export class SettingTab extends PluginSettingTab {
     new Setting(this.containerEl)
       .setName("Debug mode")
       .setDesc(
-        "If enabled, match details will be logged to the developer console.",
+        "If enabled, match details will be logged to the developer console - for active editor in reading mode.",
       )
       .addToggle((toggle) => {
         toggle
