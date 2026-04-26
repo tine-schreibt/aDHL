@@ -95,6 +95,9 @@ left to right, top to bottom. The example queries can be found all the way down.
 - Toggle on or off if you want your highlights to be rendered in reading mode,
   too.
 
+**Enable debug mode**
+- If enabled, match details will be logged to the console.
+
 **Hotkeys and command palette**
 
 - All your tags are automatically added to the command palette/hotkeys for
