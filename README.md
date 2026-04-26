@@ -3,11 +3,19 @@ the regEx, but otherwise I left the basic mechanics untouched. I just added a
 lot more customisability and some usability features, which I hope you find
 worthwhile.
 
-UPDATES
+/// UPDATES -------------------
 
-- **2026-03-26:** You can now choose the min length of selection highlights. Set it
-  to 1 to work for *Chinese characters*. 
-- **2025-08-16:** @leonrjg added *capture group* functionality. Thank you!
+- **2026-04-25:** @Moyf added a bunch of stuff:
+  - Some UI fixes (responsiveness, improved dark mode)
+  - Option to duplicate queries
+  - A debug mode
+
+- **2026-03-26:** You can now choose the min length of selection highlights. Set
+  it to 1 to work for _Chinese characters_.
+
+- **2025-08-16:** @leonrjg added _capture group_ functionality. Thank you!
+
+/// ----------------------------
 
 Some of the highlight styles were inspired by those available in 'Highlightr' by
 @chetachiezikeuzor, so if you're using that, aDHL should fit right in, style
@@ -112,8 +120,10 @@ left to right, top to bottom. The example queries can be found all the way down.
 - **Highlight all occurrences of the actively selected text:** As the
   description says. Find a toggle for this also in the Control Palette/Hotkey
   panel.
-- **Mininum selection length:** You can set this to 1 so Chinese characters can be highlighted.
-- **Maximum number of matches:** If the plugin finds more matches than this, highlighting will be blocked.
+- **Mininum selection length:** You can set this to 1 so Chinese characters can
+  be highlighted.
+- **Maximum number of matches:** If the plugin finds more matches than this,
+  highlighting will be blocked.
 - **Highlight delay:** For when you want the word around your cursor to be
   highlighted, but only when you stop typing for a moment.
 - **Ignored words:** A list of words you don't want to be highlighted, even when
