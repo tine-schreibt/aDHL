@@ -8,7 +8,6 @@ import {
   Setting,
   TextAreaComponent,
 } from "obsidian";
-import { queriesSchema } from "src/schema/queries";
 import AnotherDynamicHighlightsPlugin from "../../main";
 import { SearchQueries } from "./settings";
 

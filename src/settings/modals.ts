@@ -6,7 +6,7 @@ import {
   TextComponent,
   ButtonComponent,
 } from "obsidian";
-import { StaticHighlightOptions } from "src/highlighters/static";
+import { StaticHighlightOptions } from "../highlighters/static";
 
 /*
 - newTagModal

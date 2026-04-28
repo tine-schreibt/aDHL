@@ -17,8 +17,8 @@ import {
   WidgetType,
 } from "@codemirror/view";
 import { cloneDeep } from "lodash";
-import AnotherDynamicHighlightsPlugin from "main";
-import { SearchQueries } from "src/settings/settings";
+import AnotherDynamicHighlightsPlugin from "../../main";
+import { SearchQueries } from "../settings/settings";
 import { StyleSpec } from "style-mod";
 import { RegExpCursor } from "./regexp-cursor";
 import { NodeProp } from "@lezer/common";
@@ -63,7 +63,7 @@ export const staticHighlightConfig = Facet.define<
 });
 
 export function staticHighlighterExtension(
-  plugin: AnotherDynamicHighlightsPlugin
+  plugin: AnotherDynamicHighlightsPlugin,
 ): Extension {
   let ext: Extension[] = [staticHighlighter];
   let options = plugin.settings.staticHighlighter;
@@ -145,10 +145,10 @@ const staticHighlighter = ViewPlugin.fromClass(
         widgetDecos: Range<Decoration>[] = [],
         lineClasses: { [key: number]: string[] } = {},
         queries = Object.values(
-          view.state.facet(staticHighlightConfig).queries
+          view.state.facet(staticHighlightConfig).queries,
         ),
         onOffSwitchState: boolean = view.state.facet(
-          staticHighlightConfig
+          staticHighlightConfig,
         ).onOffSwitch;
 
       for (let part of view.visibleRanges) {
@@ -166,14 +166,14 @@ const staticHighlighter = ViewPlugin.fromClass(
                   query.query,
                   {},
                   part.from,
-                  part.to
+                  part.to,
                 );
               else
                 cursor = new SearchCursor(
                   state.doc,
                   query.query,
                   part.from,
-                  part.to
+                  part.to,
                 );
             } catch (err) {
               if (view.state.facet(staticHighlightConfig).debugMode) {
@@ -188,7 +188,7 @@ const staticHighlighter = ViewPlugin.fromClass(
               let syntaxNode = syntaxTree(view.state).resolveInner(linePos + 1),
                 nodeProps = syntaxNode.type.prop(tokenClassNodeProp),
                 excludedSection = ["hmd-codeblock", "hmd-frontmatter"].find(
-                  (token) => nodeProps?.toString().split(" ").includes(token)
+                  (token) => nodeProps?.toString().split(" ").includes(token),
                 );
               if (excludedSection) continue;
               if (query.mark?.contains("line")) {
@@ -196,13 +196,17 @@ const staticHighlighter = ViewPlugin.fromClass(
                 lineClasses[linePos].push(query.class);
               }
 
-              const ranges: Array<{ content: string, start: number, end: number }> = [];
+              const ranges: Array<{
+                content: string;
+                start: number;
+                end: number;
+              }> = [];
 
               if (!query.mark || query.mark?.contains("match")) {
-                ranges.push({content: string, start: from, end: to});
+                ranges.push({ content: string, start: from, end: to });
               }
 
-              if (query.mark?.contains("groups") && 'match' in cursor.value) {
+              if (query.mark?.contains("groups") && "match" in cursor.value) {
                 const groups = cursor.value.match;
                 const fullMatch = groups[0];
                 let searchStart = 0;
@@ -212,15 +216,21 @@ const staticHighlighter = ViewPlugin.fromClass(
                   const groupIndex = fullMatch.indexOf(match, searchStart);
                   const groupStart = from + groupIndex;
                   searchStart = groupIndex + match.length;
-                  ranges.push({content: match, start: groupStart, end: groupStart + match.length});
+                  ranges.push({
+                    content: match,
+                    start: groupStart,
+                    end: groupStart + match.length,
+                  });
                 }
               }
 
-              for (const {content, start, end} of ranges) {
-                tokenDecos.push(Decoration.mark({
-                  class: query.class,
-                  attributes: {"data-contents": content.trim()},
-                }).range(start, end));
+              for (const { content, start, end } of ranges) {
+                tokenDecos.push(
+                  Decoration.mark({
+                    class: query.class,
+                    attributes: { "data-contents": content.trim() },
+                  }).range(start, end),
+                );
               }
             }
           }
@@ -247,14 +257,14 @@ const staticHighlighter = ViewPlugin.fromClass(
       // these are separated out so that we can set decoration priority
       // it's also much easier to sort the decorations when they're tagged
       EditorView.decorations.of(
-        (v) => v.plugin(plugin)?.lineDecorations || Decoration.none
+        (v) => v.plugin(plugin)?.lineDecorations || Decoration.none,
       ),
       EditorView.decorations.of(
-        (v) => v.plugin(plugin)?.decorations || Decoration.none
+        (v) => v.plugin(plugin)?.decorations || Decoration.none,
       ),
       EditorView.decorations.of(
-        (v) => v.plugin(plugin)?.widgetDecorations || Decoration.none
+        (v) => v.plugin(plugin)?.widgetDecorations || Decoration.none,
       ),
     ],
-  }
+  },
 );

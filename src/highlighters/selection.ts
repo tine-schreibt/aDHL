@@ -16,7 +16,7 @@ import {
 } from "@codemirror/view";
 import { cloneDeep } from "lodash";
 import { debounce, Debouncer } from "obsidian";
-import { ignoredWords } from "src/settings/ignoredWords";
+import { ignoredWords } from "../settings/ignoredWords";
 
 export type SelectionHighlightOptions = {
   highlightWordAroundCursor: boolean;

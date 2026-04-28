@@ -1,4 +1,4 @@
-import { StaticHighlightOptions } from "src/highlighters/static";
+import { StaticHighlightOptions } from "../highlighters/static";
 import { SelectionHighlightOptions } from "../highlighters/selection";
 import { ignoredWords } from "./ignoredWords";
 import { StyleSpec } from "style-mod";

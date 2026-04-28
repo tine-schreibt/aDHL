@@ -3,7 +3,6 @@ import { EditorView } from "@codemirror/view";
 import {
   debounce,
   MarkdownView,
-  MarkdownPostProcessor,
   Plugin,
   Notice,
 } from "obsidian";
