@@ -17,6 +17,7 @@ import {
 import { cloneDeep } from "lodash";
 import { debounce, Debouncer } from "obsidian";
 import { ignoredWords } from "../settings/ignoredWords";
+import { HighlighterOptions } from "../settings/settings";
 
 export type SelectionHighlightOptions = {
   highlightWordAroundCursor: boolean;
@@ -27,7 +28,7 @@ export type SelectionHighlightOptions = {
   highlightDelay: number;
   selectionColor: string;
   selectionDecoration: string;
-  css?: string
+  css?: string;
 };
 
 const defaultHighlightOptions: SelectionHighlightOptions = {
@@ -64,7 +65,7 @@ export const highlightConfig = Facet.define<
 export const highlightCompartment = new Compartment();
 
 export function highlightSelectionMatches(
-  options?: SelectionHighlightOptions
+  options?: SelectionHighlightOptions,
 ): Extension {
   let ext: Extension[] = [matchHighlighter];
   if (options) {
@@ -74,18 +75,18 @@ export function highlightSelectionMatches(
 }
 
 export function reconfigureSelectionHighlighter(
-  options: SelectionHighlightOptions
+  options: SelectionHighlightOptions,
 ) {
   return highlightCompartment.reconfigure(
-    highlightConfig.of(cloneDeep(options))
+    highlightConfig.of(cloneDeep(options)),
   );
 }
 
 const matchHighlighter = ViewPlugin.fromClass(
   class {
     decorations: DecorationSet;
-    highlightDelay: number;
-    delayedGetDeco: Debouncer<[view: EditorView], void>;
+    highlightDelay!: number;
+    delayedGetDeco!: Debouncer<[view: EditorView], void>;
 
     constructor(view: EditorView) {
       this.updateDebouncer(view);
@@ -113,12 +114,12 @@ const matchHighlighter = ViewPlugin.fromClass(
           view.update([]); // force a view update so that the decorations we just set get applied
         },
         this.highlightDelay,
-        true
+        true,
       );
     }
 
     getDeco(view: EditorView): DecorationSet {
-      let conf = view.state.facet(highlightConfig);      
+      let conf = view.state.facet(highlightConfig);
       if (this.highlightDelay != conf.highlightDelay)
         this.updateDebouncer(view);
       let selectionDecoration = conf.css;
@@ -137,7 +138,7 @@ const matchHighlighter = ViewPlugin.fromClass(
         if (word) check = state.charCategorizer(range.head);
         query = state.sliceDoc(word.from, word.to);
         let ignoredWords = new Set(
-          conf.ignoredWords.split(",").map((w) => w.toLowerCase().trim())
+          conf.ignoredWords.split(",").map((w) => w.toLowerCase().trim()),
         );
         if (
           ignoredWords.has(query.toLowerCase()) ||
@@ -160,7 +161,7 @@ const matchHighlighter = ViewPlugin.fromClass(
           query,
           part.from,
           part.to,
-          caseInsensitive
+          caseInsensitive,
         );
         while (!cursor.next().done) {
           let { from, to } = cursor.value;
@@ -174,12 +175,18 @@ const matchHighlighter = ViewPlugin.fromClass(
             let string = state.sliceDoc(from, to).trim();
             if (check && from <= range.from && to >= range.to) {
               const mainMatchDeco = Decoration.mark({
-                attributes: { "data-contents": string, style: selectionDecoration },
+                attributes: {
+                  "data-contents": string,
+                  style: selectionDecoration,
+                },
               });
               deco.push(mainMatchDeco.range(from, to));
             } else if (from >= range.to || to <= range.from) {
-              const matchDeco = Decoration.mark({              
-                attributes: { "data-contents": string, style: selectionDecoration },
+              const matchDeco = Decoration.mark({
+                attributes: {
+                  "data-contents": string,
+                  style: selectionDecoration,
+                },
               });
               deco.push(matchDeco.range(from, to));
             }
@@ -195,5 +202,5 @@ const matchHighlighter = ViewPlugin.fromClass(
   },
   {
     decorations: (v) => v.decorations,
-  }
+  },
 );

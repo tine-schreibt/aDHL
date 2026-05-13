@@ -1,14 +1,10 @@
 import { Extension, StateEffect } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-import {
-  debounce,
-  MarkdownView,
-  Plugin,
-  Notice,
-} from "obsidian";
+import { debounce, MarkdownView, Plugin, Notice } from "obsidian";
 import {
   highlightSelectionMatches,
   reconfigureSelectionHighlighter,
+  SelectionHighlightOptions
 } from "./src/highlighters/selection";
 import {
   buildStyles,
@@ -30,14 +26,14 @@ declare module "obsidian" {
 // fucking verification bot will take another look at this.
 
 export default class AnotherDynamicHighlightsPlugin extends Plugin {
-  settings: AnotherDynamicHighlightsSettings;
-  extensions: Extension[];
-  styles: Extension;
-  staticHighlighter: Extension;
-  selectionHighlighter: Extension;
+  settings!: AnotherDynamicHighlightsSettings;
+  extensions!: Extension[];
+  styles!: Extension;
+  staticHighlighter!: Extension;
+  selectionHighlighter!: Extension;
   // customCSS: Record<string, CustomCSS>;
-  styleEl: HTMLElement;
-  settingsTab: SettingTab;
+  styleEl!: HTMLElement;
+  settingsTab!: SettingTab;
 
   async onload() {
     try {
@@ -305,17 +301,11 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
     });
   }
 
-  updateConfig = debounce(
-    (type: string, config: HighlighterOptions) => {
-      let reconfigure: (config: HighlighterOptions) => StateEffect<unknown>;
-      if (type === "selection") {
-        reconfigure = reconfigureSelectionHighlighter;
-      } else {
-        return;
-      }
+  updateSelectionConfig = debounce(
+    (config: SelectionHighlightOptions) => {
       this.iterateCM6((view) => {
         view.dispatch({
-          effects: reconfigure(config),
+          effects: reconfigureSelectionHighlighter(config),
         });
       });
     },

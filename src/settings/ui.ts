@@ -23,9 +23,9 @@ import { markTypes } from "./settings";
 
 export class SettingTab extends PluginSettingTab {
   plugin: AnotherDynamicHighlightsPlugin;
-  editor: EditorView;
+  editor!: EditorView;
   scope: Scope;
-  pickrInstance: Pickr;
+  pickrInstance!: Pickr;
 
   constructor(app: App, plugin: AnotherDynamicHighlightsPlugin) {
     super(app, plugin);
