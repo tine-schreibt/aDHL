@@ -1,10 +1,10 @@
-import { Extension, StateEffect } from "@codemirror/state";
+import { Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { debounce, MarkdownView, Plugin, Notice } from "obsidian";
 import {
   highlightSelectionMatches,
   reconfigureSelectionHighlighter,
-  SelectionHighlightOptions
+  SelectionHighlightOptions,
 } from "./src/highlighters/selection";
 import {
   buildStyles,
@@ -13,7 +13,7 @@ import {
 import {
   DEFAULT_SETTINGS,
   AnotherDynamicHighlightsSettings,
-  HighlighterOptions,
+  SearchQueries,
 } from "./src/settings/settings";
 import { SettingTab } from "./src/settings/ui";
 
@@ -47,7 +47,6 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
       this.updateStaticHighlighter();
       this.updateStyles();
       this.registerEditorExtension(this.extensions);
-      this.initCSS();
 
       // Register reading mode highlighter if enabled
       this.registerReadingModeHighlighter();
@@ -59,7 +58,11 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    this.settings = Object.assign(
+      {},
+      DEFAULT_SETTINGS,
+      (await this.loadData()) as Partial<AnotherDynamicHighlightsSettings>,
+    );
     if (this.settings.selectionHighlighter.highlightDelay < 200) {
       this.settings.selectionHighlighter.highlightDelay = 200;
       await this.saveSettings();
@@ -87,13 +90,6 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
     // The editor mode is already handled by these:
     this.updateStaticHighlighter();
     this.updateStyles();
-  }
-
-  initCSS() {
-    let styleEl = (this.styleEl = document.createElement("style"));
-    styleEl.setAttribute("type", "text/css");
-    document.head.appendChild(styleEl);
-    this.register(() => styleEl.detach());
   }
 
   updateStyles() {
@@ -138,35 +134,33 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
     this.addCommand({
       id: `toggle-adhl`,
       name: `The switch - start/stop all static highlighting`,
-      callback: () => {
+      callback: async () => {
         // toggle
-        let toggleState: string = "";
         if (staticHighlighters.onOffSwitch) {
           staticHighlighters.onOffSwitch = false;
-          new Notice(`Static highlighting is now OFF.`);
+          new Notice(`Static highlighting is now off.`);
         } else if (!staticHighlighters.onOffSwitch) {
           staticHighlighters.onOffSwitch = true;
-          new Notice(`Static highlighting is now ON.`);
+          new Notice(`Static highlighting is now on.`);
         }
-        this.saveSettings();
+        await this.saveSettings();
         this.updateStaticHighlighter();
       },
     });
 
     this.addCommand({
       id: `toggle-cursor`,
-      name: `Start/stop highlighting the word around the cursor`,
-      callback: () => {
+      name: `Start/stop highlighting the word around the Cursor`,
+      callback: async () => {
         // toggle
-        let toggleState: string = "";
         if (selectionHighlight.highlightWordAroundCursor) {
           selectionHighlight.highlightWordAroundCursor = false;
-          new Notice(`Highlighting the word around the cursor is now OFF.`);
+          new Notice(`Highlighting the word around the Cursor is now off.`);
         } else if (!selectionHighlight.highlightWordAroundCursor) {
           selectionHighlight.highlightWordAroundCursor = true;
-          new Notice(`Highlighting the word around the cursor is now ON.`);
+          new Notice(`Highlighting the word around the Cursor is now on.`);
         }
-        this.saveSettings();
+        await this.saveSettings();
         this.updateSelectionHighlighter();
       },
     });
@@ -174,17 +168,16 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
     this.addCommand({
       id: `toggle-selected`,
       name: `Start/stop highlighting actively selected text.`,
-      callback: () => {
+      callback: async () => {
         // toggle
-        let toggleState: string = "";
         if (selectionHighlight.highlightSelectedText) {
           selectionHighlight.highlightSelectedText = false;
-          new Notice(`Highlighting selected text is now OFF.`);
+          new Notice(`Highlighting selected text is now off.`);
         } else if (!selectionHighlight.highlightSelectedText) {
           selectionHighlight.highlightSelectedText = true;
-          new Notice(`Highlighting selected text is now ON.`);
+          new Notice(`Highlighting selected text is now on.`);
         }
-        this.saveSettings();
+        await this.saveSettings();
         this.updateSelectionHighlighter();
       },
     });
@@ -200,7 +193,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
           this.addCommand({
             id: `toggle-${highlighter}`,
             name: `Toggle highlighter "${highlighter} (tag: ${staticHighlighters.queries[highlighter].tag})"`,
-            callback: () => {
+            callback: async () => {
               // toggle
               let toggleState: string = "";
               if (staticHighlighters.queries[highlighter].highlighterEnabled) {
@@ -215,14 +208,16 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
                 toggleState = "ON";
               }
               // notify of states
-              staticHighlighters.queries[highlighter].tagEnabled
-                ? new Notice(
-                    `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is ON.`,
-                  )
-                : new Notice(
-                    `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is OFF.`,
-                  );
-              this.saveSettings();
+              if (staticHighlighters.queries[highlighter].tagEnabled) {
+                new Notice(
+                  `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is ON.`,
+                );
+              } else {
+                new Notice(
+                  `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is OFF.`,
+                );
+              }
+              await this.saveSettings();
               this.updateStaticHighlighter();
             },
           });
@@ -237,7 +232,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
         this.addCommand({
           id: `toggle-${tag}`,
           name: `Toggle tag "${tag}"`,
-          callback: () => {
+          callback: async () => {
             let currentState =
               staticHighlighters.queries[highlighter].tagEnabled;
 
@@ -249,14 +244,14 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
             });
 
             if (staticHighlighters.queries[highlighter].tagEnabled) {
-              new Notice(`Toggled "${tag}" ON.`);
-            } else if (staticHighlighters.queries[highlighter].tagEnabled) {
+              new Notice(`Toggled "${tag}" on.`);
+            } else {
               new Notice(
-                `Toggled "${tag}" OFF. All highlighters carrying this tag are now OFF, too.`,
+                `Toggled "${tag}" OFF. All highlighters carrying this tag are now off, too.`,
               );
             }
 
-            this.saveSettings();
+            await this.saveSettings();
             this.updateStaticHighlighter();
           },
         });
@@ -270,7 +265,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
           this.addCommand({
             id: `toggle-${highlighter}`,
             name: `Toggle highlighter "${highlighter} (tag: ${staticHighlighters.queries[highlighter].tag})"`,
-            callback: () => {
+            callback: async () => {
               // toggle
               let toggleState: string = "";
               if (staticHighlighters.queries[highlighter].highlighterEnabled) {
@@ -285,14 +280,16 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
                 toggleState = "ON";
               }
               // notify of states
-              staticHighlighters.queries[highlighter].tagEnabled
-                ? new Notice(
-                    `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is ON.`,
-                  )
-                : new Notice(
-                    `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is OFF.`,
-                  );
-              this.saveSettings();
+              if (staticHighlighters.queries[highlighter].tagEnabled) {
+                new Notice(
+                  `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is ON.`,
+                );
+              } else {
+                new Notice(
+                  `Toggled "${highlighter}" ${toggleState}; its tag "${staticHighlighters.queries[highlighter].tag}" is OFF.`,
+                );
+              }
+              await this.saveSettings();
               this.updateStaticHighlighter();
             },
           });
@@ -336,6 +333,9 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
       // Only log if matches are found
       if (matches.length > 0) {
         if (this.settings.staticHighlighter.debugMode) {
+          /*This is for debugging
+           */
+          //eslint-disable-next-line obsidianmd/rule-custom-message
           console.log("Found matches in text:", {
             text: nodeText,
             pattern: pattern,
@@ -346,7 +346,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
           });
         }
 
-        const fragment = document.createDocumentFragment();
+        const fragment = activeDocument.createDocumentFragment();
         let lastIndex = 0;
 
         for (const match of matches) {
@@ -356,12 +356,14 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
           // Add text before match
           if (matchIndex > lastIndex) {
             fragment.appendChild(
-              document.createTextNode(nodeText.slice(lastIndex, matchIndex)),
+              activeDocument.createTextNode(
+                nodeText.slice(lastIndex, matchIndex),
+              ),
             );
           }
 
           // Create highlight span
-          const highlight = document.createElement("span");
+          const highlight = activeDocument.createElement("span");
           highlight.classList.add("adhl-highlighted", query.class);
           highlight.textContent = match[0];
 
@@ -380,7 +382,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
         // Add remaining text
         if (lastIndex < nodeText.length) {
           fragment.appendChild(
-            document.createTextNode(nodeText.slice(lastIndex)),
+            activeDocument.createTextNode(nodeText.slice(lastIndex)),
           );
         }
 

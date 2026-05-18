@@ -17,8 +17,8 @@ import {
 } from "obsidian";
 import AnotherDynamicHighlightsPlugin from "../../main";
 import * as Modals from "./modals";
-import { ExportModal } from "./export";
-import { ImportModal } from "./import";
+//import { ExportModal } from "./export";
+//import { ImportModal } from "./import";
 import { markTypes } from "./settings";
 
 export class SettingTab extends PluginSettingTab {
@@ -35,7 +35,8 @@ export class SettingTab extends PluginSettingTab {
 
   hide() {
     this.editor?.destroy();
-    this.pickrInstance && this.pickrInstance.destroyAndRemove();
+    this.pickrInstance.destroyAndRemove();
+    this.pickrInstance.destroyAndRemove();
     this.app.keymap.popScope(this.scope);
   }
   // Display the settings tab
@@ -128,7 +129,7 @@ export class SettingTab extends PluginSettingTab {
     };
 
     const getAccentColor = (alpha = 0.25): string => {
-      const hsl = getComputedStyle(document.body)
+      const hsl = getComputedStyle(activeDocument.body)
         .getPropertyValue("--text-accent")
         .trim();
       return hsl.replace("hsl", "hsla").replace(")", `, ${alpha})`);
@@ -191,9 +192,9 @@ export class SettingTab extends PluginSettingTab {
             : `Activate highlighting`,
         );
         headlineToggle.toggleEl.addClass("headline-toggle");
-        headlineToggle.setValue(config.onOffSwitch).onChange((value) => {
+        headlineToggle.setValue(config.onOffSwitch).onChange(async (value) => {
           config.onOffSwitch = value;
-          this.plugin.saveSettings();
+          await this.plugin.saveSettings();
           this.plugin.updateStaticHighlighter();
           this.display();
           headlineToggle.setTooltip(
@@ -286,9 +287,11 @@ export class SettingTab extends PluginSettingTab {
         .on("change", (color: Pickr.HSVaColor) => {
           const colorHex = color?.toHEXA().toString() || "";
           let newColor;
-          colorHex && colorHex.length == 6
-            ? (newColor = `${colorHex}A6`)
-            : (newColor = colorHex);
+          if (colorHex && colorHex.length == 6) {
+            newColor = `${colorHex}A6`;
+          } else {
+            newColor = colorHex;
+          }
           queryInput.inputEl.setAttribute(
             "style",
             snippetMaker(staticDecorationValue, newColor),
@@ -315,6 +318,8 @@ export class SettingTab extends PluginSettingTab {
     const tagDropdown = new Setting(tagDropdownWrapper);
     tagDropdown.setClass("tag-dropdown").addDropdown((dropdown) => {
       tagDropdownComponent = dropdown;
+      /*Reason: The tag name is lower case*/
+      // eslint-disable-next-line obsidianmd/ui/sentence-case
       dropdown.addOption("#unsorted", "#unsorted");
       dropdown.selectEl.setAttribute(
         "aria-label",
@@ -422,29 +427,28 @@ export class SettingTab extends PluginSettingTab {
 
     // RegEx toggle
     const regexPair = togglesGrid.createDiv("toggle-pair");
-    regexPair.createSpan("regex-text").setText("regEx");
+    regexPair.createSpan("regex-text").setText("Regex");
     const regexToggle = new ToggleComponent(regexPair).setValue(false);
-    regexToggle.setTooltip("Activate RegEx");
+    regexToggle.setTooltip("Activate regex");
     regexToggle.toggleEl.addClass("regex-toggle");
     regexToggle.onChange((value) => {
       if (value) {
         queryInput.setPlaceholder("Search expression");
-        regexToggle.setTooltip("Deactivate RegEx");
+        regexToggle.setTooltip("Deactivate regex");
       } else {
         queryInput.setPlaceholder("Search term");
-        regexToggle.setTooltip("Activate RegEx");
+        regexToggle.setTooltip("Activate regex");
       }
     });
 
     // "match" toggle, to decorate matched characters
     const matchPair = togglesGrid.createDiv("toggle-pair");
-    matchPair.createSpan("matches-text").setText("matches");
+    matchPair.createSpan("matches-text").setText("Matches");
     const matchToggle = new ToggleComponent(matchPair).setValue(true);
     matchToggle.setTooltip("Deactivate highlighting matches");
     matchToggle.toggleEl.addClass("matches-toggle");
 
     matchToggle.onChange((value) => {
-      let matchBool: boolean = value;
       matchToggle.setTooltip(
         value
           ? "Deactivate highlighting matches"
@@ -454,12 +458,11 @@ export class SettingTab extends PluginSettingTab {
 
     // "line" toggle, to decorate the entire parent line
     const linePair = togglesGrid.createDiv("toggle-pair");
-    linePair.createSpan("line-text").setText("lines");
+    linePair.createSpan("line-text").setText("Lines");
     const lineToggle = new ToggleComponent(linePair).setValue(false);
     lineToggle.setTooltip("Activate higlighting of parent line");
     lineToggle.toggleEl.addClass("line-toggle");
     lineToggle.onChange((value) => {
-      let lineBool: boolean = value;
       lineToggle.setTooltip(
         value
           ? "Deactivate higlighting of parent line"
@@ -469,7 +472,7 @@ export class SettingTab extends PluginSettingTab {
 
     // "groups" toggle, to highlight regex capture groups instead of whole match
     const groupsPair = togglesGrid.createDiv("toggle-pair");
-    groupsPair.createSpan("groups-text").setText("groups");
+    groupsPair.createSpan("groups-text").setText("Groups");
     const groupsToggle = new ToggleComponent(groupsPair).setValue(false);
     groupsToggle.setTooltip("Highlight regex capture groups");
     groupsToggle.toggleEl.addClass("groups-toggle");
@@ -738,7 +741,7 @@ export class SettingTab extends PluginSettingTab {
       .setClass("action-button-discard")
       .setCta()
       .setIcon("x-circle")
-      .setTooltip("Discard Changes")
+      .setTooltip("Discard changes")
       .onClick(() => {
         const state = saveButton.buttonEl.getAttribute("state");
 
@@ -779,15 +782,16 @@ export class SettingTab extends PluginSettingTab {
       cls: "highlighter-container",
     });
 
-    const highlightersSetting = new Setting(highlightersContainer)
+    const highlightersSetting = new Setting(highlightersContainer);
+    highlightersSetting
       .setName("Your highlighters and tags")
       .setHeading()
       .addButton((button) => {
         button
           .setClass("sort-button")
           .setTooltip("Sort a to z")
-          .onClick(() => {
-            sortAlphabetically();
+          .onClick(async () => {
+            await sortAlphabetically();
           });
 
         // Create a container for the icon inside the button
@@ -840,7 +844,7 @@ export class SettingTab extends PluginSettingTab {
             highlightersList.addClass("highlighters-list-collapsed");
           }
 
-          const tagExpandToggle = () => {
+          const tagExpandToggle = async () => {
             // toggle to collapsed
             if (expandedTags.includes(tag)) {
               setIcon(toggleIcon, "chevron-right");
@@ -856,13 +860,13 @@ export class SettingTab extends PluginSettingTab {
             }
             // Save settings after the toggle
             this.plugin.settings.staticHighlighter.expandedTags = expandedTags;
-            this.plugin.saveSettings();
+            await this.plugin.saveSettings();
           };
-          tagName.onclick = () => {
-            tagExpandToggle();
+          tagName.onclick = async () => {
+            await tagExpandToggle();
           };
-          toggleIcon.onclick = () => {
-            tagExpandToggle();
+          toggleIcon.onclick = async () => {
+            await tagExpandToggle();
           };
           // Create the toggle for enabling/disabling the tag
           const tagButtons = new Setting(tagHeader).setClass(
@@ -968,6 +972,8 @@ export class SettingTab extends PluginSettingTab {
         const styleIcon = settingItem.createEl("span");
         styleIcon.addClass("highlighter-style-icon");
         const abc = styleIcon.createEl("span", {
+          /*Reason: It's just an icon and it looks prettier in lower case */
+          // eslint-disable-next-line obsidianmd/ui/sentence-case
           text: "abc",
           cls: "highlighter-setting-icon-abc",
         });
@@ -1023,7 +1029,7 @@ export class SettingTab extends PluginSettingTab {
               "enabled-highlighter-toggle",
             );
           }
-          highlighterToggle.onChange((value) => {
+          highlighterToggle.onChange(async (value) => {
             if (highlighterIsDisabled) {
               return;
             }
@@ -1032,12 +1038,9 @@ export class SettingTab extends PluginSettingTab {
             highlighterToggle.setTooltip(
               value ? `Deactivate ${highlighter}` : `Activate ${highlighter}`,
             );
-
-            (async () => {
-              await this.plugin.saveSettings();
-              // Refresh the highlighter decorations
-              this.plugin.updateStaticHighlighter();
-            })();
+            await this.plugin.saveSettings();
+            // Refresh the highlighter decorations
+            this.plugin.updateStaticHighlighter();
           });
         });
 
@@ -1086,7 +1089,7 @@ export class SettingTab extends PluginSettingTab {
               .setClass("action-button-highlighterslist")
               .setClass("mod-cta-inverted")
               .setIcon("pencil")
-              .onClick(async (evt) => {
+              .onClick((evt) => {
                 // disable douplication prevention
                 saveButton.buttonEl.setAttribute("state", "editing");
                 // Populate the input elements with the highlighter's settings
@@ -1134,7 +1137,7 @@ export class SettingTab extends PluginSettingTab {
               .setClass("action-button-delete")
               .setClass("mod-warning-inverted")
               .setIcon("trash")
-              .onClick(async () => {
+              .onClick(() => {
                 const deleteHighlighter = new Modals.DeleteHighlighterModal(
                   this.app,
                   highlighter,
@@ -1150,10 +1153,11 @@ export class SettingTab extends PluginSettingTab {
           this.plugin.settings.staticHighlighter.queryOrder.filter(
             (item) => item != highlighter,
           );
-        this.plugin.saveSettings();
+        void this.plugin.saveSettings();
       }
     });
-    const renderInReadingMode = new Setting(this.containerEl)
+    const renderInReadingMode = new Setting(this.containerEl);
+    renderInReadingMode
       .setName("Show highlights in reading mode")
       .setDesc(
         createFragment((desc) => {
@@ -1272,22 +1276,24 @@ export class SettingTab extends PluginSettingTab {
         .on("cancel", (instance: Pickr) => {
           instance.hide();
         })
-        .on("change", (color: Pickr.HSVaColor) => {
+        .on("change", async (color: Pickr.HSVaColor) => {
           const hexValue = color?.toHEXA().toString() || "";
 
-          hexValue && hexValue.length == 6
-            ? (this.plugin.settings.selectionHighlighter.selectionColor = `${hexValue}A6`)
-            : (this.plugin.settings.selectionHighlighter.selectionColor =
-                hexValue);
-          this.plugin.saveSettings();
+          if (hexValue && hexValue.length == 6) {
+            this.plugin.settings.selectionHighlighter.selectionColor = `${hexValue}A6`;
+          } else {
+            this.plugin.settings.selectionHighlighter.selectionColor = hexValue;
+          }
+          await this.plugin.saveSettings();
         })
-        .on("save", (color: Pickr.HSVaColor, instance: Pickr) => {
+        .on("save", async (color: Pickr.HSVaColor, instance: Pickr) => {
           const hexValue = color?.toHEXA().toString() || "";
-          hexValue && hexValue.length == 6
-            ? (this.plugin.settings.selectionHighlighter.selectionColor = `${hexValue}A6`)
-            : (this.plugin.settings.selectionHighlighter.selectionColor =
-                hexValue);
-          this.plugin.saveSettings();
+          if (hexValue && hexValue.length == 6) {
+            this.plugin.settings.selectionHighlighter.selectionColor = `${hexValue}A6`;
+          } else {
+            this.plugin.settings.selectionHighlighter.selectionColor = hexValue;
+          }
+          await this.plugin.saveSettings();
           instance.hide();
         });
     });
@@ -1329,10 +1335,10 @@ export class SettingTab extends PluginSettingTab {
               ? "underline dotted"
               : this.plugin.settings.selectionHighlighter.selectionDecoration,
           )
-          .onChange((value) => {
+          .onChange(async (value) => {
             this.plugin.settings.selectionHighlighter.selectionDecoration =
               value;
-            this.plugin.saveSettings();
+            await this.plugin.saveSettings();
           });
       });
 
@@ -1385,16 +1391,16 @@ export class SettingTab extends PluginSettingTab {
     dropdownSpacer.setClass("selected-spacer");
 
     new Setting(containerEl)
-      .setName("Highlight all occurrences of the word under the cursor")
+      .setName("Highlight all occurrences of the word under the Cursor")
       .addToggle((toggle) => {
         toggle
           .setValue(
             this.plugin.settings.selectionHighlighter.highlightWordAroundCursor,
           )
-          .onChange((value) => {
+          .onChange(async (value) => {
             this.plugin.settings.selectionHighlighter.highlightWordAroundCursor =
               value;
-            this.plugin.saveSettings();
+            await this.plugin.saveSettings();
             this.plugin.updateSelectionHighlighter();
           });
       });
@@ -1405,17 +1411,17 @@ export class SettingTab extends PluginSettingTab {
           .setValue(
             this.plugin.settings.selectionHighlighter.highlightSelectedText,
           )
-          .onChange((value) => {
+          .onChange(async (value) => {
             this.plugin.settings.selectionHighlighter.highlightSelectedText =
               value;
-            this.plugin.saveSettings();
+            await this.plugin.saveSettings();
             this.plugin.updateSelectionHighlighter();
           });
       });
 
     new Setting(containerEl)
       .setName("Minimum selection length")
-      .setDesc("Set to 1 for Chinese characters")
+      .setDesc("Set to 1 for chinese characters")
       .addText((text) => {
         text.inputEl.type = "number";
         text
@@ -1424,10 +1430,10 @@ export class SettingTab extends PluginSettingTab {
               this.plugin.settings.selectionHighlighter.minSelectionLength,
             ),
           )
-          .onChange((value) => {
+          .onChange(async (value) => {
             this.plugin.settings.selectionHighlighter.minSelectionLength =
               parseInt(value);
-            this.plugin.saveSettings();
+            await this.plugin.saveSettings();
             this.plugin.updateSelectionHighlighter();
           });
       });
@@ -1441,10 +1447,10 @@ export class SettingTab extends PluginSettingTab {
           .setValue(
             String(this.plugin.settings.selectionHighlighter.maxMatches),
           )
-          .onChange((value) => {
+          .onChange(async (value) => {
             this.plugin.settings.selectionHighlighter.maxMatches =
               parseInt(value);
-            this.plugin.saveSettings();
+            await this.plugin.saveSettings();
             this.plugin.updateSelectionHighlighter();
           });
       });
@@ -1460,12 +1466,12 @@ export class SettingTab extends PluginSettingTab {
           .setValue(
             String(this.plugin.settings.selectionHighlighter.highlightDelay),
           )
-          .onChange((value) => {
+          .onChange(async (value) => {
             if (parseInt(value) < 200) value = "200";
             if (parseInt(value) >= 0)
               this.plugin.settings.selectionHighlighter.highlightDelay =
                 parseInt(value);
-            this.plugin.saveSettings();
+            await this.plugin.saveSettings();
             this.plugin.updateSelectionHighlighter();
           });
       });

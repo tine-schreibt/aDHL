@@ -14,10 +14,9 @@ import {
   ViewPlugin,
   ViewUpdate,
 } from "@codemirror/view";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "es-toolkit";
 import { debounce, Debouncer } from "obsidian";
 import { ignoredWords } from "../settings/ignoredWords";
-import { HighlighterOptions } from "../settings/settings";
 
 export type SelectionHighlightOptions = {
   highlightWordAroundCursor: boolean;
@@ -97,7 +96,7 @@ const matchHighlighter = ViewPlugin.fromClass(
       if (update.selectionSet || update.docChanged || update.viewportChanged) {
         // don't immediately remove decorations to prevent issues with things like link clicking
         // https://github.com/nothingislost/obsidian-dynamic-highlights/issues/58
-        setTimeout(() => {
+        window.setTimeout(() => {
           this.decorations = Decoration.none;
           update.view.update([]);
         }, 150);
@@ -128,10 +127,8 @@ const matchHighlighter = ViewPlugin.fromClass(
       if (sel.ranges.length > 1) return Decoration.none;
       let range = sel.main,
         query,
-        check = null,
-        matchType: string;
+        check = null;
       if (range.empty) {
-        matchType = "word";
         if (!conf.highlightWordAroundCursor) return Decoration.none;
         let word = state.wordAt(range.head);
         if (!word) return Decoration.none;
@@ -146,7 +143,6 @@ const matchHighlighter = ViewPlugin.fromClass(
         )
           return Decoration.none;
       } else {
-        matchType = "string";
         if (!conf.highlightSelectedText) return Decoration.none;
         let len = range.to - range.from;
         if (len < conf.minSelectionLength || len > 200) return Decoration.none;

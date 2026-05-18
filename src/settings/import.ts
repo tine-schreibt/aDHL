@@ -1,6 +1,4 @@
 // Adapted from https://github.com/mgmeyers/obsidian-style-setting
-
-import Ajv from "ajv";
 import {
   App,
   ButtonComponent,
@@ -28,7 +26,7 @@ export class ImportModal extends Modal {
     new Setting(contentEl)
       .setName("Import highlighters")
       .setDesc(
-        "Import an entire or partial configuration. Warning: this may override existing highlighters"
+        "Import an entire or partial configuration. Warning: this may override existing highlighters",
       );
 
     new Setting(contentEl).then((setting) => {
@@ -46,13 +44,12 @@ export class ImportModal extends Modal {
           try {
             let { queryOrder } = this.plugin.settings.staticHighlighter;
             const importedSettings = JSON.parse(str) as SearchQueries;
-            const ajv = new Ajv();
             Object.assign(
               this.plugin.settings.staticHighlighter.queries,
-              importedSettings
+              importedSettings,
             );
             Object.keys(importedSettings).forEach(
-              (key) => queryOrder.includes(key) || queryOrder.push(key)
+              (key) => queryOrder.includes(key) || queryOrder.push(key),
             );
             await this.plugin.saveSettings();
             this.plugin.updateStaticHighlighter();
@@ -60,9 +57,9 @@ export class ImportModal extends Modal {
             //this.plugin.updateCustomCSS();
             this.plugin.settingsTab.display();
             this.close();
-          } catch (e) {
+          } catch {
             errorSpan.addClass("active");
-            errorSpan.setText(`Error importing highlighters: ${e}`);
+            errorSpan.setText(`Error importing highlighters`);
           }
         } else {
           errorSpan.addClass("active");
@@ -87,16 +84,15 @@ export class ImportModal extends Modal {
           importInput.addEventListener("change", (e) => {
             const reader = new FileReader();
             reader.onload = async (e: ProgressEvent<FileReader>) => {
-              if (e.target?.result) {
-                await importAndClose(
-                  e.target && e.target.result.toString().trim()
-                );
+              const result = e.target?.result;
+              if (typeof result === "string") {
+                await importAndClose(result.trim());
               }
             };
             let files = (e.target as HTMLInputElement).files;
             if (files?.length) reader.readAsText(files[0]);
           });
-        }
+        },
       );
 
       // Build a label we will style as a link

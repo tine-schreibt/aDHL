@@ -24,7 +24,7 @@ export class NewTagModal extends Modal {
     app: App,
     dropdown: DropdownComponent,
     nameHolder: string,
-    expandedTags: string[]
+    expandedTags: string[],
   ) {
     super(app);
     this.dropdown = dropdown;
@@ -34,7 +34,8 @@ export class NewTagModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.createEl("h2", { text: "Create new tag" });
-    const helperText = contentEl.createEl("p", {
+    // helperText
+    contentEl.createEl("p", {
       text: "Enter a name for your new tag",
       cls: "tag-modal-helper",
     });
@@ -77,7 +78,7 @@ export class RenameTagModal extends Modal {
     dropdown: DropdownComponent,
     expandedTags: string[],
     staticHighlighter: StaticHighlightOptions,
-    modalSaveAndReload: () => Promise<void>
+    modalSaveAndReload: () => Promise<void>,
   ) {
     super(app);
     this.oldTagName = oldTagName;
@@ -89,7 +90,8 @@ export class RenameTagModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.createEl("h2", { text: `Rename ${this.oldTagName}` });
-    const helperText = contentEl.createEl("p", {
+    //const helperText =
+    contentEl.createEl("p", {
       text: "Enter a new tag name (case sensitive).",
       cls: "tag-modal-helper",
     });
@@ -141,7 +143,7 @@ export class DeleteTagModal extends Modal {
     oldTagName: string,
     staticHighlighter: StaticHighlightOptions,
     expandedTags: string[],
-    modalSaveAndReload: () => Promise<void>
+    modalSaveAndReload: () => Promise<void>,
   ) {
     super(app);
     this.oldTagName = oldTagName;
@@ -158,7 +160,7 @@ export class DeleteTagModal extends Modal {
 
     // Create warning text with proper styling
     const warningSpan = contentEl.createEl("span", {
-      text: "WARNING:",
+      text: "Warning:",
       cls: "modal-warning-text", // We'll define this in CSS
     });
 
@@ -168,11 +170,11 @@ export class DeleteTagModal extends Modal {
 
     helperText.appendChild(warningSpan);
     helperText.appendChild(
-      document.createTextNode(
+      activeDocument.createTextNode(
         ` This will also permanently delete all highlighters carrying this tag.
 			
-			Input "Delete ${this.oldTagName}!" to proceed.`
-      )
+			Input "Delete ${this.oldTagName}!" to proceed.`,
+      ),
     );
 
     let tagDeleteDecision = contentEl.createEl("input", {
@@ -197,7 +199,7 @@ export class DeleteTagModal extends Modal {
       if (decision === `Delete ${this.oldTagName}!`) {
         try {
           this.expandedTags = this.expandedTags.filter(
-            (item) => item !== this.oldTagName
+            (item) => item !== this.oldTagName,
           );
           Object.keys(this.staticHighlighter.queries).forEach((highlighter) => {
             if (
@@ -207,15 +209,15 @@ export class DeleteTagModal extends Modal {
               delete this.staticHighlighter.queries[highlighter];
               this.staticHighlighter.queryOrder =
                 this.staticHighlighter.queryOrder.filter(
-                  (item) => item !== highlighter
+                  (item) => item !== highlighter,
                 );
             }
           });
           await this.modalSaveAndReload();
           new Notice(`Tag "${this.oldTagName}" was deleted!`);
           this.close();
-        } catch (error) {
-          new Notice("Failed to delete tag: " + error);
+        } catch {
+          new Notice("Failed to delete '${this.oldTagName}'.");
         }
       }
     });
@@ -244,7 +246,7 @@ export class DeleteHighlighterModal extends Modal {
     staticHighlighter: StaticHighlightOptions,
     queryOrder: string[],
     //removeEmptyTag: () => Promise<void>,
-    modalSaveAndReload: () => Promise<void>
+    modalSaveAndReload: () => Promise<void>,
   ) {
     super(app);
     this.highlighterName = highlighterName;
@@ -256,7 +258,8 @@ export class DeleteHighlighterModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.createEl("h2", { text: `Delete ${this.highlighterName}` });
-    const helperText = contentEl.createEl("p", {
+    // helperText
+    contentEl.createEl("p", {
       text: `Delete ${this.highlighterName}?\nIt highlights ${
         this.staticHighlighter.queries[this.highlighterName].query
       }.`,
@@ -275,13 +278,13 @@ export class DeleteHighlighterModal extends Modal {
       try {
         delete this.staticHighlighter.queries[this.highlighterName];
         this.queryOrder = this.queryOrder.filter(
-          (h) => h !== this.highlighterName
+          (h) => h !== this.highlighterName,
         );
         await this.modalSaveAndReload();
         new Notice(`Highlighter "${this.highlighterName}" was deleted!`);
         this.close();
-      } catch (error) {
-        new Notice("Failed to delete highlighter: " + error);
+      } catch {
+        new Notice(`Failed to delete '${this.highlighterName}'`);
       }
     });
 

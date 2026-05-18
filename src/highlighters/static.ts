@@ -14,9 +14,8 @@ import {
   EditorView,
   ViewPlugin,
   ViewUpdate,
-  WidgetType,
 } from "@codemirror/view";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "es-toolkit";
 import AnotherDynamicHighlightsPlugin from "../../main";
 import { SearchQueries } from "../settings/settings";
 import { StyleSpec } from "style-mod";
@@ -79,34 +78,12 @@ export function buildStyles(plugin: AnotherDynamicHighlightsPlugin) {
   let queries = Object.values(plugin.settings.staticHighlighter.queries);
   let styles: Styles = {};
   for (let query of queries) {
-    if (query.staticCss) {
-      let css = query.staticCss;
-    }
     let className = "." + query.class;
     if (!query.staticColor) continue;
     styles[className] = query.staticCss;
   }
   let theme = EditorView.theme(styles);
   return theme;
-}
-
-class IconWidget extends WidgetType {
-  className: string | undefined;
-
-  constructor(className?: string) {
-    super();
-    this.className = className;
-  }
-
-  toDOM() {
-    let headerEl = document.createElement("span");
-    this.className && headerEl.addClass(this.className);
-    return headerEl;
-  }
-
-  ignoreEvent() {
-    return true;
-  }
 }
 
 const staticHighlighter = ViewPlugin.fromClass(
