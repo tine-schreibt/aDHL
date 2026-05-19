@@ -1,8 +1,13 @@
+## [1.2.10]
+
+- Edits to satisfy the linter
+
 ## [1.2.9]
+
 - moved a buttload of dependencies to devDependencies and updated it all
 
-
 ## [1.2.8]
+
 - small additon to the UI, clarifying the use of debug mode
 
 ## [1.2.7]
