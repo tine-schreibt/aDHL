@@ -1,3 +1,4 @@
-## [1.2.10]
+## [1.2.11]
 
-- Edits to satisfy the linter
+- removed some duplicate styles from styles.css
+- removed builtin-modules from deps
