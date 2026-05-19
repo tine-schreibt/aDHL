@@ -1,5 +1,5 @@
 .modal-close-button {
-  display: block !important;
+  display: block;
   position: absolute;
   top: 12px;
   right: 12px;
@@ -7,7 +7,7 @@
 }
 
 .modal.mod-settings .modal-close-button {
-  display: block !important;
+  display: block;
 }
 
 .adhl-reading-highlights {
@@ -771,6 +771,7 @@
 .pcr-app .pcr-interaction .pcr-clear {
   color: #ffffff;
   width: auto;
+  background: #f44250;
 }
 
 .pcr-app .pcr-interaction .pcr-save:hover,
@@ -784,12 +785,6 @@
   width: auto;
   background: #4285f4;
 }
-
-.pcr-app .pcr-interaction .pcr-clear,
-.pcr-app .pcr-interaction .pcr-cancel {
-  background: #f44250;
-}
-
 .pcr-app .pcr-interaction .pcr-clear:focus,
 .pcr-app .pcr-interaction .pcr-cancel:focus {
   box-shadow:
@@ -1036,14 +1031,6 @@
   width: unset;
 }
 
-.is-mobile
-  .dynamic-highlights-settings
-  .setting-item-control
-  button.action-button-discard,
-.is-mobile .dynamic-highlights-settings .query-wrapper input {
-  width: unset;
-}
-
 /* #endregion mobile specific styles */
 
 /* #region style settings import/export */
@@ -1065,7 +1052,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  font-family: var(--font-monospace) !important;
+  font-family: var(--font-monospace);
   font-size: 12px;
   white-space: pre;
   overflow-wrap: normal;
