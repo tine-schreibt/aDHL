@@ -8,7 +8,6 @@ import {
   ButtonComponent,
   Notice,
   PluginSettingTab,
-  Scope,
   setIcon,
   Setting,
   DropdownComponent,
@@ -24,24 +23,19 @@ import { markTypes } from "./settings";
 export class SettingTab extends PluginSettingTab {
   plugin: AnotherDynamicHighlightsPlugin;
   editor!: EditorView;
-  scope: Scope;
   pickrInstance!: Pickr;
 
   constructor(app: App, plugin: AnotherDynamicHighlightsPlugin) {
     super(app, plugin);
     this.plugin = plugin;
-    this.scope = new Scope(app.scope);
   }
 
-  hide() {
-    this.editor?.destroy();
-    this.pickrInstance.destroyAndRemove();
-    this.pickrInstance.destroyAndRemove();
-    this.app.keymap.popScope(this.scope);
-  }
+hide() {
+  this.pickrInstance?.destroyAndRemove();
+  this.pickrInstance = null!;  // clear the stale reference
+}
   // Display the settings tab
   display(): void {
-    this.app.keymap.pushScope(this.scope);
     const { containerEl } = this;
     containerEl.empty();
     const config = this.plugin.settings.staticHighlighter;
@@ -361,7 +355,7 @@ export class SettingTab extends PluginSettingTab {
     });
 
     // Array that holds all expanded Tags to persist the states
-    // This has to be her because of the scope
+    // This has to be here because of the scope
     let expandedTags: string[];
     // Initialise array without wiping saved data
     if (this.plugin.settings.staticHighlighter.expandedTags) {
