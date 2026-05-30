@@ -1,6 +1,6 @@
 {
   "name": "another-dynamic-highlights-plugin",
-  "version": "1.2.13",
+  "version": "1.2.14",
   "description": "Another Dynamic Highlights Plugin that highlights RegEx and word under cursor.",
   "main": "main.js",
   "scripts": {
@@ -22,6 +22,9 @@
     "es-toolkit": "^1.46.1",
     "lucide": "^1.11.0",
     "regexp-match-indices": "^1.0.2"
+  },
+  "Overrides": {
+    "vm2": "3.11.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

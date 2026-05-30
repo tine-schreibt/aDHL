@@ -1,4 +1,3 @@
-## [1.2.13]
-- Fixed a bug where the unnecessary fiddling with this.scope caused my plugin to screw up the entire settings panel. 
-- What is it with those scale of bugs right now? 
-- But no one complained, so I guess it's okay??
+## [1.2.14]
+
+- Made an override so "vm2": "3.11.5", because there were a ton of vulnerabilities to functionality I don't even use, but I guess safer is safer?
