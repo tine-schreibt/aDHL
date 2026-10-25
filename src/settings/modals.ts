@@ -159,7 +159,7 @@ export class DeleteTagModal extends Modal {
     });
 
     // Create warning text with proper styling
-    const warningSpan = contentEl.createEl("span", {
+    const warningSpan = contentEl.createSpan({
       text: "Warning:",
       cls: "modal-warning-text", // We'll define this in CSS
     });

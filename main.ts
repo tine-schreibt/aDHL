@@ -364,7 +364,7 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
           }
 
           // Create highlight span
-          const highlight = activeDocument.createElement("span");
+          const highlight = activeDocument.createSpan();
           highlight.classList.add("adhl-highlighted", query.class);
           highlight.textContent = match[0];
 

@@ -770,7 +770,7 @@ export class SettingTab extends PluginSettingTab {
     // #############################################################################################
     // ################################ HIGHTLIGHERS DISPLAY #######################################
     // #############################################################################################
-    const highlightersContainer = containerEl.createEl("div", {
+    const highlightersContainer = containerEl.createDiv({
       cls: "highlighter-container",
     });
 
@@ -787,7 +787,7 @@ export class SettingTab extends PluginSettingTab {
           });
 
         // Create a container for the icon inside the button
-        const iconContainer = button.buttonEl.createEl("span");
+        const iconContainer = button.buttonEl.createSpan();
         iconContainer.setAttribute("data-lucide", "arrow-down-a-z");
         createIcons({ icons });
       });
@@ -801,16 +801,16 @@ export class SettingTab extends PluginSettingTab {
         const { query, tag } = queryConfig;
 
         if (!tagContainers[tag]) {
-          const tagContainer = highlightersContainer.createEl("div", {
+          const tagContainer = highlightersContainer.createDiv({
             cls: "tag-container",
           });
-          const tagHeader = tagContainer.createEl("div", {
+          const tagHeader = tagContainer.createDiv({
             cls: "tag-header",
           });
 
           // expand/collapse functionality and UX
           // make the clickable icon
-          const toggleIcon = tagHeader.createEl("div", {
+          const toggleIcon = tagHeader.createDiv({
             cls: "toggle-icon",
           });
           toggleIcon.addClass("tag-icon");
@@ -819,7 +819,7 @@ export class SettingTab extends PluginSettingTab {
           tagName.setText(tag);
 
           // make a container for the highlighters
-          let highlightersList = tagContainer.createEl("div", {
+          let highlightersList = tagContainer.createDiv({
             cls: "highlighters-list",
           });
           // Do this, which I don't quite get, but it works, so...
@@ -951,19 +951,19 @@ export class SettingTab extends PluginSettingTab {
         }
 
         // ################# Here come the highlighters with their buttons #######################################
-        const settingItem = tagContainers[tag].createEl("div");
+        const settingItem = tagContainers[tag].createDiv();
         settingItem.id = "dh-" + highlighter;
         // Most of this isn't even being displayed, but if any part is removed
         // the whole layout of this part crashes and burns
         settingItem.addClass("highlighter-item-draggable");
-        const dragIcon = settingItem.createEl("span");
+        const dragIcon = settingItem.createSpan();
         dragIcon.addClass(
           "highlighter-setting-icon",
           "highlighter-setting-icon-drag",
         );
-        const styleIcon = settingItem.createEl("span");
+        const styleIcon = settingItem.createSpan();
         styleIcon.addClass("highlighter-style-icon");
-        const abc = styleIcon.createEl("span", {
+        const abc = styleIcon.createSpan({
           text: "Abc",
           cls: "highlighter-setting-icon-abc",
         });
