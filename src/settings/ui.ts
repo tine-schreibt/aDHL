@@ -800,7 +800,7 @@ hide() {
     this.plugin.settings.staticHighlighter.queryOrder.forEach((highlighter) => {
       const queryConfig = config.queries[highlighter];
       if (queryConfig) {
-        const { query, regex, tag } = queryConfig;
+        const { query, tag } = queryConfig;
 
         if (!tagContainers[tag]) {
           const tagContainer = highlightersContainer.createEl("div", {
@@ -1501,7 +1501,7 @@ hide() {
       }
     });
 
-    return styleObject as Partial<CSSStyleDeclaration>;
+    return styleObject;
   }
 }
 

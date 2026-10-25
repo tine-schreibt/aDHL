@@ -15,9 +15,6 @@ export default defineConfig([
       tseslint.configs.recommendedTypeChecked,
       ...obsidianmd.configs.recommended,
     ],
-    rules: {
-      //"eslintimport/no-extraneous-dependencies": off,
-      // your overrides here
-    },
+    rules: {},
   },
 ]);

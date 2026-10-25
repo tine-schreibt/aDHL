@@ -13,9 +13,9 @@ import {
 import {
   DEFAULT_SETTINGS,
   AnotherDynamicHighlightsSettings,
-  SearchQueries,
 } from "./src/settings/settings";
 import { SettingTab } from "./src/settings/ui";
+import { SearchQuery } from "./src/settings/settings";
 
 declare module "obsidian" {
   interface Editor {
@@ -310,7 +310,11 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
     true,
   );
 
-  private processNodeForHighlights(node: Node, pattern: RegExp, query: any) {
+  private processNodeForHighlights(
+    node: Node,
+    pattern: RegExp,
+    query: SearchQuery,
+  ) {
     // Skip already highlighted nodes
     if (
       node.nodeType === Node.ELEMENT_NODE &&
@@ -421,59 +425,55 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 
     // Only register if the setting is enabled
     if (this.settings.staticHighlighter.showInReadingMode) {
-      this.registerMarkdownPostProcessor(
-        (element: HTMLElement, context: any) => {
-          // Only process if the main switch is on AND reading mode highlights are enabled
-          if (
-            !this.settings.staticHighlighter.onOffSwitch ||
-            !this.settings.staticHighlighter.showInReadingMode
-          ) {
-            return;
-          }
+      this.registerMarkdownPostProcessor((element: HTMLElement) => {
+        // Only process if the main switch is on AND reading mode highlights are enabled
+        if (
+          !this.settings.staticHighlighter.onOffSwitch ||
+          !this.settings.staticHighlighter.showInReadingMode
+        ) {
+          return;
+        }
 
-          // Get active queries
-          const activeQueries = Object.entries(
-            this.settings.staticHighlighter.queries,
-          ).filter(
-            ([_, query]) => query.highlighterEnabled && query.tagEnabled,
-          );
+        // Get active queries
+        const activeQueries = Object.entries(
+          this.settings.staticHighlighter.queries,
+        ).filter(([_, query]) => query.highlighterEnabled && query.tagEnabled);
 
-          activeQueries.forEach(([highlighterName, query]) => {
-            try {
-              let patternString = query.query;
-              let flags = "gm"; // Default flags
+        activeQueries.forEach(([highlighterName, query]) => {
+          try {
+            let patternString = query.query;
+            let flags = "gm"; // Default flags
 
-              if (query.regex) {
-                // Check if the query string contains flags like /pattern/flags
-                const match = query.query.match(/^\/(.*)\/([gimyus]*)$/);
-                if (match) {
-                  patternString = match[1];
-                  // Combine extracted flags with default, ensuring no duplicates
-                  flags = Array.from(
-                    new Set(flags.split("").concat(match[2].split(""))),
-                  ).join("");
-                }
-                // If no flags in query string, patternString remains query.query and flags remain "gm"
-              } else {
-                patternString = query.query.replace(
-                  /[-\\/\\\\^$*+?.()|[\\]{}]/g,
-                  "\\$&",
-                );
-                // For non-regex, flags remain "gm" (though 'g' is most relevant for replacement, 'm' doesn't hurt)
+            if (query.regex) {
+              // Check if the query string contains flags like /pattern/flags
+              const match = query.query.match(/^\/(.*)\/([gimyus]*)$/);
+              if (match) {
+                patternString = match[1];
+                // Combine extracted flags with default, ensuring no duplicates
+                flags = Array.from(
+                  new Set(flags.split("").concat(match[2].split(""))),
+                ).join("");
               }
-
-              const pattern = new RegExp(patternString, flags);
-
-              this.processNodeForHighlights(element, pattern, query);
-            } catch (error) {
-              console.error(
-                `Error processing highlighter ${highlighterName}:`,
-                error,
+              // If no flags in query string, patternString remains query.query and flags remain "gm"
+            } else {
+              patternString = query.query.replace(
+                /[-\\/\\\\^$*+?.()|[\\]{}]/g,
+                "\\$&",
               );
+              // For non-regex, flags remain "gm" (though 'g' is most relevant for replacement, 'm' doesn't hurt)
             }
-          });
-        },
-      );
+
+            const pattern = new RegExp(patternString, flags);
+
+            this.processNodeForHighlights(element, pattern, query);
+          } catch (error) {
+            console.error(
+              `Error processing highlighter ${highlighterName}:`,
+              error,
+            );
+          }
+        });
+      });
     }
   }
 }

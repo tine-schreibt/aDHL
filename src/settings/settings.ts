@@ -10,7 +10,7 @@ export interface CSSSettings {
   [key: string]: SettingValue;
 }
 
-interface SearchQuery {
+export interface SearchQuery {
   query: string;
   class: string;
   staticColor: string;
@@ -23,6 +23,7 @@ interface SearchQuery {
   tag: string;
   tagEnabled: boolean;
 }
+
 export interface SearchQueries {
   [key: string]: SearchQuery;
 }
