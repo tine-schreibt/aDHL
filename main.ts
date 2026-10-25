@@ -334,13 +334,10 @@ export default class AnotherDynamicHighlightsPlugin extends Plugin {
 
       const matches = Array.from(nodeText.matchAll(pattern));
 
-      // Only log if matches are found
       if (matches.length > 0) {
+        // Output for Debug Mode
         if (this.settings.staticHighlighter.debugMode) {
-          /*This is for debugging
-           */
-          //eslint-disable-next-line obsidianmd/rule-custom-message
-          console.log("Found matches in text:", {
+          console.error("Found matches in text:", {
             text: nodeText,
             pattern: pattern,
             matches: matches.map((m) => ({

@@ -30,10 +30,10 @@ export class SettingTab extends PluginSettingTab {
     this.plugin = plugin;
   }
 
-hide() {
-  this.pickrInstance?.destroyAndRemove();
-  this.pickrInstance = null!;  // clear the stale reference
-}
+  hide() {
+    this.pickrInstance?.destroyAndRemove();
+    this.pickrInstance = null!; // clear the stale reference
+  }
   // Display the settings tab
   display(): void {
     const { containerEl } = this;
@@ -312,9 +312,7 @@ hide() {
     const tagDropdown = new Setting(tagDropdownWrapper);
     tagDropdown.setClass("tag-dropdown").addDropdown((dropdown) => {
       tagDropdownComponent = dropdown;
-      /*Reason: The tag name is lower case*/
-      // eslint-disable-next-line obsidianmd/ui/sentence-case
-      dropdown.addOption("#unsorted", "#unsorted");
+      dropdown.addOption("#Unsorted", "#Unsorted");
       dropdown.selectEl.setAttribute(
         "aria-label",
         "Select a tag for your highlighter",
@@ -966,9 +964,7 @@ hide() {
         const styleIcon = settingItem.createEl("span");
         styleIcon.addClass("highlighter-style-icon");
         const abc = styleIcon.createEl("span", {
-          /*Reason: It's just an icon and it looks prettier in lower case */
-          // eslint-disable-next-line obsidianmd/ui/sentence-case
-          text: "abc",
+          text: "Abc",
           cls: "highlighter-setting-icon-abc",
         });
         Object.assign(
