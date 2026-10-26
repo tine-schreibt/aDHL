@@ -1,7 +1,6 @@
 import { EditorView } from "@codemirror/view";
 import { StyleSpec } from "style-mod";
 import Pickr from "@simonwep/pickr";
-import { createIcons, icons } from "lucide";
 
 import {
   App,
@@ -312,7 +311,7 @@ export class SettingTab extends PluginSettingTab {
     const tagDropdown = new Setting(tagDropdownWrapper);
     tagDropdown.setClass("tag-dropdown").addDropdown((dropdown) => {
       tagDropdownComponent = dropdown;
-      dropdown.addOption("#Unsorted", "#Unsorted");
+      dropdown.addOption("#unsorted", "#unsorted");
       dropdown.selectEl.setAttribute(
         "aria-label",
         "Select a tag for your highlighter",
@@ -780,16 +779,11 @@ export class SettingTab extends PluginSettingTab {
       .setHeading()
       .addButton((button) => {
         button
-          .setClass("sort-button")
           .setTooltip("Sort a to z")
+          .setIcon("arrow-down-narrow-wide")
           .onClick(async () => {
             await sortAlphabetically();
           });
-
-        // Create a container for the icon inside the button
-        const iconContainer = button.buttonEl.createSpan();
-        iconContainer.setAttribute("data-lucide", "arrow-down-a-z");
-        createIcons({ icons });
       });
 
     // ##################### Here come the tags with their buttons ################################################
@@ -964,7 +958,7 @@ export class SettingTab extends PluginSettingTab {
         const styleIcon = settingItem.createSpan();
         styleIcon.addClass("highlighter-style-icon");
         const abc = styleIcon.createSpan({
-          text: "Abc",
+          text: "abc",
           cls: "highlighter-setting-icon-abc",
         });
         Object.assign(

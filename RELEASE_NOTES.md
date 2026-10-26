@@ -1,3 +1,3 @@
-## [1.2.14]
+## [1.2.15]
 
-- Made an override so "vm2": "3.11.5", because there were a ton of vulnerabilities to functionality I don't even use, but I guess safer is safer?
+- Another round of updating vulnerable dependencies. I also fixed some warnings and switched the no longer supported sorting button icon. 
