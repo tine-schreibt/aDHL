@@ -970,13 +970,18 @@ export class SettingTab extends PluginSettingTab {
           "highlighter-setting-icon-drag",
         );
 
+        let querySmall = query;
+        if (query.length > 43) {
+          querySmall = query.slice(0, 40) + "...";
+        }
         const highlighterButtons = new Setting(settingItem)
           .setClass("highlighter-details")
           .setName(highlighter)
+          .setTooltip(`${query}`)
           .setDesc(
             config.queries[highlighter].regex
-              ? `regEx: ` + query
-              : `query: ` + query,
+              ? `regEx: ` + querySmall
+              : `query: ` + querySmall,
           );
 
         // The toggle to enable/disable the highlighter
