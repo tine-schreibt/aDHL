@@ -55,10 +55,10 @@ export class SettingTab extends PluginSettingTab {
     const snippetMaker = (deco: string, color: string) => {
       let cssSnippet;
       if (color == undefined) {
-        color = "default";
+        color = hslaColor;
       }
       const resolveColor = () =>
-        color === "default" ? "var(--text-accent)" : color;
+        color === hslaColor ? "var(--text-accent)" : color;
       if (deco == "none") {
         cssSnippet = "";
       } else if (deco == "background") {
@@ -231,6 +231,7 @@ export class SettingTab extends PluginSettingTab {
     const colorButtonWrapper = defineQueryUITop.controlEl.createDiv(
       "color-button-wrapper",
     );
+
     let staticPickrInstance: Pickr;
     const colorPicker = new ButtonComponent(colorButtonWrapper);
     colorPicker.setClass("color-button-wrapper").then(() => {
@@ -267,11 +268,24 @@ export class SettingTab extends PluginSettingTab {
 
       // Picker functionality
       staticPickrInstance
+        // This is a workaround for the default color not being set correctly
+        // it was written by someone else's Claude bot
+        .on("init", (instance: Pickr) => {
+          const defaultColor = hslaColor;
+          if (defaultColor === undefined) {
+            return;
+          }
+          if (defaultColor === null) {
+            instance.setColor(null, true);
+          } else {
+            instance.setColor(defaultColor, true);
+          }
+        })
         .on("clear", (instance: Pickr) => {
           instance.hide();
           queryInput.inputEl.setAttribute(
             "style",
-            snippetMaker(staticDecorationValue, "default"),
+            snippetMaker(staticDecorationValue, hslaColor),
           );
         })
         .on("cancel", (instance: Pickr) => {
@@ -406,6 +420,9 @@ export class SettingTab extends PluginSettingTab {
               .getSelectedColor()
               ?.toHEXA()
               .toString();
+            if (color === "#000000") {
+              color = hslaColor;
+            }
             queryInput.inputEl.setAttribute(
               "style",
               snippetMaker(staticDecorationValue, color),
@@ -534,10 +551,15 @@ export class SettingTab extends PluginSettingTab {
           }
           return enabledMarks;
         };
-        const staticHexValue = staticPickrInstance
+
+        let staticHexValue = staticPickrInstance
           .getSelectedColor()
           ?.toHEXA()
           .toString();
+        if (staticHexValue === "#000000") {
+          staticHexValue = hslaColor;
+        }
+
         const queryValue = queryInput.inputEl.value;
         const queryTypeValue = regexToggle.getValue();
         const tagNameValue = tagDropdownComponent.getValue();
@@ -563,14 +585,15 @@ export class SettingTab extends PluginSettingTab {
           // because it's implemented as StyleSpec in static.css
           let staticCssSnippet: StyleSpec = {};
           const resolveColor02 = () =>
-            staticHexValue === "default"
+            staticHexValue === hslaColor
               ? "var(--text-accent)"
               : staticHexValue;
+
           if (staticDecorationValue === "none") {
             staticCssSnippet = {};
           } else if (staticDecorationValue === "background") {
             staticCssSnippet = {
-              backgroundColor: resolveColor02(),
+              backgroundColor: staticHexValue,
             };
           } else if (staticDecorationValue === "background rounded") {
             staticCssSnippet = {
@@ -692,7 +715,7 @@ export class SettingTab extends PluginSettingTab {
           // Gather all the stuff we need to make our highlighter
 
           config.queries[currentHighlighterName] = {
-            class: currentHighlighterName.replace(" ", "-"), // the name
+            class: currentHighlighterName.replace(/ /g, "-"), // the name
             staticColor: staticHexValue || hslaColor, // the color
             staticDecoration: staticDecorationValue, // the deco
             staticCss: staticCssSnippet, // the deco css snippet
@@ -1259,6 +1282,17 @@ export class SettingTab extends PluginSettingTab {
 
       // Picker functionality
       selectionColorPickerInstance
+        .on("init", (instance: Pickr) => {
+          const defaultColor = hslaColor;
+          if (defaultColor === undefined) {
+            return;
+          }
+          if (defaultColor === null) {
+            instance.setColor(null, true);
+          } else {
+            instance.setColor(defaultColor, true);
+          }
+        })
         .on("clear", (instance: Pickr) => {
           instance.hide();
         })
