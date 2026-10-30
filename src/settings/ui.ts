@@ -57,8 +57,7 @@ export class SettingTab extends PluginSettingTab {
       if (color == undefined) {
         color = hslaColor;
       }
-      const resolveColor = () =>
-        color === hslaColor ? "var(--text-accent)" : color;
+      const resolveColor = () => (color === "#000000" ? hslaColor : color);
       if (deco == "none") {
         cssSnippet = "";
       } else if (deco == "background") {
@@ -584,10 +583,12 @@ export class SettingTab extends PluginSettingTab {
           // Logic for the static css snippet, which can't be a standard css snippet
           // because it's implemented as StyleSpec in static.css
           let staticCssSnippet: StyleSpec = {};
-          const resolveColor02 = () =>
-            staticHexValue === hslaColor
-              ? "var(--text-accent)"
-              : staticHexValue;
+          const resolveColor02 = () => {
+            if (staticHexValue === "#000000") {
+              staticHexValue = hslaColor;
+            }
+            return staticHexValue;
+          };
 
           if (staticDecorationValue === "none") {
             staticCssSnippet = {};
