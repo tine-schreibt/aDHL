@@ -555,9 +555,6 @@ export class SettingTab extends PluginSettingTab {
           .getSelectedColor()
           ?.toHEXA()
           .toString();
-        if (staticHexValue === "#000000") {
-          staticHexValue = hslaColor;
-        }
 
         const queryValue = queryInput.inputEl.value;
         const queryTypeValue = regexToggle.getValue();
